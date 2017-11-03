@@ -1,0 +1,41 @@
+---
+# Copyright 2017 ARICENT HOLDINGS LUXEMBOURG SARL. and Cable Television Laboratories, Inc.
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#    http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+- hosts: all
+  become: true
+#  become_user: root
+  vars_files:
+    - "{{ PROXY_DATA_FILE }}"
+    - "{{ VARIABLE_FILE }}"
+    - "{{BASE_FILE_PATH}}globals.yml"
+  environment:
+    http_proxy: "{{ http_proxy }}"
+    https_proxy: "{{ https_proxy }}"
+    no_proxy: "{{ no_proxy }}"
+  tasks:
+    - name: cleanup-storage node
+      command: pvremove -f -f -y /dev/loop2
+      ignore_errors: True
+    - name: lose setup-coomand
+      command: losetup -d /dev/loop2
+      ignore_errors: True
+    - name: remove partition data
+      command: "parted -s {{ SECOND_STORAGE }} rm 1"
+      ignore_errors: True
+    - name: remove partition data
+      command: "parted -s {{ SECOND_STORAGE }} rm 2"
+      ignore_errors: True
+    - name: unmount Secondary drive
+      command: "umount {{SECOND_STORAGE}}"
+      ignore_errors: True

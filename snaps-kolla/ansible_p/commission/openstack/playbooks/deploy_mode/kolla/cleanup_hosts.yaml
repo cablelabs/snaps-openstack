@@ -1,0 +1,64 @@
+---
+# Copyright 2017 ARICENT HOLDINGS LUXEMBOURG SARL. and Cable Television Laboratories, Inc.
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#    http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+- hosts: all
+  become: true
+#  become_user: root
+  vars_files:
+    - "{{ PROXY_DATA_FILE }}"
+    - "{{ VARIABLE_FILE }}"
+  environment:
+    http_proxy: "{{ http_proxy }}"
+    https_proxy: "{{ https_proxy }}"
+    no_proxy: "{{ no_proxy }}"
+  tasks:
+    - name: Qemu kill
+      command: pkill qemu
+      ignore_errors: True
+    - name: Bring br-ex interface up
+      command: ip addr flush br-ex
+      ignore_errors: True
+    - name: insert/update br-ex & default configuration in /etc/network/interfaces
+      blockinfile:
+        path: /etc/network/interfaces
+        backup: yes
+        block: |
+
+        state: absent
+      ignore_errors: True
+    - name: cleanup-containers script
+      shell: ./cleanup-containers
+      args:
+       chdir: /etc/OpenStack/kolla/tools
+       executable: /bin/bash
+      ignore_errors: True
+    - name: cleanup-hosts script
+      shell: ./cleanup-host
+      args:
+        chdir: /etc/OpenStack/kolla/tools
+        executable: /bin/bash
+      ignore_errors: True
+    - lineinfile:
+       destfile: /etc/default/docker
+       state: absent
+       regexp:  '^DOCKER_OPTS'
+
+    - lineinfile:
+       destfile: /etc/default/docker
+       line: '#DOCKER_OPTS="--dns 8.8.8.8 --dns 8.8.4.4"'
+
+    - name: remove the cloned folder
+      file:
+        state: absent
+        path: /etc/OpenStack
