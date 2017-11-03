@@ -1,0 +1,45 @@
+---
+# Copyright 2017 ARICENT HOLDINGS LUXEMBOURG SARL. and
+# Cable Television Laboratories, Inc.
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#    http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+- hosts: "{{ target }}"
+  become: true
+#  become_user: root
+  vars_files:
+    - "{{ PROXY_DATA_FILE }}"
+    - "{{ VARIABLE_FILE }}"
+    - "{{BASE_FILE_PATH}}globals.yml"
+    - "{{BASE_FILE_PATH}}netvars.yml"
+  environment:
+    http_proxy: "{{ http_proxy }}"
+    https_proxy: "{{ https_proxy }}"
+    no_proxy: "{{ no_proxy }}"
+  tasks:
+
+    - name: Assing IP to the br-ex
+      shell: ip a show "{{ neutron_external_interface }}" | grep inet | grep global | awk '{ print$2}'
+      register: extip
+    - debug:
+        var: extip
+
+    - name: Netwokring bridge adaptation
+      command: ifconfig "{{ neutron_external_interface }}" 0 up
+      ignore_errors: True
+    - name: Set Ip to BR-ex
+      command: ifconfig br-ex {{ item }} up
+      ignore_errors: True
+      with_items: "{{extip.stdout_lines|list}}"
+    - name: Set Br-ex as gateway
+      command: ip route add default via "{{ external_gw }}" dev br-ex
+      ignore_errors: True

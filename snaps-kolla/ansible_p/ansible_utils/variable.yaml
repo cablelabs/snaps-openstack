@@ -1,0 +1,40 @@
+---
+# Copyright 2017 ARICENT HOLDINGS LUXEMBOURG SARL. and
+# Cable Television Laboratories, Inc.
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#    http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+#DOCKER_LIST_SRC: "/home/ubuntu/Aricent_IaaS/packages/source/docker.list"
+#DOCKER_LIST_DEST: "/etc/apt/sources.list.d/docker.list"
+DOCKER_LIST_DEST: "/home/ubuntu/docker-engine_1.12.0-0-xenial_amd64.deb"
+#HTTP_PROXY_SRC: "/home/ubuntu/Aricent_IaaS/packages/source/http-proxy_bak.conf"
+HTTP_PROXY_DEST: "/etc/systemd/system/docker.service.d/http-proxy.conf"
+#KOLLA_CONF_SRC: "/home/ubuntu/Aricent_IaaS/packages/source/kolla.conf"
+KOLLA_CONF_DEST: "/etc/systemd/system/docker.service.d/kolla.conf"
+#INVENTORY_SRC: "/home/ubuntu/Aricent_IaaS/packages/source/inventory"
+INVENTORY_DEST: "/etc/kolla_packages/source/"
+#GLOBAL_FILE_SRC: "/home/ubuntu/Aricent_IaaS/packages/source/globals.yml"
+GLOBAL_FILE_DEST: "/etc/kolla/globals.yml"
+ALL_IN_ONE_FILE: "/etc/kolla_packages/source/inventory/all-in-one"
+MULTINODE_FILE: "/etc/kolla_packages/source/inventory/multinode"
+DEFAULT_DOCKER_FILE: "/etc/default/docker"
+DOCKER_SERVICE_SRC: "/lib/systemd/system/docker.service"
+DOCKER_SERVICE_DEST: "/etc/systemd/system/docker.service"
+#DAEMON_DOCKER_FILE_SRC: "/home/ubuntu/Aricent_IaaS/packages/source/daemon.json"
+DAEMON_DOCKER_FILE_DEST: "/etc/docker/daemon.json"
+LOCAL_SETTING_HORIZON: "/etc/kolla/horizon/local_settings"
+GIT_CLONE_PATH: "/etc/OpenStack/kolla"
+REQUIREMENT_KOLLA: "/etc/OpenStack/kolla/requirements.txt"
+TEST_REQUIREMENT_KOLLA: "/etc/OpenStack/kolla/requirements.txt"
+ALL_DEST: "/usr/local/share/kolla/ansible/group_vars/all.yml"
+START_DEST: "/usr/local/share/kolla/ansible/roles/magnum/tasks/start.yml"
+MAGNUM_FILE_DEST: "/etc/kolla/magnum_script.sh"

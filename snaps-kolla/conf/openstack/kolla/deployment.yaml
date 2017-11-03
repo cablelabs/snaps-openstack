@@ -1,0 +1,97 @@
+# Copyright 2017 ARICENT HOLDINGS LUXEMBOURG SARL. and
+# Cable Television Laboratories, Inc.
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#    http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+openstack:
+  deployement_type: Kolla
+  git_branch: stable/newton
+  hosts:
+    -
+      host:
+        hostname: controller22
+        interfaces:
+          -
+            gateway: "172.16.141.1"
+            ip: "172.16.141.22"
+            name: eno1
+            type: management
+          -
+            ip: ""
+            gateway: "172.16.141.1"
+            name: eno2
+            type: data
+        isolcpus: ""
+        reserved_host_memory_mb: ""
+        node_type:
+          - controller
+          - compute
+          - network
+        password: ChangeMe
+        service_host: ""
+        user: root
+    -
+      host:
+        hostname: compute23
+        interfaces:
+          -
+            gateway: "172.16.141.1"
+            ip: "172.16.141.23"
+            name: eno1
+            type: management
+          -
+            ip: ""
+            name: eno2
+            type: data
+        isolcpus: ""
+        reserved_host_memory_mb: ""
+        node_type:
+          - compute
+          - storage
+        password: ChangeMe
+        service_host: "172.16.141.22"
+        user: root
+
+
+  networks:
+    external:
+      gateway: "172.16.141.1"
+      ip_pool:
+        end: "172.16.141.59"
+        start: "172.16.141.80"
+      subnet: 172.16.141.0/24
+    tenant:
+      subnet:
+      subnet_size:
+    mtu_size: 1500
+  proxies:
+    ftp_proxy: "ftp://gur44646:PasswordNotToday123@165.225.104.34:80"
+    http_proxy: "http://gur44646:PasswordNotToday123@165.225.104.34:80"
+    https_proxy: "https://gur44646:PasswordNotToday123@165.225.104.34:80"
+    no_proxy: "127.0.0.1,localhost,172.16.141.22,172.16.141.21,172.16.141.56"
+  service_password: ChangeMe
+  services:
+    - magnum
+    - tempest
+    - ceilometer
+    - ceph
+    - cinder
+  kolla:
+     base_distro: "ubuntu"
+     install_type: "source"
+     keepalived_virtual_router_id: "56"
+     internal_vip_address: "172.16.141.56"
+     kolla_registry: "172.16.141.22"
+     kolla_registry_port: "4000"
+     second_storage: "/dev/sdb"
+     base_size: "573741824"
+     count: "20"

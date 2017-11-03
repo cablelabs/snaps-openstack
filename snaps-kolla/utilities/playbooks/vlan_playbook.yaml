@@ -1,0 +1,52 @@
+---
+# Copyright 2017 ARICENT HOLDINGS LUXEMBOURG SARL. and
+# Cable Television Laboratories, Inc.
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#    http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+- hosts: "{{ target }}"
+  become: yes
+  become_user: root
+#  vars_files:
+#  vars:
+  tasks:
+    - name : Fetching OVS-container ID
+      shell: docker ps -a | grep vswitchd| awk '{print $1}'
+      register: id
+    - debug:
+        var:  id
+
+    - name : Creating VLAN bridge
+      shell : docker exec {{id.stdout}} bash -c  'ovs-vsctl add-br br-vlan'
+      register: add_bridge
+      ignore_errors: True
+    - debug:
+        var: add_bridge.stdout
+    - name : Adding VLAN interface into bridge
+      shell: docker exec  {{id.stdout}} ovs-vsctl add-port br-vlan "{{ vlan_interface }}";
+      register: vlan_iface
+      ignore_errors: True
+    - debug:
+        var: vlan_iface
+#    - name : Adding type_drivers
+#      shell: find /etc/kolla -exec sed -i -e 's/type_drivers = flat,vlan,vxlan/type_drivers = gre,vlan,vxlan/g' {} \;
+#      ignore_errors: True
+    - name : Adding network_vlan_ranges
+      shell: find /etc/kolla -exec sed -i -e 's/network_vlan_ranges =/network_vlan_ranges = vlan{{ item }}:{{ item }}:{{ item }}\,/g' {} \;
+      ignore_errors: True
+      with_items:
+          "{{ vlan_id }}"
+    - name : Adding bridge_mappings
+      shell: find /etc/kolla -exec sed -i -e 's/bridge_mappings = /bridge_mappings = vlan{{ item }}:br-vlan\,/g' {} \;
+      ignore_errors: True
+      with_items:
+          "{{ vlan_id }}"
