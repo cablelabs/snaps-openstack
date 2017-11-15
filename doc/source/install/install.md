@@ -97,16 +97,16 @@ This section is used for OpenStack environment planning. Parameters defined here
 | <td colspan=4> host | Define these set of parameter for each host machine (a separate host section should be defined for each host machine). |
 || <td colspan=2> hostname | N | Hostname to be used for the machine. SNAPS-Kolla assigns this hostname to the machine. |
 || <td colspan=3> interfaces | Define these set of parameters for each interface of the host machine. |
-||| | ip | N | IP of the primary interface (Management Interface, allocated after OS provisioning). |
-||| | name | N | Name of the primary interface. |
-||| | type | N | Traffic type (`management`). |
-||| | gateway | N | Gateway Ip of the subnet. |
-||| | ip | N | IP of the 2nd interface (External Network). |
-||| | name | N | Name of 2nd interface. |
-||| | type | N | Traffic type (`data`). |
-||| | ip | Y | IP of 3rd interface (Tennant Network). |
-||| | name | Y | Name of the interface. |
-||| | type | Y | Traffic type (`tennant`). |
+|||| ip | N | IP of the primary interface (Management Interface, allocated after OS provisioning). |
+|||| name | N | Name of the primary interface. |
+|||| type | N | Traffic type (`management`). |
+|||| gateway | N | Gateway Ip of the subnet. |
+|||| ip | N | IP of the 2nd interface (External Network). |
+|||| name | N | Name of 2nd interface. |
+|||| type | N | Traffic type (`data`). |
+|||| ip | Y | IP of 3rd interface (Tennant Network). |
+|||| name | Y | Name of the interface. |
+|||| type | Y | Traffic type (`tennant`). |
 || <td colspan=2> node_type | N | List of nodes to be setup on this host machine. User can choose any combination of `controller`, `compute`, `network` and `storage` values. If user wishes to deploy a single node setup, he should use value `all`. |
 || <td colspan=2> service_host | Y | IP of controller machine. Not required if the machine is controller. |
 || <td colspan=2> user | N | User of host machine. |
@@ -263,7 +263,7 @@ Define VLAN ports per host in `var.yaml` file under TenantVLAN task (we can defi
 
 #### Step 2
 
-Run the following command from `~/snaps-kolla/utilities` directory.
+Run the following command from `~/snaps-kolla/utilities` directory:
 
 ```
 python utils.py -f var.yaml -tvlan
