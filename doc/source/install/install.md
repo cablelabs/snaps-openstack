@@ -94,25 +94,25 @@ This section is used for OpenStack environment planning. Parameters defined here
 
 | <td colspan=3> **Parameter** | Optionality | Description |
 | ---------------------------- | ----------- | ----------- |
-| <td colspan=4> host | Define these set of parameter for each host machine (a separate host section should be defined for each host machine). |
-| | <td colspan=2> hostname | N | Hostname to be used for the machine. SNAPS-Kolla assigns this hostname to the machine. |
-| | <td colspan=3> interfaces | Define these set of parameters for each interface of the host machine. |
-| | | | ip | N | IP of the primary interface (Management Interface, allocated after OS provisioning). |
-| | | | name | N | Name of the primary interface. |
-| | | | type | N | Traffic type (`management`). |
-| | | | gateway | N | Gateway Ip of the subnet. |
-| | | | ip | N | IP of the 2nd interface (External Network). |
-| | | | name | N | Name of 2nd interface. |
-| | | | type | N | Traffic type (`data`). |
-| | | | ip | Y | IP of 3rd interface (Tennant Network). |
-| | | | name | Y | Name of the interface. |
-| | | | type | Y | Traffic type (`tennant`). |
-| | <td colspan=2> node_type | N | List of nodes to be setup on this host machine. User can choose any combination of `controller`, `compute`, `network` and `storage` values. If user wishes to deploy a single node setup, he should use value `all`. |
-| | <td colspan=2> service_host | Y | IP of controller machine. Not required if the machine is controller. |
-| | <td colspan=2> user | N | User of host machine. |
-| | <td colspan=2> password | N | Password for host machine user. |
-| | <td colspan=2> isolcpus | Y | CPUs to be pinned for VMs on this host machine. |
-| | <td colspan=2> reserved_host_memory_mb | Y | RAM to be reserved for VMs on this host machine. |
+| . <td colspan=4> host | Define these set of parameter for each host machine (a separate host section should be defined for each host machine). |
+| . | . <td colspan=2> hostname | N | Hostname to be used for the machine. SNAPS-Kolla assigns this hostname to the machine. |
+| . | . <td colspan=3> interfaces | Define these set of parameters for each interface of the host machine. |
+| . | . | . | ip | N | IP of the primary interface (Management Interface, allocated after OS provisioning). |
+| . | . | . | name | N | Name of the primary interface. |
+| . | . | . | type | N | Traffic type (`management`). |
+| . | . | . | gateway | N | Gateway Ip of the subnet. |
+| . | . | . | ip | N | IP of the 2nd interface (External Network). |
+| . | . | . | name | N | Name of 2nd interface. |
+| . | . | . | type | N | Traffic type (`data`). |
+| . | . | . | ip | Y | IP of 3rd interface (Tennant Network). |
+| . | . | . | name | Y | Name of the interface. |
+| . | . | . | type | Y | Traffic type (`tennant`). |
+| . | . <td colspan=2> node_type | N | List of nodes to be setup on this host machine. User can choose any combination of `controller`, `compute`, `network` and `storage` values. If user wishes to deploy a single node setup, he should use value `all`. |
+| . | . <td colspan=2> service_host | Y | IP of controller machine. Not required if the machine is controller. |
+| . | . <td colspan=2> user | N | User of host machine. |
+| . | . <td colspan=2> password | N | Password for host machine user. |
+| . | . <td colspan=2> isolcpus | Y | CPUs to be pinned for VMs on this host machine. |
+| . | . <td colspan=2> reserved_host_memory_mb | Y | RAM to be reserved for VMs on this host machine. |
 
 #### networks
 
@@ -122,11 +122,11 @@ SNAPS-Kolla uses this section to define external and tennant networks for OpenSt
 
 | <td colspan=2> **Parameter** | Optionality | Description |
 | ---------------------------- | ----------- | ----------- |
-| <td colspan=2> gateway | N | Gateway IP for external network. |
-| <td colspan=2> ip_pool | | |
-| | | End | N | Last address for DHCP range. |
-| | | Start | N | First address for DHCP range. |
-| <td colspan=2> Subnet | N | Subnet in CIDR notation. |
+| . <td colspan=2> gateway | N | Gateway IP for external network. |
+| . <td colspan=2> ip_pool | | |
+| . | . | End | N | Last address for DHCP range. |
+| . | . | Start | N | First address for DHCP range. |
+| . <td colspan=2> Subnet | N | Subnet in CIDR notation. |
 
 #### tenant
 
@@ -198,14 +198,14 @@ Parameters defined in this section allows user to specify post deployment tasks 
 
 | <td colspan=3> **Parameter** | Optionality | Description |
 | ---------------------------- | ----------- | ----------- |
-| <td colspan=3> name | N | Should be `TenantVLAN`. |
-| <td colspan=4> host | Define these set of parameter for each host machine (A separate host section should be defined for each host machine). |
-| | <td colspan=3> interfaces | Define these set of parameters for each vlan. |
-| | | | port_name | N | Interface name attached to the vlan. |
-| | | | vlan_id | N | Vlan id configured at the switch. |
-| | <td colspan=2> ip | Y | IP of Management network. |
-| | <td colspan=2> username | N | User of host machine. |
-| | <td colspan=2> password | N | Password for host machine user. |
+| . <td colspan=3> name | N | Should be `TenantVLAN`. |
+| . <td colspan=4> host | Define these set of parameter for each host machine (A separate host section should be defined for each host machine). |
+| . | . <td colspan=3> interfaces | Define these set of parameters for each vlan. |
+| . | . | . | port_name | N | Interface name attached to the vlan. |
+| . | . | . | vlan_id | N | Vlan id configured at the switch. |
+| . | . <td colspan=2> ip | Y | IP of Management network. |
+| . | . <td colspan=2> username | N | User of host machine. |
+| . | . <td colspan=2> password | N | Password for host machine user. |
 
 
 ### 3.3 var.yaml (MTU settings)
@@ -218,14 +218,14 @@ Parameters defined in this section allows user to specify post deployment tasks 
 
 | <td colspan=3> **Parameter** | Optionality | Description |
 | ---------------------------- | ----------- | ----------- |
-| <td colspan=3> name | N | Should be `mtu`. |
-| <td colspan=4> host | Define these set of parameter for each host machine (A separate host section should be defined for each host machine). |
-| | <td colspan=3> interfaces | Define these set of parameters for each interface to be reconfigured for MTU size. |
-| | | | port_name | N | Interface name attached to the vlan. |
-| | | | size | N | MTU size. |
-| | <td colspan=2> ip | Y | IP of Management network. |
-| | <td colspan=2> username | N | User of host machine. |
-| | <td colspan=2> password | N | Password for host machine user. |
+| . <td colspan=3> name | N | Should be `mtu`. |
+| . <td colspan=4> host | Define these set of parameter for each host machine (A separate host section should be defined for each host machine). |
+| . | . <td colspan=3> interfaces | Define these set of parameters for each interface to be reconfigured for MTU size. |
+| . | . | . | port_name | N | Interface name attached to the vlan. |
+| . | . | . | size | N | MTU size. |
+| . | . <td colspan=2> ip | Y | IP of Management network. |
+| . | . <td colspan=2> username | N | User of host machine. |
+| . | . <td colspan=2> password | N | Password for host machine user. |
 
 ## 4 Installation Steps
 
