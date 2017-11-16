@@ -132,7 +132,7 @@ This section is used for OpenStack environment planning. Parameters defined here
     <td/>
     <td>type</td>
     <td>N</td>
-    <td>Traffic type (`management`).</td>
+    <td>Traffic type (<code>management</code>).</td>
   </tr>
   <tr>
     <td/>
@@ -160,7 +160,7 @@ This section is used for OpenStack environment planning. Parameters defined here
     <td/>
     <td>type</td>
     <td>N</td>
-    <td>Traffic type (`data`).</td>
+    <td>Traffic type (<code>data</code>).</td>
   </tr>
   <tr>
     <td/>
@@ -181,13 +181,13 @@ This section is used for OpenStack environment planning. Parameters defined here
     <td/>
     <td>type</td>
     <td>Y</td>
-    <td>Traffic type (`tennant`).</td>
+    <td>Traffic type (<code>tennant</code>).</td>
   </tr>
   <tr>
     <td/>
     <td colspan="2">node_type</td>
     <td>N</td>
-    <td>List of nodes to be setup on this host machine. User can choose any combination of `controller`, `compute`, `network` and `storage` values. If user wishes to deploy a single node setup, he should use value `all`.</td>
+    <td>List of nodes to be setup on this host machine. User can choose any combination of <code>controller</code>, <code>compute</code>, <code>network</code> and <code>storage</code> values. If user wishes to deploy a single node setup, he should use value <code>all</code>.</td>
   </tr>
   <tr>
     <td/>
@@ -339,7 +339,7 @@ Parameters defined in this section allows user to specify post deployment tasks 
   <tr>
     <td colspan="3">name</td>
     <td>N</td>
-    <td>Should be `TenantVLAN`.</td>
+    <td>Should be <code>TenantVLAN</code>.</td>
   </tr>
   <tr>
     <td colspan="4">host</td>
@@ -369,7 +369,7 @@ Parameters defined in this section allows user to specify post deployment tasks 
     <td/>
     <td>type</td>
     <td>N</td>
-    <td>Traffic type (`management`).</td>
+    <td>Traffic type (<code>management</code>).</td>
   </tr>
   <tr>
     <td/>
@@ -408,7 +408,7 @@ Parameters defined in this section allows user to specify post deployment tasks 
   <tr>
     <td colspan="3">name</td>
     <td>N</td>
-    <td>Should be `mtu`.</td>
+    <td>Should be <code>mtu</code>.</td>
   </tr>
   <tr>
     <td colspan="4">host</td>
