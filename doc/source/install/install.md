@@ -2,7 +2,7 @@
 
 ## 1 Introduction
 
-This document serve as a guide specifying the steps and configuration required for OpenStack installation on servers configured by SNAPS-Kolla. It does not provide implementation level details.
+This document serve as a guide specifying the steps and configuration required for OpenStack installation on servers configured by SNAPS-OpenStack. It does not provide implementation level details.
 
 This document is to be used by development team, validation and network test teams.
 
@@ -35,7 +35,7 @@ The acronyms expanded below are fundamental to the information in this document.
 
 ### 2.1 Hardware Requirements
 
-The current release of SNAPS-Kolla is tested on the following platform.
+The current release of SNAPS-OpenStack is tested on the following platform.
 
 **Compute Node**
 
@@ -66,9 +66,9 @@ The current release of SNAPS-Kolla is tested on the following platform.
 
 ## 2.3 Pre-requsites Requirements
 
-- Machine running SNAPS-Kolla should have Ubuntu 16.04 Xenial as host OS and should have internet access.
+- Machine running SNAPS-OpenStack should have Ubuntu 16.04 Xenial as host OS and should have internet access.
 - All host machines should have identical interface names and should have at least 2 interfaces (one for management and one for data).
-- All host machines are connected to configuration node (machine running SNAPS-Kolla) and have Internet access connectivity via data interface.
+- All host machines are connected to configuration node (machine running SNAPS-OpenStack) and have Internet access connectivity via data interface.
 
 > Note: Configuration node should have http/https and ftp proxy if node is behind corporate firewall. Set the http/https proxy for apt.
 
@@ -77,7 +77,7 @@ The current release of SNAPS-Kolla is tested on the following platform.
 
 ### 3.1 deployment.yaml
 
-Configuration file used by SNAPS-Kolla for OpenStack provisioning. Options defined here are used by SNAPS-Kolla to deploy appropriate OpenStack services on host machines and configuring them to be controller, compute or storage nodes.
+Configuration file used by SNAPS-OpenStack for OpenStack provisioning. Options defined here are used by SNAPS-OpenStack to deploy appropriate OpenStack services on host machines and configuring them to be controller, compute or storage nodes.
 
 #### OpenStack:
 
@@ -106,7 +106,7 @@ This section is used for OpenStack environment planning. Parameters defined here
     <td/>
     <td colspan="2">hostname</td>
     <td>N</td>
-    <td>Hostname to be used for the machine. SNAPS-Kolla assigns this hostname to the machine.</td>
+    <td>Hostname to be used for the machine. SNAPS-OpenStack assigns this hostname to the machine.</td>
   </tr>
   <tr>
     <td/>
@@ -223,7 +223,7 @@ This section is used for OpenStack environment planning. Parameters defined here
 
 #### networks
 
-SNAPS-Kolla uses this section to define external and tennant networks for OpenStack VMs. This section is optional, if user does not provide this section, SNAPS-Kolla will create default network. Configuration parameter defined in this section are explained below.
+SNAPS-OpenStack uses this section to define external and tennant networks for OpenStack VMs. This section is optional, if user does not provide this section, SNAPS-OpenStack will create default network. Configuration parameter defined in this section are explained below.
 
 #### external
 
@@ -324,7 +324,7 @@ This section is required only for Kolla based OpenStack deployment.
 
 ### 3.2 var.yaml (VLAN Configuration)
 
-Configuration file used by SNAPS-Kolla for VLAN based tenant network provisioning.
+Configuration file used by SNAPS-OpenStack for VLAN based tenant network provisioning.
 
 #### TASKS
 
@@ -393,7 +393,7 @@ Parameters defined in this section allows user to specify post deployment tasks 
 
 ### 3.3 var.yaml (MTU settings)
 
-Configuration file used by SNAPS-Kolla for MTU size configuration of physical NICs.
+Configuration file used by SNAPS-OpenStack for MTU size configuration of physical NICs.
 
 #### TASKS
 
@@ -463,13 +463,13 @@ Clone/FTP Openstack_Provisioning package on configuration node. All operations o
 
 #### Step 2
 
-Go to directory `~/snaps-kolla/conf/openstack/kolla`
+Go to directory `~/snaps-openstack/conf/openstack/kolla`
 
 Modify file `deployment.yaml` for provisioning of OpenStack nodes on cloud cluster host machines (controller node, compute nodes). Modify this file according to your set up environment only (Refer section 3).
 
 #### Step 3
 
-Go to directory `~/snaps-kolla/`
+Go to directory `~/snaps-openstack/`
 
 Run `iaas_launch.py` as shown below:
 
@@ -483,13 +483,13 @@ This will install Kolla OpenStack service on host machines. Your OpenStack insta
 
 #### Step 1
 
-Go to `~/snaps-kolla/utilities/` directory.
+Go to `~/snaps-openstack/utilities/` directory.
 
 Define VLAN ports per host in `var.yaml` file under TenantVLAN task (we can define multiple vlan ports for multiple hosts).
 
 #### Step 2
 
-Run the following command from `~/snaps-kolla/utilities` directory:
+Run the following command from `~/snaps-openstack/utilities` directory:
 
 ```
 python utils.py -f var.yaml -tvlan
@@ -501,13 +501,13 @@ Please configure the switch for tagged vlan ports.
 
 #### Step 1
 
-Go to `~/snaps-kolla/utilities/` directory.
+Go to `~/snaps-openstack/utilities/` directory.
 
 Define MTU size for NICS per host in `var.yaml` file under mtu task.
 
 #### Step 2
 
-Run the following command from `~/snaps-kolla/utilities` directory:
+Run the following command from `~/snaps-openstack/utilities` directory:
 
 ```
 python utils.py -f var.yaml -mtu
