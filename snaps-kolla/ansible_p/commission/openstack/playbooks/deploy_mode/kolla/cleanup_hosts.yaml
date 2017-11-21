@@ -40,14 +40,16 @@
       ignore_errors: True
     - name: cleanup-containers script
       shell: ./cleanup-containers
+      when: GIT_BRANCH == "stable/pike"      
       args:
-       chdir: /etc/OpenStack/kolla/tools
+       chdir: /etc/OpenStack/kolla-ansible/tools
        executable: /bin/bash
       ignore_errors: True
     - name: cleanup-hosts script
       shell: ./cleanup-host
+      when: GIT_BRANCH == "stable/pike"      
       args:
-        chdir: /etc/OpenStack/kolla/tools
+        chdir: /etc/OpenStack/kolla-ansible/tools
         executable: /bin/bash
       ignore_errors: True
     - lineinfile:
@@ -63,3 +65,12 @@
       file:
         state: absent
         path: /etc/OpenStack
+    - lineinfile:
+       destfile: /etc/modules
+       state: absent
+       regexp:  'configfs'
+
+    - lineinfile:
+       destfile: /usr/local/share/kolla-ansible/ansible/group_vars/all.yml
+       state: absent
+       regexp:  'container_proxy: {}'  
