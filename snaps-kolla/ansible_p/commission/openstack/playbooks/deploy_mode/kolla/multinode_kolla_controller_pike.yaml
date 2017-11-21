@@ -175,11 +175,11 @@
         dest: "{{ HTTP_PROXY_DEST }}"
         regexp: 'Environment="HTTP_PROXY="'
         line: 'Environment="HTTP_PROXY={{ http_proxy }}"'
-
     - name: Copy kolla.conf in the docker.service.d directory
+      when: GIT_BRANCH == "stable/pike"
       copy:
-       src: "{{BASE_FILE_PATH}}kolla.conf"
-       dest: "{{ KOLLA_CONF_DEST }}"
+       src: "{{BASE_FILE_PATH}}kolla_pike.conf"
+       dest: "{{ KOLLA_CONF_DEST_PIKE }}"
 
     - name: Install ansible
       pip:
