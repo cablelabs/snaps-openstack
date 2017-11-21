@@ -81,7 +81,7 @@
     - name: replace data in init-runonce script
       replace:
         dest: '/etc/OpenStack/kolla/tools/init-runonce'
-        regexp: '^(.*)neutron subnet-create --name 1-subnet --disable-dhcp --allocation-pool start=10.0.2.150,end=10.0.2.199 public1 10.0.2.0/24 --gateway 10.0.2.1(.*)$'
+        regexp: '^(.*)neutron subnet-create --name 1-subnet --allocation-pool start=172.19.27.250,end=172.19.27.230 public1 172.19.27.0/24 --gateway 172.19.27.1(.*)$'
         replace: 'neutron subnet-create --name 1-subnet --allocation-pool start={{START_IP}},end={{END_IP}} public1 {{EXT_SUB}} --gateway {{EXT_GW}}'
 
     - lineinfile:

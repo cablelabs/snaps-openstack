@@ -21,7 +21,8 @@ TASKS:
           -
             port_name: enp5s0f0
             vlan_id: 1001
-        ip: "172.16.141.22"
+            size: 1500
+        ip: "172.16.141.25"
         password: ChangeMe
         username: root
       -
@@ -29,7 +30,8 @@ TASKS:
           -
             port_name: enp5s0f0
             vlan_id: 1001
-        ip: "172.16.141.23"
+            size: 1500
+        ip: "172.16.141.26"
         password: ChangeMe
         username: root
   -

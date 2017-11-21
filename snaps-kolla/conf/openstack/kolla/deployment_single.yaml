@@ -52,7 +52,9 @@ openstack:
     tenant:
       subnet:
       subnet_size:
-
+   mtu_size:
+      default: 8000
+      vxlan: 3000
   proxies:
     ftp_proxy: "ftp://gur44646:PasswordNotToday123@165.225.104.34:80"
     http_proxy: "http://gur44646:PasswordNotToday123@165.225.104.34:80"
