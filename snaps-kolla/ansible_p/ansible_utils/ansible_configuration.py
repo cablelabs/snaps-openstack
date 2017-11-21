@@ -273,7 +273,7 @@ def launch_provisioning_kolla(iplist,git_branch,cred_dict,host_name_map,host_nod
           if len(list_storage)==1:
             ansible_playbook_launcher.__launch_ansible_playbook(iplist,playbook_path_ceph_setup,{'target': controller_ip , 'VARIABLE_FILE': VARIABLE_FILE,'BASE_FILE_PATH':BASE_FILE_PATH})
           if git_branch.lower() == 'stable/newton':
-           ret_controller=ansible_playbook_launcher.__launch_ansible_playbook(iplist,playbook_path_launch_controller,{ 'target' : controller_ip , 'DOCKER_OPTS' : DOCKER_OPTS , 'DOCKER_REGISTRY_IP' : DOCKER_REGISTRY_IP , 'kolla_base' : kolla_base , 'kolla_install' : kolla_install, 'PROXY_DATA_FILE': PROXY_DATA_FILE, 'VARIABLE_FILE': VARIABLE_FILE ,'BASE_FILE_PATH':BASE_FILE_PATH,'EXT_SUB':ext_sub,'EXT_GW':ext_gw,'START_IP':ip_pool_start,'END_IP':ip_pool_end,'DEFAULT': default,'VXLAN': vxlan})
+           ret_controller=ansible_playbook_launcher.__launch_ansible_playbook(iplist,playbook_path_launch_controller,{ 'target' : controller_ip , 'DOCKER_OPTS' : DOCKER_OPTS , 'DOCKER_REGISTRY_IP' : DOCKER_REGISTRY_IP , 'kolla_base' : kolla_base , 'kolla_install' : kolla_install, 'PROXY_DATA_FILE': PROXY_DATA_FILE, 'VARIABLE_FILE': VARIABLE_FILE ,'BASE_FILE_PATH':BASE_FILE_PATH,'EXT_SUB':ext_sub,'EXT_GW':ext_gw,'START_IP':ip_pool_start,'END_IP':ip_pool_end,'DEFAULT': default,'VXLAN': vxlan, 'GIT_BRANCH':git_branch})
            if (ret_controller !=0):
             logger.info("FAILED IN CONROLLER")
             exit(1)

@@ -254,7 +254,6 @@ def __create_global(config,git_branch):
          filedata=filedata.replace('#enable_cinder_backend_lvm: "no"','enable_cinder_backend_lvm: "yes"')
          filedata=filedata.replace('#cinder_backend_ceph: "{{ enable_ceph }}"','cinder_backend_ceph: "{{ enable_ceph }}"')
          filedata=filedata.replace('#cinder_volume_group: "cinder-volumes"','cinder_volume_group: "cinder-volumes"')
-         filedata=filedata.replace('enable_cinder: "no"','enable_cinder: "no"')
      if (services == 'magnum'):
        filedata=filedata.replace('enable_magnum: "no"','enable_magnum: "yes"')
        if git_branch.lower() == 'stable/newton':
