@@ -17,7 +17,7 @@
   become: true
 #  become_user: root
   vars_files:
-    - "{{ PROXY_DATA_FILE }}"
+    - "{{ PROXY_DATA_FILE }}" 
     - "{{ VARIABLE_FILE }}"
     - "{{BASE_FILE_PATH}}globals.yml"
   environment:
@@ -30,22 +30,36 @@
         name: parted
         state: latest
 
+    - name: check if physical volumes exist
+      command: pvdisplay
+      register: result
+
+
     - name: makenode command
       command: mknod /dev/loop2 b 7 2
       ignore_errors: True
+      when: result.stdout == "" and enable_cinder == "yes"
+
     - name: create physical disk for cinder
       command: "dd if=/dev/zero of=/var/lib/cinder_data.img bs={{BASE_SIZE}} count={{COUNT}}"
       ignore_errors: True
+      when: result.stdout == "" and enable_cinder == "yes"
 
     - name: losesetup command
       command: losetup /dev/loop2 /var/lib/cinder_data.img
       ignore_errors: True
+      when: result.stdout == "" and enable_cinder == "yes"
+
+
     - name: pvcreate command
       command: pvcreate /dev/loop2
       ignore_errors: True
+      when: result.stdout == "" and enable_cinder == "yes"
+
     - name: vgcreate command
-      command: vgcreate cinder-volumes /dev/loop2
+      command: vgcreate cinder-volumes /dev/loop2 
       ignore_errors: True
+      when: result.stdout == "" and enable_cinder == "yes"
 
     - name: prepare ceph OSD drive
       command: "parted {{ SECOND_STORAGE }} -s -- mklabel gpt mkpart KOLLA_CEPH_OSD_BOOTSTRAP 1 -1"
