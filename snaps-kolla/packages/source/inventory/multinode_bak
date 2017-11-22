@@ -48,6 +48,7 @@ monitoring
 [chrony-server:children]
 control
 
+
 [chrony:children]
 control
 network
