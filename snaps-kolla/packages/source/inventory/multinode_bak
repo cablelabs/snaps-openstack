@@ -24,7 +24,7 @@
 [network]
 
 [compute]
-# ansible_connection=ssh ansible_ssh_user=root ansible_ssh_pass=abc123
+# ansible_connection=ssh ansible_ssh_user=root ansible_ssh_pass=abc123 
 
 [monitoring]
 # When compute nodes and control nodes use different interfaces,
@@ -46,7 +46,7 @@ monitoring
 # You can explicitly specify which hosts run each project by updating the
 # groups in the sections below. Common services are grouped together.
 [chrony-server:children]
-haproxy
+control
 
 [chrony:children]
 control
@@ -63,7 +63,6 @@ monitoring
 
 [etcd:children]
 control
-compute
 
 [influxdb:children]
 monitoring
@@ -87,26 +86,10 @@ control
 [haproxy:children]
 network
 
-[hyperv]
-#hyperv_host
-
-[hyperv:vars]
-#ansible_user=user
-#ansible_password=password
-#ansible_port=5986
-#ansible_connection=winrm
-#ansible_winrm_server_cert_validation=ignore
-
 [mariadb:children]
 control
 
 [rabbitmq:children]
-control
-
-[outward-rabbitmq:children]
-control
-
-[qdrouterd:children]
 control
 
 [mongodb:children]
@@ -128,9 +111,6 @@ network
 network
 compute
 manila-share
-
-[opendaylight:children]
-network
 
 [cinder:children]
 control
@@ -233,12 +213,6 @@ control
 deployment
 
 [zun:children]
-control
-
-[skydive:children]
-monitoring
-
-[redis:children]
 control
 
 # Additional control implemented here. These groups allow you to control which
@@ -570,7 +544,7 @@ designate
 designate
 
 [designate-mdns:children]
-network
+designate
 
 [designate-worker:children]
 designate
@@ -591,19 +565,3 @@ zun
 
 [zun-compute:children]
 compute
-
-# Skydive
-[skydive-analyzer:children]
-skydive
-
-[skydive-agent:children]
-compute
-network
-
-# Tacker
-[tacker-server:children]
-tacker
-
-[tacker-conductor:children]
-tacker
-
