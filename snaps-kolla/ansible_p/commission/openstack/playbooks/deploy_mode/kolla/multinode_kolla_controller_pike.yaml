@@ -378,12 +378,12 @@
       ignore_errors: True
 
     - name: Modifying neutron.conf for MTU size
-      command: find /etc/kolla -type f -exec sed -i 's/core_plugin = ml2/core_plugin = ml2\nglobal_physnet_mtu = {{ MTU_SIZE }}/g' {} \;
+      command: find /etc/kolla -type f -exec sed -i 's/core_plugin = ml2/core_plugin = ml2\nglobal_physnet_mtu = {{ DEFAULT }}/g' {} \;
       when: not global_physnet_mtu.stdout
       ignore_errors: True
 
     - name: Modifying ml2_conf.ini for MTU size
-      command: find /etc/kolla -type f -exec sed -i 's/type_drivers = flat,vlan,vxlan/type_drivers = flat,vlan,vxlan\npath_mtu = {{ MTU_SIZE }}/g' {} \;
+      command: find /etc/kolla -type f -exec sed -i 's/type_drivers = flat,vlan,vxlan/type_drivers = flat,vlan,vxlan\nphysical_network_mtus = physnet1:{{ DEFAULT }}\npath_mtu = {{ VXLAN}}/g' {} \;
       when: not global_physnet_mtu.stdout
       ignore_errors: True
 
