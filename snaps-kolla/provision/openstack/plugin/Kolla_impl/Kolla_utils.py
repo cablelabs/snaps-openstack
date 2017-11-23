@@ -268,6 +268,9 @@ def __create_global(config,git_branch):
         filedata=filedata.replace('#enable_tempest: "no"','enable_tempest: "yes"')
      if (services == 'tacker'):
          filedata = filedata.replace('#enable_tacker: "no"', 'enable_tacker: "yes"')
+         filedata = filedata.replace('#enable_mistral: "no"', 'enable_mistral: "yes"')
+         filedata = filedata.replace('#enable_redis: "no"', 'enable_redis: "yes"')
+         filedata = filedata.replace('#enable_barbican: "no"', 'enable_barbican: "yes"')
  proxy_http=config.get(consts.OPENSTACK).get('proxies').get('http_proxy')
  proxy_https=config.get(consts.OPENSTACK).get('proxies').get('https_proxy')
  filedata=filedata.replace('#docker_registry_password: "correcthorsebatterystaple"','#docker_registry_password: "correcthorsebatterystaple" \ncontainer_proxy: \n  http_proxy: "'+proxy_http+'"\n  https_proxy: "'+proxy_https+'"\n  no_proxy: "localhost,127.0.0.1,{{ kolla_internal_vip_address }},{{ api_interface_address }}"')

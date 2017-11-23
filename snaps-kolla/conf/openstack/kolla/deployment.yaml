@@ -166,6 +166,7 @@ openstack:
     - magnum
     - tempest
     - ceilometer
+    - tacker
   kolla:
      base_distro: "ubuntu"
      install_type: "source"

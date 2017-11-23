@@ -14,20 +14,22 @@
 
 # These initial groups are the only groups required to be modified. The
 # additional groups are for more control of the environment.
-[control]
-172.16.141.22
+[control] 
+10.197.101.22
 # These hostname must be resolvable from your deployment host
 # The above can also be specified as follows:
 #control[01:03]     ansible_user=kolla
 
 # The network nodes are where your l3-agent and loadbalancers will run
 # This can be the same as a host in the control group
-[network]
-172.16.141.22
+[network] 
+10.197.101.22
 
-[compute]
-172.16.141.23
-172.16.141.22
+[compute] 
+10.197.101.24 
+10.197.101.25 
+10.197.101.26 
+10.197.101.23
 # ansible_connection=ssh ansible_ssh_user=root ansible_ssh_pass=abc123
 
 [monitoring]
@@ -35,8 +37,10 @@
 # you can specify "api_interface" and other interfaces like below:
 #compute01 neutron_external_interface=eth0 api_interface=em1 storage_interface=em1 tunnel_interface=em1
 
-[storage]
-172.16.141.23
+[storage] 
+10.197.101.25 
+10.197.101.26 
+10.197.101.22
 
 [deployment]
 localhost       ansible_connection=local
@@ -51,7 +55,7 @@ monitoring
 # You can explicitly specify which hosts run each project by updating the
 # groups in the sections below. Common services are grouped together.
 [chrony-server:children]
-control
+haproxy
 
 [chrony:children]
 control
@@ -68,6 +72,7 @@ monitoring
 
 [etcd:children]
 control
+compute
 
 [influxdb:children]
 monitoring
@@ -91,10 +96,26 @@ control
 [haproxy:children]
 network
 
+[hyperv]
+#hyperv_host
+
+[hyperv:vars]
+#ansible_user=user
+#ansible_password=password
+#ansible_port=5986
+#ansible_connection=winrm
+#ansible_winrm_server_cert_validation=ignore
+
 [mariadb:children]
 control
 
 [rabbitmq:children]
+control
+
+[outward-rabbitmq:children]
+control
+
+[qdrouterd:children]
 control
 
 [mongodb:children]
@@ -116,6 +137,9 @@ network
 network
 compute
 manila-share
+
+[opendaylight:children]
+network
 
 [cinder:children]
 control
@@ -218,6 +242,12 @@ control
 deployment
 
 [zun:children]
+control
+
+[skydive:children]
+monitoring
+
+[redis:children]
 control
 
 # Additional control implemented here. These groups allow you to control which
@@ -549,7 +579,7 @@ designate
 designate
 
 [designate-mdns:children]
-designate
+network
 
 [designate-worker:children]
 designate
@@ -570,3 +600,18 @@ zun
 
 [zun-compute:children]
 compute
+
+# Skydive
+[skydive-analyzer:children]
+skydive
+
+[skydive-agent:children]
+compute
+network
+
+# Tacker
+[tacker-server:children]
+tacker
+
+[tacker-conductor:children]
+tacker
