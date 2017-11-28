@@ -271,7 +271,12 @@ SNAPS-Kolla uses this section to define external and tennant networks for OpenSt
 
 #### mtu_size
 
-Default MTU size to be used on provider networks.
+| Parameter | Optionality | Description |
+| --------- | ----------- | ----------- |
+| default | N | Default MTU size to be used on provider networks.|
+| vxlan | N | MTU size to be used on overlay networks.|
+
+> Note: Default mtu size value should be greater than vxlan mtu size.
 
 #### proxies
 
@@ -363,6 +368,13 @@ Parameters defined in this section allows user to specify post deployment tasks 
     <td>vlan_id</td>
     <td>N</td>
     <td>Vlan id configured at the switch.</td>
+  </tr>
+  <tr>
+    <td/>
+    <td/>
+    <td>size</td>
+    <td>N</td>
+    <td>Vlan MTU size.</td>
   </tr>
   <tr>
     <td/>
