@@ -29,7 +29,7 @@ The acronyms expanded below are fundamental to the information in this document.
 
 ### 1.3 References
 
-[1] OpenStack Installation guide: https://docs.openstack.org/newton/install-guide-ubuntu/
+[1] OpenStack Installation guide: https://docs.openstack.org/kolla-ansible/latest/user/quickstart.html
 
 ## 2 Environment Prerequisites
 
@@ -62,7 +62,7 @@ The current release of SNAPS-Kolla is tested on the following platform.
 | Operating System | Ubuntu 16.04 |
 | Scripting |  Python 2.7 |
 | Framework | Ansible 2.3.0.0 |
-| OpenStack | Newton |
+| OpenStack | Pike |
 
 ## 2.3 Pre-requsites Requirements
 
@@ -86,7 +86,7 @@ Parameters defined in this section allows user to specify deployment type for Op
 | Parameter | Optionality | Description |
 | --------- | ----------- | ----------- |
 | deployement_type | N | OpenStack deployment type, `Devstack` or `Kolla`. |
-| git_branch | N | OpenStack release to clone (In current release only Newton is supported so it will be `stable/newton`). |
+| git_branch | N | OpenStack release to clone (In current release only Pike is supported so it will be `stable/pike`). |
 
 #### hosts:
 
@@ -271,7 +271,12 @@ SNAPS-Kolla uses this section to define external and tennant networks for OpenSt
 
 #### mtu_size
 
-Default MTU size to be used on provider networks.
+| Parameter | Optionality | Description |
+| --------- | ----------- | ----------- |
+| default | N | Default MTU size to be used on provider networks. |
+| vxlan | N | MTU size to be used on overlay networks. |
+
+> Note: Default mtu size value should be greater than vxlan mtu size.
 
 #### proxies
 
@@ -363,6 +368,13 @@ Parameters defined in this section allows user to specify post deployment tasks 
     <td>vlan_id</td>
     <td>N</td>
     <td>Vlan id configured at the switch.</td>
+  </tr>
+  <tr>
+    <td/>
+    <td/>
+    <td>size</td>
+    <td>N</td>
+    <td>Vlan MTU size.</td>
   </tr>
   <tr>
     <td/>
