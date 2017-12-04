@@ -145,6 +145,16 @@
        destfile: '/etc/OpenStack/kolla-ansible/tools/init-runonce'
        line: 'openstack role add --project admin --user admin heat_stack_owner'
        insertbefore: 'cat << EOF'
+    - lineinfile:
+       destfile: '/etc/OpenStack/kolla-ansible/tools/init-runonce'
+       line: 'curl -L -o ./Fedora-Atomic-25-20170512.2.x86_64.qcow2 https://ftp-stud.hs-esslingen.de/pub/Mirrors/alt.fedoraproject.org/atomic/stable/Fedora-Atomic-25-20170512.2/CloudImages/x86_64/images/Fedora-Atomic-25-20170512.2.x86_64.qcow2'
+       insertbefore: 'if ! [ -f "${IMAGE}" ]; then'
+
+    - lineinfile:
+       destfile: '/etc/OpenStack/kolla-ansible/tools/init-runonce'
+       line: "openstack image create --public --property os_distro='fedora-atomic' --disk-format qcow2 --container-format bare --file ./Fedora-Atomic-25-20170512.2.x86_64.qcow2 fedora-atomic.qcow2"
+       insertbefore: 'echo Configuring neutron.'
+
 
     - name: Copying Docker package file in /home/ubuntu
       copy:
