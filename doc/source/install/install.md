@@ -292,7 +292,12 @@ this section are explained below.
 
 #### mtu_size
 
-Default MTU size to be used on provider networks.
+| Parameter | Optionality | Description |
+| --------- | ----------- | ----------- |
+| default | N | Default MTU size to be used on provider networks.|
+| vxlan | N | MTU size to be used on overlay networks.|
+
+> Note: Default mtu size value should be greater than vxlan mtu size.
 
 #### proxies
 
@@ -389,6 +394,13 @@ explained below:
     <td>vlan_id</td>
     <td>N</td>
     <td>Vlan id configured at the switch.</td>
+  </tr>
+  <tr>
+    <td/>
+    <td/>
+    <td>size</td>
+    <td>N</td>
+    <td>Vlan MTU size.</td>
   </tr>
   <tr>
     <td/>

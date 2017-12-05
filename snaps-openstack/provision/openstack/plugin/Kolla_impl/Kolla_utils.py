@@ -69,7 +69,11 @@ def main(config, operation):
   kolla_base=config.get(consts.OPENSTACK ).get(consts.KOLLA).get(consts.BASE_DISTRIBUTION)
   kolla_install=config.get(consts.OPENSTACK ).get(consts.KOLLA).get(consts.INSTALL_TYPE)
   networks=config.get(consts.OPENSTACK).get("networks")
-  mtu_size=networks.get("mtu_size")
+#  mtu_size=networks.get("mtu_size")
+  default=networks.get("mtu_size").get("default")
+  logger.info(default)
+  vxlan=networks.get("mtu_size").get("vxlan")
+  logger.info(vxlan)
   ext_sub=networks.get("external").get("subnet")
   logger.info(ext_sub)
   ext_gw=networks.get("external").get("gateway")
@@ -96,7 +100,7 @@ def main(config, operation):
        hostCpuMap[interfaceData.get('ip')] = hostData.get('isolcpus')
        reserve_memory[interfaceData.get('ip')] = hostData.get('reserved_host_memory_mb')
 
-  ansible_configuration.launch_provisioning_kolla(iplist,credential_dic,hostname_map,host_node_type_map,docker_registry,docker_port,kolla_base,kolla_install,ext_sub,ext_gw,ip_pool_start,ip_pool_end,second_storage, operation, hostCpuMap, reserve_memory,base_size,count,mtu_size)
+  ansible_configuration.launch_provisioning_kolla(iplist,credential_dic,hostname_map,host_node_type_map,docker_registry,docker_port,kolla_base,kolla_install,ext_sub,ext_gw,ip_pool_start,ip_pool_end,second_storage, operation, hostCpuMap, reserve_memory,base_size,count,default,vxlan)
   logger.info("Successfully Done Everything")
  else:
   logger.info("Cannot read configuration")

@@ -87,7 +87,7 @@
     - name: replace data in init-runonce script
       replace:
         dest: '/etc/OpenStack/kolla/tools/init-runonce'
-        regexp: '^(.*)neutron subnet-create --name 1-subnet --disable-dhcp --allocation-pool start=10.0.2.150,end=10.0.2.199 public1 10.0.2.0/24 --gateway 10.0.2.1(.*)$'
+        regexp: '^(.*)neutron subnet-create --name 1-subnet --allocation-pool start=172.19.27.250,end=172.19.27.230 public1 172.19.27.0/24 --gateway 172.19.27.1(.*)$'
         replace: 'neutron subnet-create --name 1-subnet --allocation-pool start={{START_IP}},end={{END_IP}} public1 {{EXT_SUB}} --gateway {{EXT_GW}}'
 
     - lineinfile:
@@ -384,12 +384,12 @@
       ignore_errors: True
 
     - name: Modifying neutron.conf for MTU size
-      command: find /etc/kolla -type f -exec sed -i 's/core_plugin = ml2/core_plugin = ml2\nglobal_physnet_mtu = {{ MTU_SIZE }}/g' {} \;
+      command: find /etc/kolla -type f -exec sed -i 's/core_plugin = ml2/core_plugin = ml2\nglobal_physnet_mtu = {{ DEFAULT }}/g' {} \;
       when: not global_physnet_mtu.stdout
       ignore_errors: True
 
     - name: Modifying ml2_conf.ini for MTU size
-      command: find /etc/kolla -type f -exec sed -i 's/type_drivers = flat,vlan,vxlan/type_drivers = flat,vlan,vxlan\npath_mtu = {{ MTU_SIZE }}/g' {} \;
+      command: find /etc/kolla -type f -exec sed -i 's/type_drivers = flat,vlan,vxlan/type_drivers = flat,vlan,vxlan\nphysical_network_mtus = physnet1:{{ DEFAULT }}\npath_mtu = {{ VXLAN}}/g' {} \;
       when: not global_physnet_mtu.stdout
       ignore_errors: True
 

@@ -50,3 +50,13 @@
       ignore_errors: True
       with_items:
           "{{ vlan_id }}"
+    - name : Fetching physnet mtu configuration
+      shell: grep -inr mtus /etc/kolla | awk 'NR==1{print $3}'
+      register: physnet_var
+      ignore_errors: True
+    - debug:
+        var: physnet_var.stdout
+    - name: Modifying ml2_conf.ini for MTU size of VLAN
+      command: find /etc/kolla -type f -exec sed -i 's/physical_network_mtus = {{ physnet_var.stdout }}/physical_network_mtus = {{ physnet_var.stdout }},vlan{{ vlan_id }}:{{ size }}/g' {} \;
+      when: size is defined
+      ignore_errors: True
