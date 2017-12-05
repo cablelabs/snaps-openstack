@@ -27,8 +27,8 @@
 
     - name: apt-get update
       apt:
-        update_cache: yes
-
+        update_cache: yes 
+    
     - name: Install python-pip
       apt:
         name: python-pip
@@ -37,7 +37,8 @@
       command: pip install --upgrade pip
     - name: Install OpenSSL
       command: pip install pyOpenSSL
-
+      when: GIT_BRANCH == "stable/newton"
+          
     - name: Install dependencies
       apt:
         name: "{{ item }}"
@@ -47,6 +48,11 @@
         - libffi-dev
         - gcc
         - libssl-dev
+        - python-selinux
+        - apt-transport-https
+        - ca-certificates
+        - curl
+        - software-properties-common
         - libltdl7
     - name: Install git
       apt:
@@ -58,43 +64,63 @@
       copy:
          src: "{{BASE_FILE_PATH}}kolla.tar.gz"
          dest: /etc/OpenStack/
+      when: GIT_BRANCH == "stable/newton"
     - name: untar kolla
       command: tar -xvzf /etc/OpenStack/kolla.tar.gz -C /etc/OpenStack/
+      when: GIT_BRANCH == "stable/newton"
+
+    - name: Clone git
+      git:
+        repo: https://git.openstack.org/openstack/kolla
+        version: "{{ GIT_BRANCH }}"
+        dest: "{{ GIT_CLONE_PATH }}"
+      when: GIT_BRANCH == "stable/pike"
 
 
-#    - name: Clone git
-#      git:
-#        repo: https://git.openstack.org/openstack/kolla
-#        version: stable/newton
-#        dest: "{{ GIT_CLONE_PATH }}"
-#
+    - name: switch to newton branch
+      command: git checkout "{{ GIT_BRANCH }}"
+      args:
+       chdir: "{{ GIT_CLONE_PATH }}"
+      when: GIT_BRANCH == "stable/pike"
 
-#    - name: switch to newton branch
-#      command: git checkout stable/newton
-#      args:
-#       chdir: "{{ GIT_CLONE_PATH }}"
+
 
     - name: Copying Docker package file in /home/ubuntu
       copy:
        src: "{{BASE_FILE_PATH}}docker-engine_1.12.0-0-xenial_amd64.deb"
        dest: "{{ DOCKER_LIST_DEST }}"
+      when: GIT_BRANCH == "stable/newton"
+
+    - name: Copying Docker package file in /home/ubuntu
+      copy:
+       src: "{{BASE_FILE_PATH}}docker-engine_17.05.0-ce-0-ubuntu-xenial_amd64.deb"
+       dest: "{{ DOCKER_LIST_DEST_PIKE }}"
+      when: GIT_BRANCH == "stable/pike"
+
 
     - name: install additional packages
       command: apt-get -y install apt-transport-https ca-certificates
-
-    - name: apt-get update again
-      apt:
-        update_cache: yes
+      when: GIT_BRANCH == "stable/newton"
 
 
     - name: dpkgi -i docker-engine=1.12.0-0~xenial
       command: dpkg -i "{{ DOCKER_LIST_DEST }}"
+      when: GIT_BRANCH == "stable/newton"
 
+    - name: dpkgi -i docker-engine=17.05~xenial
+      command: dpkg -i "{{ DOCKER_LIST_DEST_PIKE }}"
+      when: GIT_BRANCH == "stable/pike"
+
+
+    - name: apt-get update again
+      apt:
+        update_cache: yes
+      when: GIT_BRANCH == "stable/pike"
 
     - name: Make directory docker.service.d
-      file:
+      file: 
        dest: /etc/systemd/system/docker.service.d
-       state: directory
+       state: directory 
 
     - name: Copy http-proxy.conf in the docker.service.d directory
       copy:
@@ -111,28 +137,42 @@
 
 
     - name: Copy kolla.conf in the docker.service.d directory
+      when: GIT_BRANCH == "stable/newton"
       copy:
        src: "{{BASE_FILE_PATH}}kolla.conf"
-       dest: "{{ KOLLA_CONF_DEST }}"
+       dest: "{{ KOLLA_CONF_DEST }}" 
 
 
+    - name: Copy kolla.conf in the docker.service.d directory
+      when: GIT_BRANCH == "stable/pike"
+      copy:
+       src: "{{BASE_FILE_PATH}}kolla_pike.conf"
+       dest: "{{ KOLLA_CONF_DEST_PIKE }}"
 
     - name: Install ansible
       pip:
        name: ansible
        version: 2.0.0.2
+      when: GIT_BRANCH == "stable/newton"
 
+    - name: Install ansible
+      pip:
+       name: ansible
+       version: 2.2.2.0
+      when: GIT_BRANCH == "stable/pike"
+   
     - name: Install docker-py
       pip:
        name: docker-py
        version: 1.7.2
+      when: GIT_BRANCH == "stable/newton"
 
     - name:  insert docker_opts in docker
       lineinfile:
         dest: "{{ DEFAULT_DOCKER_FILE }}"
         regexp: '^(.*)#DOCKER_OPTS="--dns 8.8.8.8 --dns 8.8.4.4"(.*)$'
         line: 'DOCKER_OPTS= "{{ DOCKER_OPTS }}"'
-
+     
     - name: copy the file
       command: cp "{{ DOCKER_SERVICE_SRC }}" "{{ DOCKER_SERVICE_DEST }}"
 
@@ -187,7 +227,7 @@
 
 
     - name : genconfig command
-      command: tox -e genconfig
+      command: tox -e genconfig	
       args:
          chdir: "{{ GIT_CLONE_PATH }}"
 

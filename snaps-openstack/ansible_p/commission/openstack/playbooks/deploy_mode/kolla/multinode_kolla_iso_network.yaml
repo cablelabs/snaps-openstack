@@ -26,7 +26,31 @@
     https_proxy: "{{ https_proxy }}"
     no_proxy: "{{ no_proxy }}"
   tasks:
+    - name : Fetching OVS-container ID
+      shell: docker ps -a | grep vswitchd| awk '{print $1}'
+      register: id
+    - debug:
+        var:  id
 
+    - name : Creating EXTERNAL bridge
+      shell : docker exec {{id.stdout}} bash -c  'ovs-vsctl add-br br-ex'
+      ignore_errors: True
+    - name : Creating EXTERNAL bridge
+      shell : docker exec {{id.stdout}} bash -c  'ovs-vsctl add-port br-ex {{neutron_external_interface}}'
+      ignore_errors: True
+
+    - name: append data in ml2_conf
+      lineinfile:
+        dest: /etc/kolla/neutron-openvswitch-agent/ml2_conf.ini
+        line: "bridge_mappings = physnet1:br-ex"
+        insertafter: '^\[ovs\]'
+        state: present
+
+    - name: systemctl daemon-reload
+      command: systemctl daemon-reload
+
+    - name: systemctl restart docker
+      command: systemctl restart docker
     - name: Assing IP to the br-ex
       shell: ip a show "{{ neutron_external_interface }}" | grep inet | grep global | awk '{ print$2}'
       register: extip

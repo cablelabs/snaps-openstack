@@ -35,7 +35,7 @@ document.
 ### 1.3 References
 
 [1] OpenStack Installation guide:
-https://docs.openstack.org/newton/install-guide-ubuntu/
+https://docs.openstack.org/kolla-ansible/latest/user/quickstart.html
 
 ## 2 Environment Prerequisites
 
@@ -68,7 +68,7 @@ The current release of SNAPS-OpenStack is tested on the following platform.
 | Operating System | Ubuntu 16.04 |
 | Scripting |  Python 2.7 |
 | Framework | Ansible 2.3.0.0 |
-| OpenStack | Newton |
+| OpenStack | Pike |
 
 ## 2.3 Pre-requsites Requirements
 
@@ -101,7 +101,7 @@ this section are explained below.
 | Parameter | Optionality | Description |
 | --------- | ----------- | ----------- |
 | deployement_type | N | OpenStack deployment type, `Devstack` or `Kolla`. |
-| git_branch | N | OpenStack release to clone (In current release only Newton is supported so it will be `stable/newton`). |
+| git_branch | N | OpenStack release to clone (In current release only Pike is supported so it will be `stable/pike`). |
 
 #### hosts:
 

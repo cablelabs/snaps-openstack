@@ -52,7 +52,7 @@ def main(config, operation):
   logger.info("***********************GIT BRANCH **********************")
   logger.info(git_branch)
   logger.info("*********************GLOBAL.YML*************************")
-  __create_global(config)
+  __create_global(config, git_branch)
   hostname_map=__get_hostname_map(config)
   host_node_type_map= __create_host_nodetype_map(config)
   logger.info("**************MULTINODE INVENTORY FILE******************")
@@ -100,7 +100,7 @@ def main(config, operation):
        hostCpuMap[interfaceData.get('ip')] = hostData.get('isolcpus')
        reserve_memory[interfaceData.get('ip')] = hostData.get('reserved_host_memory_mb')
 
-  ansible_configuration.launch_provisioning_kolla(iplist,credential_dic,hostname_map,host_node_type_map,docker_registry,docker_port,kolla_base,kolla_install,ext_sub,ext_gw,ip_pool_start,ip_pool_end,second_storage, operation, hostCpuMap, reserve_memory,base_size,count,default,vxlan)
+  ansible_configuration.launch_provisioning_kolla(iplist,git_branch,credential_dic,hostname_map,host_node_type_map,docker_registry,docker_port,kolla_base,kolla_install,ext_sub,ext_gw,ip_pool_start,ip_pool_end,second_storage, operation, hostCpuMap, reserve_memory,base_size,count,default,vxlan)
   logger.info("Successfully Done Everything")
  else:
   logger.info("Cannot read configuration")
@@ -192,7 +192,7 @@ def __create_demon(config):
 
 
 
-def __create_global(config):
+def __create_global(config,git_branch):
  #basefile='/home/ubuntu/E2E/Aricent_IaaS/packages/source/globals_bak.yml'
  basefile=consts.GLOBAL_BASE_FILE
  f = open(basefile,'r')
@@ -245,21 +245,32 @@ def __create_global(config):
          filedata=filedata.replace('enable_cinder: "no"','enable_cinder: "yes"')
          filedata=filedata.replace('#cinder_backend_ceph: "{{ enable_ceph }}"','cinder_backend_ceph: "{{ enable_ceph }}"')
       else:
-         filedata=filedata.replace('#enable_cinder: "no"','enable_cinder: "yes"')
+         filedata=filedata.replace('enable_cinder: "no"','enable_cinder: "yes"')
          filedata=filedata.replace('enable_ceph: "no"','enable_ceph: "no"')
-         filedata=filedata.replace('#enable_cinder_backend_iscsi: "no"','enable_cinder_backend_iscsi: "yes"')
+         if git_branch.lower() == 'stable/newton':
+          filedata=filedata.replace('#enable_cinder_backend_iscsi: "no"','enable_cinder_backend_iscsi: "yes"')
+         elif git_branch.lower() == 'stable/pike':
+          filedata = filedata.replace('#enable_cinder_backend_iscsi: "no"','enable_cinder_backend_iscsi: "no"')
          filedata=filedata.replace('#enable_cinder_backend_lvm: "no"','enable_cinder_backend_lvm: "yes"')
          filedata=filedata.replace('#cinder_backend_ceph: "{{ enable_ceph }}"','cinder_backend_ceph: "{{ enable_ceph }}"')
          filedata=filedata.replace('#cinder_volume_group: "cinder-volumes"','cinder_volume_group: "cinder-volumes"')
-         filedata=filedata.replace('enable_cinder: "no"','enable_cinder: "no"')
      if (services == 'magnum'):
        filedata=filedata.replace('enable_magnum: "no"','enable_magnum: "yes"')
-       filedata=filedata.replace('#enable_barbican: "no"','enable_barbican: "yes"')
+       if git_branch.lower() == 'stable/newton':
+        filedata=filedata.replace('#enable_barbican: "no"','enable_barbican: "yes"')
      if (services== 'ceilometer'):
        filedata=filedata.replace('#enable_ceilometer: "no"','enable_ceilometer: "yes"')
-       filedata=filedata.replace('#enable_mongodb: "no"','enable_mongodb: "yes"')
+       if git_branch.lower() == 'stable/newton':
+        filedata=filedata.replace('#enable_mongodb: "no"','enable_mongodb: "yes"')
+       else:
+        filedata = filedata.replace('#enable_gnocchi: "no"', 'enable_gnocchi: "yes"')
      if (services== 'tempest'):
         filedata=filedata.replace('#enable_tempest: "no"','enable_tempest: "yes"')
+     if (services == 'tacker'):
+         filedata = filedata.replace('#enable_tacker: "no"', 'enable_tacker: "yes"')
+         filedata = filedata.replace('#enable_mistral: "no"', 'enable_mistral: "yes"')
+         filedata = filedata.replace('#enable_redis: "no"', 'enable_redis: "yes"')
+         filedata = filedata.replace('#enable_barbican: "no"', 'enable_barbican: "yes"')
  proxy_http=config.get(consts.OPENSTACK).get('proxies').get('http_proxy')
  proxy_https=config.get(consts.OPENSTACK).get('proxies').get('https_proxy')
  filedata=filedata.replace('#docker_registry_password: "correcthorsebatterystaple"','#docker_registry_password: "correcthorsebatterystaple" \ncontainer_proxy: \n  http_proxy: "'+proxy_http+'"\n  https_proxy: "'+proxy_https+'"\n  no_proxy: "localhost,127.0.0.1,{{ kolla_internal_vip_address }},{{ api_interface_address }}"')
@@ -504,6 +515,7 @@ def clean_up(config, operation):
   docker_registry=config.get(consts.OPENSTACK ).get(consts.KOLLA).get(consts.REGISTRY)
   docker_port=config.get(consts.OPENSTACK ).get(consts.KOLLA).get(consts.KOLLA_REGISTRY_PORT)
   second_storage= config.get(consts.OPENSTACK ).get(consts.KOLLA).get("second_storage")
+  git_branch=config.get(consts.OPENSTACK).get(consts.GIT_BRANCH)
   if list_ip is None:
     logger.info("Not valid configurations")
     exit(1)
@@ -512,7 +524,7 @@ def clean_up(config, operation):
    logger.debug(list_ip)
    service_list=_getservice_list(config)
    logger.info(service_list)
-   ret = ansible_configuration.clean_up_kolla(list_ip,docker_registry,docker_port,service_list, operation, second_storage)
+   ret = ansible_configuration.clean_up_kolla(list_ip,git_branch,docker_registry,docker_port,service_list, operation, second_storage)
    return ret
 
 def _getservice_list(config):
