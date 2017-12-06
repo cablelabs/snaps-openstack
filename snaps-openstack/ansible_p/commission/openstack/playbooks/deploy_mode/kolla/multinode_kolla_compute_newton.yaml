@@ -191,6 +191,24 @@
       register: extip
     - debug:
         var: extip
+        
+    - name: insert/update br-ex & default configuration in /etc/network/interfaces
+      blockinfile:
+        path: /etc/network/interfaces
+        backup: yes
+        block: |
+           auto br-ex
+           iface br-ex inet static
+               address {{ item }}
+               netmask 255.255.255.0
+               gateway "{{ external_gw }}"
+
+           up route add default gw "{{ external_gw }}" dev br-ex
+        state: present
+      with_items: "{{extip.stdout_lines|list}}"
+      ignore_errors: True
+
+
 #    - name: Flush IP from neutron_external_interface
 #      command: ip addr flush  "{{ neutron_external_interface }}"
 #      ignore_errors: True
