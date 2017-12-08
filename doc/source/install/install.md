@@ -37,6 +37,30 @@ document.
 [1] OpenStack Installation guide:
 https://docs.openstack.org/kolla-ansible/latest/user/quickstart.html
 
+### 1.4 OpenStack services support under PIKE release
+Basic OpenStack Services 
+•	Nova
+•	Neutron
+•	Glance
+•	Keystone
+•	Horizon
+•	Heat
+
+Additional services:
+
+•	Tacker
+•	Mistral
+•	Magnum
+•	Barbican
+•	Ceilometer
+• gnocchi
+• redis
+•	Cinder
+
+### 1.5 OpenStack IPv6 support under PIKE release
+ OpenStack pike release supports IPV6 functionality for OpenStack(Current support is availbale only for VM to VM networking)
+
+
 ## 2 Environment Prerequisites
 
 ### 2.1 Hardware Requirements
@@ -327,8 +351,8 @@ services:
   - magnum
   - tempest
   - ceilometer
-  - ceph
   - cinder
+  - tacker 
 ```
 
 #### kolla
