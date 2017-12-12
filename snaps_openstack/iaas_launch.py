@@ -20,7 +20,7 @@ import re
 import sys
 from optparse import OptionParser
 sys.path.append("common/utils" )
-import file_utils
+from snaps_openstack.common.utils import file_utils
 import yaml
 from provision.openstack.deployment import deploy_infra
 
