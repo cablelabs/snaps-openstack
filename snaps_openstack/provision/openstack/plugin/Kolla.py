@@ -13,7 +13,7 @@
 # limitations under the License.
 
 import pluginbase
-from provision.openstack.plugin.Kolla_impl import Kolla_utils
+from snaps_openstack.provision.openstack.plugin.Kolla_impl import Kolla_utils
 class Deploy(pluginbase.PluginBase):
     """Plugin Deploy class. It should be similar across all plugins
     """
