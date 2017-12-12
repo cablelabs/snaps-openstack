@@ -530,7 +530,7 @@ of configuration server expect the user should be explicitly switched (using
 
 #### Step 2
 
-Go to directory `~/snaps-openstack/conf/openstack/kolla`
+Go to directory `~/snaps_openstack/conf/openstack/kolla`
 
 Modify file `deployment.yaml` for provisioning of OpenStack nodes on cloud
 cluster host machines (controller node, compute nodes). Modify this file
@@ -538,7 +538,7 @@ according to your set up environment only (Refer section 3).
 
 #### Step 3
 
-Go to directory `~/snaps-openstack/`
+Go to directory `~/snaps_openstack/`
 
 Run `iaas_launch.py` as shown below:
 
@@ -553,14 +553,14 @@ installation will start and will get completed in ~40 minutes.
 
 #### Step 1
 
-Go to `~/snaps-openstack/utilities/` directory.
+Go to `~/snaps_openstack/utilities/` directory.
 
 Define VLAN ports per host in `var.yaml` file under TenantVLAN task (we can
 define multiple vlan ports for multiple hosts).
 
 #### Step 2
 
-Run the following command from `~/snaps-openstack/utilities` directory:
+Run the following command from `~/snaps_openstack/utilities` directory:
 
 ```
 python utils.py -f var.yaml -tvlan
@@ -572,13 +572,13 @@ Please configure the switch for tagged vlan ports.
 
 #### Step 1
 
-Go to `~/snaps-openstack/utilities/` directory.
+Go to `~/snaps_openstack/utilities/` directory.
 
 Define MTU size for NICS per host in `var.yaml` file under mtu task.
 
 #### Step 2
 
-Run the following command from `~/snaps-openstack/utilities` directory:
+Run the following command from `~/snaps_openstack/utilities` directory:
 
 ```
 python utils.py -f var.yaml -mtu
