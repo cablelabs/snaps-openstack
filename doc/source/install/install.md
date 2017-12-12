@@ -2,7 +2,7 @@
 
 ## 1 Introduction
 
-This document serve as a guide specifying the steps and configuration required
+This document serves as a guide specifying the steps and configuration required
 for OpenStack installation on servers configured by SNAPS-OpenStack. It does
 not provide implementation level details.
 
@@ -58,7 +58,7 @@ Additional services:
 •	Cinder
 
 ### 1.5 OpenStack IPv6 support under PIKE release
- OpenStack pike release supports IPV6 functionality for OpenStack(Current support is availbale only for VM to VM networking)
+ OpenStack Pike release supports IPV6 functionality for OpenStack(Current support is availbale only for VM to VM networking)
 
 
 ## 2 Environment Prerequisites
@@ -118,8 +118,8 @@ storage nodes.
 
 #### OpenStack:
 
-Parameters defined in this section allows user to specify deployment type for
-OpenStack services and OpenStack version. Configuration parameter defined in
+Parameters defined in this section allow user to specify deployment type for
+OpenStack services and OpenStack version. Configuration parameters defined in
 this section are explained below.
 
 | Parameter | Optionality | Description |
@@ -131,7 +131,7 @@ this section are explained below.
 
 This section is used for OpenStack environment planning. Parameters defined
 here configure host machines as OpenStack controller, compute, storage and
-network node. Configuration parameter defined in this section are explained
+network node. Configuration parameters defined in this section are explained
 below.
 
 <table>
@@ -142,7 +142,7 @@ below.
   </tr>
   <tr>
     <td colspan="4">host</td>
-    <td>Define these set of parameter for each host machine (a separate host section should be defined for each host machine).</td>
+    <td>Define this set of parameters for each host machine (a separate host section should be defined for each host machine).</td>
   </tr>
   <tr>
     <td/>
@@ -153,7 +153,7 @@ below.
   <tr>
     <td/>
     <td colspan="3">interfaces</td>
-    <td>Define these set of parameters for each interface of the host machine.</td>
+    <td>Define this set of parameters for each interface of the host machine.</td>
   </tr>
   <tr>
     <td/>
@@ -265,9 +265,9 @@ below.
 
 #### networks
 
-SNAPS-OpenStack uses this section to define external and tennant networks for
+SNAPS-OpenStack uses this section to define external and tenant networks for
 OpenStack VMs. This section is optional, if user does not provide this section,
-SNAPS-OpenStack will create default network. Configuration parameter defined in
+SNAPS-OpenStack will create default network. Configuration parameters defined in
 this section are explained below.
 
 #### external
@@ -326,7 +326,7 @@ this section are explained below.
 #### proxies
 
 This section defines environment proxies to be exported on all host machines.
-Configuration parameter defined in this section are explained below.
+Configuration parameters defined in this section are explained below.
 
 | Parameter | Optionality | Description |
 | --------- | ----------- | ----------- |
@@ -381,8 +381,8 @@ provisioning.
 
 #### TASKS
 
-Parameters defined in this section allows user to specify post deployment tasks
-(VLAN configuration). Configuration parameter defined in this section are
+Parameters defined in this section allow user to specify post deployment tasks
+(VLAN configuration). Configuration parameters defined in this section are
 explained below:
 
 <table>
@@ -398,12 +398,12 @@ explained below:
   </tr>
   <tr>
     <td colspan="4">host</td>
-    <td>Define these set of parameter for each host machine (A separate host section should be defined for each host machine).</td>
+    <td>Define this set of parameters for each host machine (A separate host section should be defined for each host machine).</td>
   </tr>
   <tr>
     <td/>
     <td colspan="3">interfaces</td>
-    <td>Define these set of parameters for each VLAN.</td>
+    <td>Define this set of parameters for each VLAN.</td>
   </tr>
   <tr>
     <td/>
@@ -461,7 +461,7 @@ physical NICs.
 #### TASKS
 
 Parameters defined in this section allows user to specify post deployment tasks
-(MTU settings). Configuration parameter defined in this section are explained
+(MTU settings). Configuration parameters defined in this section are explained
 below.
 
 <table>
@@ -477,12 +477,12 @@ below.
   </tr>
   <tr>
     <td colspan="4">host</td>
-    <td>Define these set of parameter for each host machine (A separate host section should be defined for each host machine).</td>
+    <td>Define this set of parameters for each host machine (A separate host section should be defined for each host machine).</td>
   </tr>
   <tr>
     <td/>
     <td colspan="3">interfaces</td>
-    <td>Define these set of parameters for each interface to be reconfigured for MTU size.</td>
+    <td>Define this set of parameters for each interface to be reconfigured for MTU size.</td>
   </tr>
   <tr>
     <td/>
@@ -612,7 +612,7 @@ Or Clean up previous deployment along with docker repository:
 sudo python iaas_launch.py -f conf/openstack/kolla/deployment.yaml -drc
 ```
 
-Then, re-install OpenStack. If docker repository exist:
+Then, re-install OpenStack. If docker repository exists:
 
 ```
 sudo python iaas_launch.py -f conf/openstack/kolla/deployment.yaml -d
