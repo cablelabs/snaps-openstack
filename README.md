@@ -1,6 +1,6 @@
 # SNAPS-OpenStack
 
-SNAPS-OpenStack is *step two* for the SDN/NFV Application Platform/Stack
+SNAPS-OpenStack is *step two* for the SDN/NFV Application Platform and Stack
 (SNAPS<sup>TM</sup>) we are developing at [CableLabs](http://cablelabs.com/).
 It is an [OpenStack](https://www.openstack.org/) Kolla installer for machines
 that have been initialized with
