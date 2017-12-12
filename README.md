@@ -10,6 +10,9 @@ If you're working with Software Defined Networks (SDN), Network Function
 Virtualization (NFV) or just building your own cloud, then this is where you
 want to be.
 
+> TIP: [SNAPS-OO](https://wiki.opnfv.org/display/SNAP/SNAPS-OO+Home) is where
+you should go next.
+
 ## Getting started
 
 [SNAPS-Boot](https://github.com/cablelabs/snaps-boot) is a prerequisite for
