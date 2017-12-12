@@ -12,7 +12,11 @@ want to be.
 
 ## Getting started
 
-To get started, you'll want to read the [SNAPS-OpenStack install
+[SNAPS-Boot](https://github.com/cablelabs/snaps-boot) is a prerequisite for
+SNAPS-OpenStack, so you'll want to start there.
+
+Once you've completed the [SNAPS-Boot](https://github.com/cablelabs/snaps-boot),
+install, you'll want to read the [SNAPS-OpenStack install
 guide](doc/source/install/install.md). The fun really begins with the
 [installation
 steps](https://github.com/cablelabs/snaps-openstack/blob/master/doc/source/install/install.md#4-installation-step).
