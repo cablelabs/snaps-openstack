@@ -364,7 +364,7 @@
 #      ignore_errors: True
     - name: insert/update br-ex & default configuration in /etc/network/interfaces
        lineinfile:
-        dest: /etc/network/interfaces_temp
+        dest: /etc/network/interfaces
         backup: yes
         line: "auto br-ex\n
            iface br-ex inet static\n
@@ -375,7 +375,7 @@
        ignore_errors: True
     - name: insert route details for br-ex
       lineinfile:
-        dest: /etc/network/interfaces_temp
+        dest: /etc/network/interfaces
         backup: yes
         line: 'up route add default gw "{{ external_gw }}" dev br-ex\npost-up sleep 5; for i in $(ip -6 r | grep "{{ neutron_external_interface }}" | awk {'print $1'}); do ip -6 r d $i dev "{{ neutron_external_interface }}"; done\npost-up ip addr flush "{{ neutron_external_interface }}"'
       ignore_errors: True
