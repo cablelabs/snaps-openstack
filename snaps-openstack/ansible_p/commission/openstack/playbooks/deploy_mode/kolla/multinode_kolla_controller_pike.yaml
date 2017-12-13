@@ -148,7 +148,7 @@
     - lineinfile:
        destfile: '/etc/OpenStack/kolla-ansible/tools/init-runonce'
        line: 'curl -L -o ./Fedora-Atomic-25-20170512.2.x86_64.qcow2 https://ftp-stud.hs-esslingen.de/pub/Mirrors/alt.fedoraproject.org/atomic/stable/Fedora-Atomic-25-20170512.2/CloudImages/x86_64/images/Fedora-Atomic-25-20170512.2.x86_64.qcow2'
-       insertbefore: 'if ! [ -f "${IMAGE}" ]; then'
+       insertbefore: 'echo Configuring neutron.'
 
     - lineinfile:
        destfile: '/etc/OpenStack/kolla-ansible/tools/init-runonce'
@@ -239,29 +239,30 @@
       lineinfile:
        dest: /etc/modules
        line: 'configfs'
-      when: enable_cinder == "yes" and CHECK_VAR == "present"
+#      when: enable_cinder == "yes" and CHECK_VAR == "present"
+      when: enable_cinder == "yes"
 
     - name: update-initramfs
       command: update-initramfs -u
       ignore_errors: True
-      when: enable_cinder == "yes" and CHECK_VAR == "present"
-
+#      when: enable_cinder == "yes" and CHECK_VAR == "present"
+      when: enable_cinder == "yes"
     - name: systemctl stop open-iscsi
       command: systemctl stop open-iscsi
-      when: enable_cinder == "yes" and CHECK_VAR == "present"
-
+#      when: enable_cinder == "yes" and CHECK_VAR == "present"
+      when: enable_cinder == "yes"
     - name: systemctl disable open-iscsi
       command: systemctl disable open-iscsi
-      when: enable_cinder == "yes" and CHECK_VAR == "present"
-
+#      when: enable_cinder == "yes" and CHECK_VAR == "present"
+      when: enable_cinder == "yes"
     - name: systemctl stop iscsid
       command: systemctl stop iscsid
-      when: enable_cinder == "yes" and CHECK_VAR == "present"
-
+#      when: enable_cinder == "yes" and CHECK_VAR == "present"
+      when: enable_cinder == "yes"
     - name: systemctl disable iscsid
       command: systemctl disable iscsid
-      when: enable_cinder == "yes" and CHECK_VAR == "present"
-
+#      when: enable_cinder == "yes" and CHECK_VAR == "present"
+      when: enable_cinder == "yes"
 
     - name: add line to all.yml
       when: http_proxy!="" and enable_magnum == "yes"
@@ -418,12 +419,3 @@
 #
 #    - name: Restart networking service
 #      command: /etc/init.d/networking restart
-
-
-
-
-
-
-
-
-
