@@ -347,22 +347,39 @@
       command: ip route add default via "{{ external_gw }}" dev br-ex
       ignore_errors: True
 
+#    - name: insert/update br-ex & default configuration in /etc/network/interfaces
+#      blockinfile:
+#        dest: /etc/network/interfaces
+#        backup: yes
+#        block: |
+#           auto br-ex
+#           iface br-ex inet static
+#               address {{ item }}
+#               netmask 255.255.255.0
+#               gateway "{{ external_gw }}"
+#
+#           up route add default gw "{{ external_gw }}" dev br-ex
+#        state: present
+#      with_items: "{{extip.stdout_lines|list}}"
+#      ignore_errors: True
     - name: insert/update br-ex & default configuration in /etc/network/interfaces
-      blockinfile:
-        dest: /etc/network/interfaces
+       lineinfile:
+        dest: /etc/network/interfaces_temp
         backup: yes
-        block: |
-           auto br-ex
-           iface br-ex inet static
-               address {{ item }}
-               netmask 255.255.255.0
-               gateway "{{ external_gw }}"
-
-           up route add default gw "{{ external_gw }}" dev br-ex
+        line: "auto br-ex\n
+           iface br-ex inet static\n
+               address {{ item }}\n
+               netmask 255.255.255.0\n
         state: present
-      with_items: "{{extip.stdout_lines|list}}"
+       with_items:"{{extip.stdout_lines.0}}"
+       ignore_errors: True
+    - name: insert route details for br-ex
+      lineinfile:
+        dest: /etc/network/interfaces_temp
+        backup: yes
+        line: 'up route add default gw "{{ external_gw }}" dev br-ex\npost-up sleep 5; for i in $(ip -6 r | grep "{{ neutron_external_interface }}" | awk {'print $1'}); do ip -6 r d $i dev "{{ neutron_external_interface }}"; done\npost-up ip addr flush "{{ neutron_external_interface }}"'
       ignore_errors: True
-
+ 
 
     - name: Changing perm of "/etc/kolla/admin-openrc.sh", adding "+x"
       file: dest=/etc/kolla/admin-openrc.sh mode=a+x
