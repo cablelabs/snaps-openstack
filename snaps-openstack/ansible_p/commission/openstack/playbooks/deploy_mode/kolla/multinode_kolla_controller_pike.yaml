@@ -148,7 +148,7 @@
     - lineinfile:
        destfile: '/etc/OpenStack/kolla-ansible/tools/init-runonce'
        line: 'curl -L -o ./Fedora-Atomic-25-20170512.2.x86_64.qcow2 https://ftp-stud.hs-esslingen.de/pub/Mirrors/alt.fedoraproject.org/atomic/stable/Fedora-Atomic-25-20170512.2/CloudImages/x86_64/images/Fedora-Atomic-25-20170512.2.x86_64.qcow2'
-       insertbefore: 'if ! [ -f "${IMAGE}" ]; then'
+       insertbefore: 'echo Configuring neutron.'
 
     - lineinfile:
        destfile: '/etc/OpenStack/kolla-ansible/tools/init-runonce'
@@ -239,29 +239,30 @@
       lineinfile:
        dest: /etc/modules
        line: 'configfs'
-      when: enable_cinder == "yes" and CHECK_VAR == "present"
+#      when: enable_cinder == "yes" and CHECK_VAR == "present"
+      when: enable_cinder == "yes"
 
     - name: update-initramfs
       command: update-initramfs -u
       ignore_errors: True
-      when: enable_cinder == "yes" and CHECK_VAR == "present"
-
+#      when: enable_cinder == "yes" and CHECK_VAR == "present"
+      when: enable_cinder == "yes"
     - name: systemctl stop open-iscsi
       command: systemctl stop open-iscsi
-      when: enable_cinder == "yes" and CHECK_VAR == "present"
-
+#      when: enable_cinder == "yes" and CHECK_VAR == "present"
+      when: enable_cinder == "yes"
     - name: systemctl disable open-iscsi
       command: systemctl disable open-iscsi
-      when: enable_cinder == "yes" and CHECK_VAR == "present"
-
+#      when: enable_cinder == "yes" and CHECK_VAR == "present"
+      when: enable_cinder == "yes"
     - name: systemctl stop iscsid
       command: systemctl stop iscsid
-      when: enable_cinder == "yes" and CHECK_VAR == "present"
-
+#      when: enable_cinder == "yes" and CHECK_VAR == "present"
+      when: enable_cinder == "yes"
     - name: systemctl disable iscsid
       command: systemctl disable iscsid
-      when: enable_cinder == "yes" and CHECK_VAR == "present"
-
+#      when: enable_cinder == "yes" and CHECK_VAR == "present"
+      when: enable_cinder == "yes"
 
     - name: add line to all.yml
       when: http_proxy!="" and enable_magnum == "yes"
@@ -346,22 +347,39 @@
       command: ip route add default via "{{ external_gw }}" dev br-ex
       ignore_errors: True
 
+#    - name: insert/update br-ex & default configuration in /etc/network/interfaces
+#      blockinfile:
+#        dest: /etc/network/interfaces
+#        backup: yes
+#        block: |
+#           auto br-ex
+#           iface br-ex inet static
+#               address {{ item }}
+#               netmask 255.255.255.0
+#               gateway "{{ external_gw }}"
+#
+#           up route add default gw "{{ external_gw }}" dev br-ex
+#        state: present
+#      with_items: "{{extip.stdout_lines|list}}"
+#      ignore_errors: True
     - name: insert/update br-ex & default configuration in /etc/network/interfaces
-      blockinfile:
+       lineinfile:
         dest: /etc/network/interfaces
         backup: yes
-        block: |
-           auto br-ex
-           iface br-ex inet static
-               address {{ item }}
-               netmask 255.255.255.0
-               gateway "{{ external_gw }}"
-
-           up route add default gw "{{ external_gw }}" dev br-ex
+        line: "auto br-ex\n
+           iface br-ex inet static\n
+               address {{ item }}\n
+               netmask 255.255.255.0\n
         state: present
-      with_items: "{{extip.stdout_lines|list}}"
+       with_items:"{{extip.stdout_lines.0}}"
+       ignore_errors: True
+    - name: insert route details for br-ex
+      lineinfile:
+        dest: /etc/network/interfaces
+        backup: yes
+        line: 'up route add default gw "{{ external_gw }}" dev br-ex\npost-up sleep 5; for i in $(ip -6 r | grep "{{ neutron_external_interface }}" | awk {'print $1'}); do ip -6 r d $i dev "{{ neutron_external_interface }}"; done\npost-up ip addr flush "{{ neutron_external_interface }}"'
       ignore_errors: True
-
+ 
 
     - name: Changing perm of "/etc/kolla/admin-openrc.sh", adding "+x"
       file: dest=/etc/kolla/admin-openrc.sh mode=a+x
@@ -418,12 +436,3 @@
 #
 #    - name: Restart networking service
 #      command: /etc/init.d/networking restart
-
-
-
-
-
-
-
-
-
