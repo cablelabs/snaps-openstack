@@ -67,3 +67,15 @@
     - name: Set Br-ex as gateway
       command: ip route add default via "{{ external_gw }}" dev br-ex
       ignore_errors: True
+
+    - name: fetching external routes
+      shell: route -A inet6 | grep '{{ neutron_external_interface }}' | awk {'print $1'}
+      register: ext_route
+    - debug:
+        var: ext_route.stdout_lines
+    - name: Deleting external routes
+      shell: ip -6 r d {{ item }} dev '{{ neutron_external_interface }}'
+      with_items:
+         - "{{ ext_route.stdout_lines.0 }}"
+      ignore_errors: True
+
