@@ -30,7 +30,7 @@
 10.197.101.25 
 10.197.101.26 
 10.197.101.23
-# ansible_connection=ssh ansible_ssh_user=root ansible_ssh_pass=abc123
+# ansible_connection=ssh ansible_ssh_user=root ansible_ssh_pass=abc123 
 
 [monitoring]
 # When compute nodes and control nodes use different interfaces,

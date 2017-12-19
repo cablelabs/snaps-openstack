@@ -294,7 +294,7 @@ def launch_provisioning_kolla(iplist,git_branch,cred_dict,host_name_map,host_nod
         for node_ip in list_compute:
            vcpu_pin=hostCpuMap.get(node_ip)
            memory=reserve_memory.get(node_ip)
-           ret= ansible_playbook_launcher.__launch_ansible_playbook(iplist,playbook_path_launch_set_pin,{ 'target': node_ip,'PROXY_DATA_FILE': PROXY_DATA_FILE, 'VARIABLE_FILE': VARIABLE_FILE, 'BASE_FILE_PATH':BASE_FILE_PATH, 'vcpu_pin': vcpu_pin, 'memory': memory, 'DEFAULT': default, 'VXLAN': vxlan})
+           ret= ansible_playbook_launcher.__launch_ansible_playbook(iplist,playbook_path_launch_set_pin,{ 'target': node_ip,'PROXY_DATA_FILE': PROXY_DATA_FILE, 'VARIABLE_FILE': VARIABLE_FILE, 'BASE_FILE_PATH':BASE_FILE_PATH, 'vcpu_pin': vcpu_pin, 'memory': memory, 'DEFAULT': default, 'VXLAN': vxlan, 'GIT_BRANCH':git_branch})
            if(ret !=0):
               logger.error(" FAILED IN COMPUTE")
               exit(1)

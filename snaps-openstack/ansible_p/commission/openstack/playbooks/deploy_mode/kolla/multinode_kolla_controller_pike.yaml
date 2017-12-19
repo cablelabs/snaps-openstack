@@ -411,6 +411,14 @@
       when: not global_physnet_mtu.stdout
       ignore_errors: True
 
+    - name: systemctl daemon-reload
+      command: systemctl daemon-reload
+
+    - name: systemctl restart docker
+      command: systemctl restart docker
+
+
+
 
 #Changes for MTU size
 #    - name: Modifying neutron.conf for MTU size

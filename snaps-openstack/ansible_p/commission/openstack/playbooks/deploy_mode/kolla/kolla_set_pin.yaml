@@ -30,7 +30,7 @@
       stat: path=/etc/kolla/nova-compute/nova.conf
       register: check_file
     - name: nova.conf changes
-      when: (check_file.stat.exists and not(vcpu_pin == ""))
+      when: (check_file.stat.exists and not(vcpu_pin == "")) and GIT_BRANCH == "stable/newton"
       lineinfile:
         dest: "/etc/kolla/{{ item }}/nova.conf"
         line: "scheduler_default_filters = RetryFilter,AvailabilityZoneFilter,RamFilter,DiskFilter,ComputeFilter,ComputeCapabilitiesFilter,ImagePropertiesFilter,ServerGroupAntiAffinityFilter,ServerGroupAffinityFilter,SameHostFilter,DifferentHostFilter,NUMATopologyFilter,AggregateInstanceExtraSpecsFilter \nvcpu_pin_set= {{vcpu_pin}} "
@@ -45,7 +45,7 @@
         - nova-scheduler
         - nova-spicehtml5proxy
     - name: nova.conf changes
-      when: (check_file.stat.exists and not(memory == ""))
+      when: (check_file.stat.exists and not(memory == "")) and GIT_BRANCH == "stable/newton"
       lineinfile:
         dest: "/etc/kolla/{{ item }}/nova.conf"
         line: "reserved_host_memory_mb={{memory}}  "
@@ -59,6 +59,31 @@
         - nova-novncproxy
         - nova-scheduler
         - nova-spicehtml5proxy
+
+
+    - name: nova.conf changes
+      when: (check_file.stat.exists and not(vcpu_pin == ""))and GIT_BRANCH == "stable/pike"
+      lineinfile:
+        dest: "/etc/kolla/{{ item }}/nova.conf"
+        line: "scheduler_default_filters = RetryFilter,AvailabilityZoneFilter,RamFilter,DiskFilter,ComputeFilter,ComputeCapabilitiesFilter,ImagePropertiesFilter,ServerGroupAntiAffinityFilter,ServerGroupAffinityFilter,SameHostFilter,DifferentHostFilter,NUMATopologyFilter,AggregateInstanceExtraSpecsFilter \nvcpu_pin_set= {{vcpu_pin}} "
+        insertafter: '^\[DEFAULT\]'
+        state: present
+      with_items:
+        - nova-compute
+      ignore_errors: True
+
+    - name: nova.conf changes
+      when: (check_file.stat.exists and not(memory == "")) and GIT_BRANCH == "stable/pike"
+      lineinfile:
+        dest: "/etc/kolla/{{ item }}/nova.conf"
+        line: "reserved_host_memory_mb={{memory}}  "
+        insertafter: '^\[DEFAULT\]'
+        state: present
+      with_items:
+        - nova-compute
+      ignore_errors: True
+
+
     - name: check values for MTU parameters
       command: grep -inr global_physnet_mtu /etc/kolla
       register: global_physnet_mtu
