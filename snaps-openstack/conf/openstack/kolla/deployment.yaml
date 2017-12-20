@@ -52,8 +52,8 @@ openstack:
             mac: "38:63:bb:44:84:72"
             name: eno3
             type: data
-        isolcpus: ""
-        reserved_host_memory_mb: ""
+        isolcpus: "0-15"
+        reserved_host_memory_mb: "16384"
         node_type:
           - compute
         password: cable123
@@ -79,8 +79,8 @@ openstack:
             mac: "38:63:bb:44:f4:ce"
             name: eno3
             type: data
-        isolcpus: ""
-        reserved_host_memory_mb: ""
+        isolcpus: "0-15"
+        reserved_host_memory_mb: "16384"
         node_type:
           - compute
         password: cable123
@@ -106,8 +106,8 @@ openstack:
             mac: "c4:34:6b:b8:87:e6"
             name: eno3
             type: data
-        isolcpus: ""
-        reserved_host_memory_mb: ""
+        isolcpus: "0-15"
+        reserved_host_memory_mb: "16384"
         node_type:
           - compute
           - storage
@@ -134,8 +134,8 @@ openstack:
             mac: "ec:b1:d7:8a:39:12"
             name: eno3
             type: data
-        isolcpus: ""
-        reserved_host_memory_mb: ""
+        isolcpus: "0-15"
+        reserved_host_memory_mb: "16384"
         node_type:
           - compute
           - storage
