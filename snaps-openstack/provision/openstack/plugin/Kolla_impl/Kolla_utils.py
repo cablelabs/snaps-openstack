@@ -101,6 +101,11 @@ def main(config, operation):
        reserve_memory[interfaceData.get('ip')] = hostData.get('reserved_host_memory_mb')
 
   ansible_configuration.launch_provisioning_kolla(iplist,git_branch,credential_dic,hostname_map,host_node_type_map,docker_registry,docker_port,kolla_base,kolla_install,ext_sub,ext_gw,ip_pool_start,ip_pool_end,second_storage, operation, hostCpuMap, reserve_memory,base_size,count,default,vxlan)
+  BASE_FILE_PATH=consts.KOLLA_SOURCE_PATH
+  FILES={"globals.yml","daemon.json","netvars.yml","inventory/multinode"}
+  for i in FILES:
+    os.remove(BASE_FILE_PATH+i)
+    logger.info("deleted file "+i)
   logger.info("Successfully Done Everything")
  else:
   logger.info("Cannot read configuration")

@@ -291,6 +291,21 @@
        dest: "{{ GLOBAL_FILE_DEST }}"
 
 
+    - name: Fetch docker repository tag
+      shell: docker images | grep horizon | awk '{print $2}'
+      register: tag
+    - debug:
+        var: tag
+
+
+    - name: adding openstack release tag in globals.yaml
+      lineinfile:
+       dest: /etc/kolla/globals.yml
+       line: 'openstack_release: "{{tag.stdout}}"'
+       insertafter: '#openstack_release: "auto"'
+
+
+
     - name: kolla generate passwords
       command: kolla-genpwd
 
