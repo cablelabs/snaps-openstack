@@ -56,6 +56,7 @@ Additional services:
 • gnocchi
 • redis
 •	Cinder
+•	Ceph
 
 ### 1.5 OpenStack IPv6 support under PIKE release
  OpenStack Pike release supports IPV6 functionality for OpenStack(Current support is availbale only for VM to VM networking)
@@ -352,7 +353,8 @@ services:
   - tempest
   - ceilometer
   - cinder
-  - tacker 
+  - tacker
+  - ceph
 ```
 
 #### kolla
