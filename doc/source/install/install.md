@@ -127,8 +127,8 @@ this section are explained below.
 | --------- | ----------- | ----------- |
 | deployement_type | N | OpenStack deployment type, `Devstack` or `Kolla`. |
 | git_branch | N | OpenStack release to clone (In current release only Pike is supported so it will be `stable/pike`). |
-| kolla_tag | Y | Tag to be checked out for kolla package. |
-| kolla_ansible_tag | Y | Tag to be checked out for kolla-ansible package. |
+| kolla_tag | Y | kolla package release to clone through kolla_tag value. |
+| kolla_ansible_tag | Y | kolla-ansible package release to clone through kolla_ansible_tag value. |
 
 #### hosts:
 
