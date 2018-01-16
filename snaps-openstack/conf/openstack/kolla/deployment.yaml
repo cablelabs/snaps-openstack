@@ -1,6 +1,8 @@
 openstack: 
   deployement_type: Kolla
   git_branch: stable/pike
+  kolla_tag: "5.0.1"
+  kolla_ansible_tag: "5.0.1"
   hosts: 
     -
       host:

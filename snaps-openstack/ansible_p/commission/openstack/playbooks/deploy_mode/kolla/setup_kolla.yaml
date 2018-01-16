@@ -77,13 +77,17 @@
       when: GIT_BRANCH == "stable/pike"
 
 
-    - name: switch to newton branch
+    - name: switch to pike branch
       command: git checkout "{{ GIT_BRANCH }}"
       args:
        chdir: "{{ GIT_CLONE_PATH }}"
-      when: GIT_BRANCH == "stable/pike"
+      when: (GIT_BRANCH == "stable/pike") and ((KOLLA_ANSIBLE_TAG is undefined) or (KOLLA_ANSIBLE_TAG is none) or (KOLLA_ANSIBLE_TAG | trim == ''))
 
-
+    - name: switch to pike via tag
+      command: "git checkout tags/{{ KOLLA_TAG }}"
+      args:
+       chdir: "{{ GIT_CLONE_PATH }}"
+      when: (GIT_BRANCH == "stable/pike") and (not((KOLLA_ANSIBLE_TAG is undefined) or (KOLLA_ANSIBLE_TAG is none) or (KOLLA_ANSIBLE_TAG | trim == '')))
 
     - name: Copying Docker package file in /home/ubuntu
       copy:

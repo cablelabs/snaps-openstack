@@ -51,7 +51,7 @@ def file_replace(fname, pat, s_after):
         os.rename(out_fname, fname)
 
 
-def provision_preparation(list_ip, proxy_dict, git_branch, user_dict, deployment_type,dpdk):
+def provision_preparation(list_ip, proxy_dict, git_branch, kolla_tag, kolla_ansible_tag, user_dict, deployment_type,dpdk):
  """
  This method is responsible for writing the hosts info in ansible hosts file proxy inf in ansible proxy file
  set the git branch version in devstack_preparation_file
@@ -121,7 +121,7 @@ def clean_up_kolla(list_ip,git_branch,docker_registry,docker_port,service_list, 
         logger.info('Image cleanup problems might be there')
 
 
-def launch_provisioning_kolla(iplist,git_branch,cred_dict,host_name_map,host_node_type_map,docker_registry,docker_port,kolla_base,kolla_install,ext_sub,ext_gw,ip_pool_start,ip_pool_end,second_storage, operation, hostCpuMap, reserve_memory,base_size,count,default,vxlan):
+def launch_provisioning_kolla(iplist,git_branch,kolla_tag,kolla_ansible_tag,cred_dict,host_name_map,host_node_type_map,docker_registry,docker_port,kolla_base,kolla_install,ext_sub,ext_gw,ip_pool_start,ip_pool_end,second_storage, operation, hostCpuMap, reserve_memory,base_size,count,default,vxlan):
  ret = False
  playbook_path_sethosts=consts.KOLLA_SET_HOSTS
  playbook_path_sethostname=consts.KOLLA_SET_HOSTSNAME
@@ -203,7 +203,7 @@ def launch_provisioning_kolla(iplist,git_branch,cred_dict,host_name_map,host_nod
       {'target': docker_registry , 'DOCKER_OPTS' : DOCKER_OPTS ,
       'DOCKER_REGISTRY_IP' : DOCKER_REGISTRY_IP, 'kolla_base' : kolla_base ,
       'kolla_install' : kolla_install, 'PROXY_DATA_FILE': PROXY_DATA_FILE,
-      'VARIABLE_FILE': VARIABLE_FILE, 'BASE_FILE_PATH':BASE_FILE_PATH, 'GIT_BRANCH':git_branch})
+      'VARIABLE_FILE': VARIABLE_FILE, 'BASE_FILE_PATH':BASE_FILE_PATH, 'GIT_BRANCH':git_branch, 'KOLLA_TAG':kolla_tag, 'KOLLA_ANSIBLE_TAG':kolla_ansible_tag})
  logger.info(ret)
  print '#####################################################'
  if(ret!=0):
@@ -248,7 +248,7 @@ def launch_provisioning_kolla(iplist,git_branch,cred_dict,host_name_map,host_nod
                 playbook_path_launch_compute,{ 'DOCKER_OPTS' : DOCKER_OPTS ,
                 'DOCKER_REGISTRY_IP' : DOCKER_REGISTRY_IP , 'target': node_ip,
                 'PROXY_DATA_FILE': PROXY_DATA_FILE, 'VARIABLE_FILE': VARIABLE_FILE,
-                'BASE_FILE_PATH':BASE_FILE_PATH,'SECOND_STORAGE': second_storage, 'BASE_SIZE': base_size, 'COUNT': count, 'GIT_BRANCH':git_branch, 'DEFAULT': default,'VXLAN': vxlan})
+                'BASE_FILE_PATH':BASE_FILE_PATH,'SECOND_STORAGE': second_storage, 'BASE_SIZE': base_size, 'COUNT': count, 'GIT_BRANCH':git_branch, 'KOLLA_TAG':kolla_tag, 'KOLLA_ANSIBLE_TAG':kolla_ansible_tag, 'DEFAULT': default,'VXLAN': vxlan})
            if(ret !=0):
               logger.info("FAILED IN COMPUTE")
               exit(1)
@@ -260,7 +260,7 @@ def launch_provisioning_kolla(iplist,git_branch,cred_dict,host_name_map,host_nod
                  playbook_path_launch_compute_pike,{ 'DOCKER_OPTS' : DOCKER_OPTS ,
                  'DOCKER_REGISTRY_IP': DOCKER_REGISTRY_IP, 'target': node_ip,
                  'PROXY_DATA_FILE': PROXY_DATA_FILE, 'VARIABLE_FILE': VARIABLE_FILE,
-                'BASE_FILE_PATH': BASE_FILE_PATH, 'SECOND_STORAGE': second_storage,'BASE_SIZE': base_size, 'COUNT': count, 'GIT_BRANCH':git_branch,'DEFAULT': default,'VXLAN': vxlan})
+                'BASE_FILE_PATH': BASE_FILE_PATH, 'SECOND_STORAGE': second_storage,'BASE_SIZE': base_size, 'COUNT': count, 'GIT_BRANCH':git_branch, 'KOLLA_TAG':kolla_tag, 'KOLLA_ANSIBLE_TAG':kolla_ansible_tag,'DEFAULT': default,'VXLAN': vxlan})
 
             if (ret != 0):
                 print ret
@@ -273,12 +273,12 @@ def launch_provisioning_kolla(iplist,git_branch,cred_dict,host_name_map,host_nod
           if len(list_storage)==1:
             ansible_playbook_launcher.__launch_ansible_playbook(iplist,playbook_path_ceph_setup,{'target': controller_ip , 'VARIABLE_FILE': VARIABLE_FILE,'BASE_FILE_PATH':BASE_FILE_PATH})
           if git_branch.lower() == 'stable/newton':
-           ret_controller=ansible_playbook_launcher.__launch_ansible_playbook(iplist,playbook_path_launch_controller,{ 'target' : controller_ip , 'DOCKER_OPTS' : DOCKER_OPTS , 'DOCKER_REGISTRY_IP' : DOCKER_REGISTRY_IP , 'kolla_base' : kolla_base , 'kolla_install' : kolla_install, 'PROXY_DATA_FILE': PROXY_DATA_FILE, 'VARIABLE_FILE': VARIABLE_FILE ,'BASE_FILE_PATH':BASE_FILE_PATH,'EXT_SUB':ext_sub,'EXT_GW':ext_gw,'START_IP':ip_pool_start,'END_IP':ip_pool_end,'DEFAULT': default,'VXLAN': vxlan, 'GIT_BRANCH':git_branch})
+           ret_controller=ansible_playbook_launcher.__launch_ansible_playbook(iplist,playbook_path_launch_controller,{ 'target' : controller_ip , 'DOCKER_OPTS' : DOCKER_OPTS , 'DOCKER_REGISTRY_IP' : DOCKER_REGISTRY_IP , 'kolla_base' : kolla_base , 'kolla_install' : kolla_install, 'PROXY_DATA_FILE': PROXY_DATA_FILE, 'VARIABLE_FILE': VARIABLE_FILE ,'BASE_FILE_PATH':BASE_FILE_PATH,'EXT_SUB':ext_sub,'EXT_GW':ext_gw,'START_IP':ip_pool_start,'END_IP':ip_pool_end,'DEFAULT': default,'VXLAN': vxlan, 'GIT_BRANCH':git_branch,'KOLLA_TAG':kolla_tag,'KOLLA_ANSIBLE_TAG':kolla_ansible_tag})
            if (ret_controller !=0):
             logger.info("FAILED IN CONROLLER")
             exit(1)
           else:
-           ret_controller=ansible_playbook_launcher.__launch_ansible_playbook(iplist,playbook_path_launch_controller_pike,{ 'target' : controller_ip , 'DOCKER_OPTS' : DOCKER_OPTS , 'DOCKER_REGISTRY_IP' : DOCKER_REGISTRY_IP , 'kolla_base' : kolla_base , 'kolla_install' : kolla_install, 'PROXY_DATA_FILE': PROXY_DATA_FILE, 'VARIABLE_FILE': VARIABLE_FILE ,'BASE_FILE_PATH':BASE_FILE_PATH,'EXT_SUB':ext_sub,'EXT_GW':ext_gw,'START_IP':ip_pool_start,'END_IP':ip_pool_end,'DEFAULT': default,'VXLAN': vxlan, 'GIT_BRANCH':git_branch, 'CHECK_VAR':check_var})
+           ret_controller=ansible_playbook_launcher.__launch_ansible_playbook(iplist,playbook_path_launch_controller_pike,{ 'target' : controller_ip , 'DOCKER_OPTS' : DOCKER_OPTS , 'DOCKER_REGISTRY_IP' : DOCKER_REGISTRY_IP , 'kolla_base' : kolla_base , 'kolla_install' : kolla_install, 'PROXY_DATA_FILE': PROXY_DATA_FILE, 'VARIABLE_FILE': VARIABLE_FILE ,'BASE_FILE_PATH':BASE_FILE_PATH,'EXT_SUB':ext_sub,'EXT_GW':ext_gw,'START_IP':ip_pool_start,'END_IP':ip_pool_end,'DEFAULT': default,'VXLAN': vxlan, 'GIT_BRANCH':git_branch,'KOLLA_TAG':kolla_tag,'KOLLA_ANSIBLE_TAG':kolla_ansible_tag, 'CHECK_VAR':check_var})
            if (ret_controller !=0):
             logger.info("FAILED IN CONROLLER PIKE")
             print ret_controller
@@ -294,7 +294,7 @@ def launch_provisioning_kolla(iplist,git_branch,cred_dict,host_name_map,host_nod
         for node_ip in list_compute:
            vcpu_pin=hostCpuMap.get(node_ip)
            memory=reserve_memory.get(node_ip)
-           ret= ansible_playbook_launcher.__launch_ansible_playbook(iplist,playbook_path_launch_set_pin,{ 'target': node_ip,'PROXY_DATA_FILE': PROXY_DATA_FILE, 'VARIABLE_FILE': VARIABLE_FILE, 'BASE_FILE_PATH':BASE_FILE_PATH, 'vcpu_pin': vcpu_pin, 'memory': memory, 'DEFAULT': default, 'VXLAN': vxlan, 'GIT_BRANCH':git_branch})
+           ret= ansible_playbook_launcher.__launch_ansible_playbook(iplist,playbook_path_launch_set_pin,{ 'target': node_ip,'PROXY_DATA_FILE': PROXY_DATA_FILE, 'VARIABLE_FILE': VARIABLE_FILE, 'BASE_FILE_PATH':BASE_FILE_PATH, 'vcpu_pin': vcpu_pin, 'memory': memory, 'DEFAULT': default, 'VXLAN': vxlan, 'GIT_BRANCH':git_branch, 'KOLLA_TAG':kolla_tag, 'KOLLA_ANSIBLE_TAG':kolla_ansible_tag})
            if(ret !=0):
               logger.error(" FAILED IN COMPUTE")
               exit(1)
@@ -305,14 +305,14 @@ def launch_provisioning_kolla(iplist,git_branch,cred_dict,host_name_map,host_nod
  else:
         logger.info('ALL IN ONE DEPLOYEMENT')
         if git_branch.lower() == 'stable/newton':
-         ret_all=ansible_playbook_launcher.__launch_ansible_playbook(list_all,playbook_path_launch_single_node,{ 'DOCKER_OPTS' : DOCKER_OPTS , 'DOCKER_REGISTRY_IP' : DOCKER_REGISTRY_IP , 'kolla_base' : kolla_base , 'kolla_install' : kolla_install, 'PROXY_DATA_FILE': PROXY_DATA_FILE, 'VARIABLE_FILE': VARIABLE_FILE,'BASE_FILE_PATH':BASE_FILE_PATH,'EXT_SUB':ext_sub,'EXT_GW':ext_gw,'START_IP':ip_pool_start,'END_IP':ip_pool_end,'SECOND_STORAGE': second_storage, 'BASE_SIZE': base_size, 'COUNT': count,'DEFAULT': default,'VXLAN': vxlan, 'GIT_BRANCH':git_branch})
+         ret_all=ansible_playbook_launcher.__launch_ansible_playbook(list_all,playbook_path_launch_single_node,{ 'DOCKER_OPTS' : DOCKER_OPTS , 'DOCKER_REGISTRY_IP' : DOCKER_REGISTRY_IP , 'kolla_base' : kolla_base , 'kolla_install' : kolla_install, 'PROXY_DATA_FILE': PROXY_DATA_FILE, 'VARIABLE_FILE': VARIABLE_FILE,'BASE_FILE_PATH':BASE_FILE_PATH,'EXT_SUB':ext_sub,'EXT_GW':ext_gw,'START_IP':ip_pool_start,'END_IP':ip_pool_end,'SECOND_STORAGE': second_storage, 'BASE_SIZE': base_size, 'COUNT': count,'DEFAULT': default,'VXLAN': vxlan, 'GIT_BRANCH':git_branch, 'KOLLA_TAG':kolla_tag, 'KOLLA_ANSIBLE_TAG':kolla_ansible_tag})
          if (ret_all!=0):
            logger.info("FAILED IN DEPLOYMENT")
            exit(1)
          else:
            logger.info("SINGLE NODE COMPLETED")
         else:
-          ret_all = ansible_playbook_launcher.__launch_ansible_playbook(list_all,playbook_path_launch_single_node_pike,{ 'DOCKER_OPTS' : DOCKER_OPTS , 'DOCKER_REGISTRY_IP' : DOCKER_REGISTRY_IP , 'kolla_base' : kolla_base , 'kolla_install' : kolla_install, 'PROXY_DATA_FILE': PROXY_DATA_FILE, 'VARIABLE_FILE': VARIABLE_FILE,'BASE_FILE_PATH':BASE_FILE_PATH,'EXT_SUB':ext_sub,'EXT_GW':ext_gw,'START_IP':ip_pool_start,'END_IP':ip_pool_end,'SECOND_STORAGE': second_storage, 'BASE_SIZE': base_size, 'COUNT': count,'DEFAULT': default, 'VXLAN': vxlan, 'GIT_BRANCH':git_branch})
+          ret_all = ansible_playbook_launcher.__launch_ansible_playbook(list_all,playbook_path_launch_single_node_pike,{ 'DOCKER_OPTS' : DOCKER_OPTS , 'DOCKER_REGISTRY_IP' : DOCKER_REGISTRY_IP , 'kolla_base' : kolla_base , 'kolla_install' : kolla_install, 'PROXY_DATA_FILE': PROXY_DATA_FILE, 'VARIABLE_FILE': VARIABLE_FILE,'BASE_FILE_PATH':BASE_FILE_PATH,'EXT_SUB':ext_sub,'EXT_GW':ext_gw,'START_IP':ip_pool_start,'END_IP':ip_pool_end,'SECOND_STORAGE': second_storage, 'BASE_SIZE': base_size, 'COUNT': count,'DEFAULT': default, 'VXLAN': vxlan, 'GIT_BRANCH':git_branch, 'KOLLA_TAG':kolla_tag,'KOLLA_ANSIBLE_TAG':kolla_ansible_tag})
           if (ret_all!=0):
            logger.info("FAILED IN DEPLOYMENT PIKE")
            print ret_all

@@ -19,7 +19,6 @@
   vars_files:
     - "{{ PROXY_DATA_FILE }}"
     - "{{ VARIABLE_FILE }}"
-    - "{{BASE_FILE_PATH}}globals.yml"
   environment:
     http_proxy: "{{ http_proxy }}"
     https_proxy: "{{ https_proxy }}"
