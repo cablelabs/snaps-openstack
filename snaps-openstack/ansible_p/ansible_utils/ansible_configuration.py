@@ -142,8 +142,8 @@ def launch_provisioning_kolla(iplist,git_branch,kolla_tag,kolla_ansible_tag,cred
  PROXY_DATA_FILE=consts.PROXY_DATA_FILE
  VARIABLE_FILE=consts.VARIABLE_FILE
  BASE_FILE_PATH=consts.KOLLA_SOURCE_PATH
- DOCKER_OPTS= "--insecure-registry  "+docker_registry+":"+docker_port
- DOCKER_REGISTRY_IP=docker_registry+":"+docker_port
+ DOCKER_OPTS= "--insecure-registry  "+docker_registry+":"+ str(docker_port)
+ DOCKER_REGISTRY_IP=docker_registry+":"+ str(docker_port)
  list_network=[]
  list_storage=[]
  list_node=[]
