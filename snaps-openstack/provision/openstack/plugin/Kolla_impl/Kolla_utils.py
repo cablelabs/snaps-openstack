@@ -51,6 +51,12 @@ def main(config, operation):
   git_branch=config.get(consts.OPENSTACK).get(consts.GIT_BRANCH)
   logger.info("***********************GIT BRANCH **********************")
   logger.info(git_branch)
+  kolla_tag=config.get(consts.OPENSTACK).get(consts.KOLLA_TAG)
+  logger.info("***********************KOLLA TAG **********************")
+  logger.info(kolla_tag)
+  kolla_ansible_tag=config.get(consts.OPENSTACK).get(consts.KOLLA_ANSIBLE_TAG)
+  logger.info("***********************KOLLA-ANSIBLE TAG **********************")
+  logger.info(kolla_ansible_tag)
   logger.info("*********************GLOBAL.YML*************************")
   __create_global(config, git_branch)
   hostname_map=__get_hostname_map(config)
@@ -63,7 +69,7 @@ def main(config, operation):
   logger.info("PROVISION_PREPARATION METHOD CALLED")
   deployment_type=config.get(consts.OPENSTACK ).get(consts.DEPLOYMENT_TYPE)
 
-  ansible_configuration.provision_preparation(iplist, proxy_dic, git_branch, credential_dic, deployment_type,"False")
+  ansible_configuration.provision_preparation(iplist, proxy_dic, git_branch, kolla_tag, kolla_ansible_tag, credential_dic, deployment_type,"False")
   docker_registry=config.get(consts.OPENSTACK ).get(consts.KOLLA).get(consts.REGISTRY)
   docker_port=config.get(consts.OPENSTACK ).get(consts.KOLLA).get(consts.KOLLA_REGISTRY_PORT)
   kolla_base=config.get(consts.OPENSTACK ).get(consts.KOLLA).get(consts.BASE_DISTRIBUTION)
@@ -100,7 +106,7 @@ def main(config, operation):
        hostCpuMap[interfaceData.get('ip')] = hostData.get('isolcpus')
        reserve_memory[interfaceData.get('ip')] = hostData.get('reserved_host_memory_mb')
 
-  ansible_configuration.launch_provisioning_kolla(iplist,git_branch,credential_dic,hostname_map,host_node_type_map,docker_registry,docker_port,kolla_base,kolla_install,ext_sub,ext_gw,ip_pool_start,ip_pool_end,second_storage, operation, hostCpuMap, reserve_memory,base_size,count,default,vxlan)
+  ansible_configuration.launch_provisioning_kolla(iplist,git_branch,kolla_tag,kolla_ansible_tag,credential_dic,hostname_map,host_node_type_map,docker_registry,docker_port,kolla_base,kolla_install,ext_sub,ext_gw,ip_pool_start,ip_pool_end,second_storage, operation, hostCpuMap, reserve_memory,base_size,count,default,vxlan)
   BASE_FILE_PATH=consts.KOLLA_SOURCE_PATH
   FILES={"globals.yml","daemon.json","netvars.yml","inventory/multinode"}
   for i in FILES:

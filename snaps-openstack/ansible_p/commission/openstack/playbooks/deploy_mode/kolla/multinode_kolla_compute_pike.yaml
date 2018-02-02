@@ -58,10 +58,18 @@
         version: "{{ GIT_BRANCH }}"
         dest: "{{ GIT_CLONE_PATH_PIKE }}"
 
-    - name: switch to newton branch
+    - name: switch to pike branch
       command: git checkout "{{ GIT_BRANCH }}"
       args:
        chdir: "{{ GIT_CLONE_PATH_PIKE }}"
+      when: ((KOLLA_ANSIBLE_TAG is undefined) or (KOLLA_ANSIBLE_TAG is none) or (KOLLA_ANSIBLE_TAG | trim == ''))
+
+    - name: switch to pike via tag
+      command: "git checkout tags/{{ KOLLA_ANSIBLE_TAG }}"
+      args:
+       chdir: "{{ GIT_CLONE_PATH_PIKE }}"
+      when: not((KOLLA_ANSIBLE_TAG is undefined) or (KOLLA_ANSIBLE_TAG is none) or (KOLLA_ANSIBLE_TAG | trim == ''))
+
     - name: install requirements
       pip:
         requirements: "{{ REQUIREMENT_KOLLA_ANSIBLE }}"
