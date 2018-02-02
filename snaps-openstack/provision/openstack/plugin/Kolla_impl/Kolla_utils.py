@@ -192,7 +192,7 @@ def __create_demon(config):
   docker_registry=config.get(consts.OPENSTACK ).get(consts.KOLLA).get(consts.REGISTRY)
   docker_port=config.get(consts.OPENSTACK ).get(consts.KOLLA).get(consts.KOLLA_REGISTRY_PORT)
   f_out = open(consts.DAEMON_FILE,"w")
-  f_out.write("{ "+'"insecure-registries":["'+docker_registry+":"+docker_port+'"] }' )
+  f_out.write("{ "+'"insecure-registries":["'+docker_registry+":"+ str(docker_port) +'"] }' )
   f_out.close()
 
 
@@ -231,7 +231,7 @@ def __create_global(config,git_branch):
  if(config.get(consts.OPENSTACK ).get(consts.KOLLA).get(consts.REGISTRY)is not None):
   docker_registry=config.get(consts.OPENSTACK ).get(consts.KOLLA).get(consts.REGISTRY)
   docker_port=config.get(consts.OPENSTACK ).get(consts.KOLLA).get(consts.KOLLA_REGISTRY_PORT)
-  filedata=filedata.replace('#docker_registry: "172.16.0.10:4000"','docker_registry: "'+docker_registry+':'+docker_port+'"')
+  filedata=filedata.replace('#docker_registry: "172.16.0.10:4000"','docker_registry: "'+docker_registry+':'+ str(docker_port) +'"')
  #filedata=filedata.replace('#enable_cinder: "no"','enable_cinder: "yes"')
 
  if (config.get(consts.OPENSTACK ).get(consts.SERVICES)is not None):

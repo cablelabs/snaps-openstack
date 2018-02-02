@@ -227,7 +227,7 @@
 
 
     - name : genconfig command
-      command: tox -e genconfig	
+      command: tox -e genconfig
       args:
          chdir: "{{ GIT_CLONE_PATH }}"
 
