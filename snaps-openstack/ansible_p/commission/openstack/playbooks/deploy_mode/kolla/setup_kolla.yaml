@@ -89,6 +89,20 @@
        chdir: "{{ GIT_CLONE_PATH }}"
       when: (GIT_BRANCH == "stable/pike") and (not((KOLLA_ANSIBLE_TAG is undefined) or (KOLLA_ANSIBLE_TAG is none) or (KOLLA_ANSIBLE_TAG | trim == '')))
 
+
+    - name: Replace /etc/OpenStack/kolla/kolla/image/build.py
+      copy:
+         src: "{{BASE_FILE_PATH}}build.py"
+         dest: /etc/OpenStack/kolla/kolla/image/
+         backup: yes
+
+    - name: Replace /etc/OpenStack/kolla/kolla/test/test_build.py
+      copy:
+         src: "{{BASE_FILE_PATH}}test_build.py"
+         dest: /etc/OpenStack/kolla/kolla/tests/
+         backup: yes
+
+
     - name: Copying Docker package file in /home/ubuntu
       copy:
        src: "{{BASE_FILE_PATH}}docker-engine_1.12.0-0-xenial_amd64.deb"
