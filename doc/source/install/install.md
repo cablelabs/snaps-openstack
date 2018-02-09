@@ -212,7 +212,7 @@ below.
     <td/>
     <td>ip</td>
     <td>Y</td>
-    <td>IP of 3rd interface (Tennant Network).</td>
+    <td>IP of 3rd interface (Tenant Network).</td>
   </tr>
   <tr>
     <td/>
@@ -324,7 +324,7 @@ this section are explained below.
 | default | N | Default MTU size to be used on provider networks.|
 | vxlan | N | MTU size to be used on overlay networks.|
 
-> Note: Default mtu size value should be greater than vxlan mtu size.
+> Note: Default mtu size value should be at least 50 greater than vxlan mtu size.
 
 #### proxies
 
@@ -553,7 +553,7 @@ sudo python iaas_launch.py -f conf/openstack/kolla/deployment.yaml -drs
 This will install Kolla OpenStack service on host machines. Your OpenStack
 installation will start and will get completed in ~40 minutes.
 
-### 4.2 VLAN Tennant Network Configuration
+### 4.2 VLAN Tenant Network Configuration
 
 #### Step 1
 
