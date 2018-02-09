@@ -59,7 +59,7 @@ class TasksTest(base.TestCase):
 
     @mock.patch('docker.version', '2.7.0')
     @mock.patch.dict(os.environ, clear=True)
-    @mock.patch('docker.APIClient'e
+    @mock.patch('docker.APIClient')
     def test_push_image_before_v3_0_0(self, mock_client):
         self.dc = mock_client
         pusher = build.PushTask(self.conf, self.image)
