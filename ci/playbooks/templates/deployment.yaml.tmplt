@@ -81,6 +81,8 @@ openstack:
             type: data
         isolcpus: ""
         reserved_host_memory_mb: ""
+        isolcpus: {{ isolcpus }}
+        reserved_host_memory_mb: {{ host_memory_mb }}
         node_type:
           - compute
           - storage
