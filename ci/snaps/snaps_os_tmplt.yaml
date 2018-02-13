@@ -50,7 +50,7 @@ openstack:
     - flavor:
         os_creds_name: admin-creds
         name: os-node-flavor-{{ build_id }}
-        ram: 8129
+        ram: 8192
         disk: 100
         vcpus: 4
   images:
@@ -159,7 +159,27 @@ openstack:
             protocol: tcp
             port_range_min: 22
             port_range_max: 22
+  volumes:
+    - volume:
+        os_user:
+          name: os-deploy-user-{{ build_id }}
+          project_name: os-deploy-proj-{{ build_id }}
+        name: os-deploy-vol1-{{ build_id }}
+        size: 50
+    - volume:
+        os_user:
+          name: os-deploy-user-{{ build_id }}
+          project_name: os-deploy-proj-{{ build_id }}
+        name: os-deploy-vol2-{{ build_id }}
+        size: 50
+    - volume:
+        os_user:
+          name: os-deploy-user-{{ build_id }}
+          project_name: os-deploy-proj-{{ build_id }}
+        name: os-deploy-vol3-{{ build_id }}
+        size: 50
   instances:
+    # TODO - Improve NIC config. see https://cloudinit.readthedocs.io/en/latest/topics/network-config-format-v2.html#network-config-v2
     - instance:
         os_user:
           name: os-deploy-user-{{ build_id }}
@@ -230,6 +250,8 @@ openstack:
         imageName: snaps-os-image-{{ build_id }}
         security_group_names: [os-deploy-build-sg-{{ build_id }}]
         cloud_init_timeout: 1000
+        volume_names:
+          - os-deploy-vol1-{{ build_id }}
         userdata: |
           #cloud-config
           chpasswd:
@@ -238,13 +260,17 @@ openstack:
             expire: False
           ssh_pwauth: True
           bootcmd:
-            - [sh, -c, "echo 'auto ens4' > /etc/network/interfaces.d/ens4.cfg"]
-            - [sh, -c, "echo '  iface ens4 inet dhcp' >> /etc/network/interfaces.d/ens4.cfg"]
+            - [sh, -c, "mv /etc/network/interfaces /etc/network/interfaces.orig"]
+            - [sh, -c, "echo 'auto lo' > /etc/network/interfaces"]
+            - [sh, -c, "echo 'iface lo inet loopback' >> /etc/network/interfaces"]
+            - [sh, -c, "echo 'auto ens3' >> /etc/network/interfaces"]
+            - [sh, -c, "echo 'iface ens3 inet dhcp' >> /etc/network/interfaces"]
+            - [sh, -c, "echo 'auto ens4' >> /etc/network/interfaces"]
+            - [sh, -c, "echo 'iface ens4 inet dhcp' >> /etc/network/interfaces"]
+            - [sh, -c, "echo 'auto ens5' >> /etc/network/interfaces"]
+            - [sh, -c, "echo 'iface ens5 inet dhcp' >> /etc/network/interfaces"]
             - [sh, -c, "sudo ifup ens4"]
-            - [sh, -c, "echo 'auto ens5' > /etc/network/interfaces.d/ens5.cfg"]
-            - [sh, -c, "echo '  iface ens5 inet dhcp' >> /etc/network/interfaces.d/ens5.cfg"]
             - [sh, -c, "sudo ifup ens5"]
-            - [sh, -c, "systemctl restart networking"]
           packages:
             - python
           runcmd:
@@ -278,6 +304,8 @@ openstack:
         imageName: snaps-os-image-{{ build_id }}
         security_group_names: [os-deploy-build-sg-{{ build_id }}]
         cloud_init_timeout: 1000
+        volume_names:
+          - os-deploy-vol2-{{ build_id }}
         userdata: |
           #cloud-config
           chpasswd:
@@ -286,13 +314,17 @@ openstack:
             expire: False
           ssh_pwauth: True
           bootcmd:
-            - [sh, -c, "echo 'auto ens4' > /etc/network/interfaces.d/ens4.cfg"]
-            - [sh, -c, "echo '  iface ens4 inet dhcp' >> /etc/network/interfaces.d/ens4.cfg"]
+            - [sh, -c, "mv /etc/network/interfaces /etc/network/interfaces.orig"]
+            - [sh, -c, "echo 'auto lo' > /etc/network/interfaces"]
+            - [sh, -c, "echo 'iface lo inet loopback' >> /etc/network/interfaces"]
+            - [sh, -c, "echo 'auto ens3' >> /etc/network/interfaces"]
+            - [sh, -c, "echo 'iface ens3 inet dhcp' >> /etc/network/interfaces"]
+            - [sh, -c, "echo 'auto ens4' >> /etc/network/interfaces"]
+            - [sh, -c, "echo 'iface ens4 inet dhcp' >> /etc/network/interfaces"]
+            - [sh, -c, "echo 'auto ens5' >> /etc/network/interfaces"]
+            - [sh, -c, "echo 'iface ens5 inet dhcp' >> /etc/network/interfaces"]
             - [sh, -c, "sudo ifup ens4"]
-            - [sh, -c, "echo 'auto ens5' > /etc/network/interfaces.d/ens5.cfg"]
-            - [sh, -c, "echo '  iface ens5 inet dhcp' >> /etc/network/interfaces.d/ens5.cfg"]
             - [sh, -c, "sudo ifup ens5"]
-            - [sh, -c, "systemctl restart networking"]
           packages:
             - python
           runcmd:
@@ -326,6 +358,8 @@ openstack:
         imageName: snaps-os-image-{{ build_id }}
         security_group_names: [os-deploy-build-sg-{{ build_id }}]
         cloud_init_timeout: 1000
+        volume_names:
+          - os-deploy-vol3-{{ build_id }}
         userdata: |
           #cloud-config
           chpasswd:
@@ -334,13 +368,17 @@ openstack:
             expire: False
           ssh_pwauth: True
           bootcmd:
-            - [sh, -c, "echo 'auto ens4' > /etc/network/interfaces.d/ens4.cfg"]
-            - [sh, -c, "echo '  iface ens4 inet dhcp' >> /etc/network/interfaces.d/ens4.cfg"]
+            - [sh, -c, "mv /etc/network/interfaces /etc/network/interfaces.orig"]
+            - [sh, -c, "echo 'auto lo' > /etc/network/interfaces"]
+            - [sh, -c, "echo 'iface lo inet loopback' >> /etc/network/interfaces"]
+            - [sh, -c, "echo 'auto ens3' >> /etc/network/interfaces"]
+            - [sh, -c, "echo 'iface ens3 inet dhcp' >> /etc/network/interfaces"]
+            - [sh, -c, "echo 'auto ens4' >> /etc/network/interfaces"]
+            - [sh, -c, "echo 'iface ens4 inet dhcp' >> /etc/network/interfaces"]
+            - [sh, -c, "echo 'auto ens5' >> /etc/network/interfaces"]
+            - [sh, -c, "echo 'iface ens5 inet dhcp' >> /etc/network/interfaces"]
             - [sh, -c, "sudo ifup ens4"]
-            - [sh, -c, "echo 'auto ens5' > /etc/network/interfaces.d/ens5.cfg"]
-            - [sh, -c, "echo '  iface ens5 inet dhcp' >> /etc/network/interfaces.d/ens5.cfg"]
             - [sh, -c, "sudo ifup ens5"]
-            - [sh, -c, "systemctl restart networking"]
           packages:
             - python
           runcmd:

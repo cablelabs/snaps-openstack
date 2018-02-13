@@ -51,8 +51,8 @@ openstack:
             mac: {{ public_mac_2 }}
             name: {{ pub_iface }}
             type: data
-        isolcpus: {{ isolcpus }}
-        reserved_host_memory_mb: {{ host_memory_mb }}
+        isolcpus: ""
+        reserved_host_memory_mb: ""
         node_type:
           - compute
           - storage
@@ -79,8 +79,8 @@ openstack:
             mac: {{ public_mac_3 }}
             name: {{ pub_iface }}
             type: data
-        isolcpus: {{ isolcpus }}
-        reserved_host_memory_mb: {{ host_memory_mb }}
+        isolcpus: ""
+        reserved_host_memory_mb: ""
         node_type:
           - compute
           - storage
@@ -122,6 +122,6 @@ openstack:
      kolla_registry_port: {{ kolla_registry_port }}
      external_vip_address: {{ external_vip_address }}
      external_interface: {{ pub_iface }}
-     second_storage: ""
+     second_storage: "/dev/vdb"
      base_size: "573741824"
      count: "20"
