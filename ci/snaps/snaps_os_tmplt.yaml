@@ -202,18 +202,17 @@ openstack:
             - [sh, -c, "echo '  iface ens4 inet static' >> /etc/network/interfaces.d/ens4.cfg"]
             - [sh, -c, "echo '  address {{ admin_ip_prfx }}.10' >> /etc/network/interfaces.d/ens4.cfg"]
             - [sh, -c, "echo '  netmask 255.255.255.0' >> /etc/network/interfaces.d/ens4.cfg"]
-            - [sh, -c, "sudo ifup ens4"]
             - [sh, -c, "echo 'auto ens5' > /etc/network/interfaces.d/ens5.cfg"]
             - [sh, -c, "echo '  iface ens5 inet static' >> /etc/network/interfaces.d/ens5.cfg"]
             - [sh, -c, "echo '  address {{ priv_ip_prfx }}.10' >> /etc/network/interfaces.d/ens5.cfg"]
             - [sh, -c, "echo '  netmask 255.255.255.0' >> /etc/network/interfaces.d/ens5.cfg"]
-            - [sh, -c, "sudo ifup ens5"]
             - [sh, -c, "echo 'auto ens6' > /etc/network/interfaces.d/ens6.cfg"]
             - [sh, -c, "echo '  iface ens6 inet static' >> /etc/network/interfaces.d/ens6.cfg"]
             - [sh, -c, "echo '  address {{ pub_ip_prfx }}.10' >> /etc/network/interfaces.d/ens6.cfg"]
             - [sh, -c, "echo '  netmask 255.255.255.0' >> /etc/network/interfaces.d/ens6.cfg"]
             - [sh, -c, "echo '  gateway {{ pub_ip_prfx }}.1' >> /etc/network/interfaces.d/ens6.cfg"]
-            - [sh, -c, "sudo ifup ens6"]
+            - [sh, -c, "echo '  dns-nameservers 8.8.8.8' >> /etc/network/interfaces.d/ens6.cfg"]
+            - [sh, -c, "sudo systemctl restart networking"]
         ports:
           - port:
               name: build-ctrl-port-{{ build_id }}
@@ -263,14 +262,21 @@ openstack:
             - [sh, -c, "mv /etc/network/interfaces /etc/network/interfaces.orig"]
             - [sh, -c, "echo 'auto lo' > /etc/network/interfaces"]
             - [sh, -c, "echo 'iface lo inet loopback' >> /etc/network/interfaces"]
-            - [sh, -c, "echo 'auto ens3' >> /etc/network/interfaces"]
-            - [sh, -c, "echo 'iface ens3 inet dhcp' >> /etc/network/interfaces"]
-            - [sh, -c, "echo 'auto ens4' >> /etc/network/interfaces"]
-            - [sh, -c, "echo 'iface ens4 inet dhcp' >> /etc/network/interfaces"]
-            - [sh, -c, "echo 'auto ens5' >> /etc/network/interfaces"]
-            - [sh, -c, "echo 'iface ens5 inet dhcp' >> /etc/network/interfaces"]
-            - [sh, -c, "sudo ifup ens4"]
-            - [sh, -c, "sudo ifup ens5"]
+            - [sh, -c, "echo 'auto {{ admin_iface }}' >> /etc/network/interfaces"]
+            - [sh, -c, "echo '  iface {{ admin_iface }} inet static' >> /etc/network/interfaces"]
+            - [sh, -c, "echo '  address {{ admin_ip_prfx }}.11' >> /etc/network/interfaces"]
+            - [sh, -c, "echo '  netmask 255.255.255.0' >> /etc/network/interfaces"]
+            - [sh, -c, "echo 'auto {{ priv_iface }}' >> /etc/network/interfaces"]
+            - [sh, -c, "echo '  iface {{ priv_iface }} inet static' >> /etc/network/interfaces"]
+            - [sh, -c, "echo '  address {{ priv_ip_prfx }}.11' >> /etc/network/interfaces"]
+            - [sh, -c, "echo '  netmask 255.255.255.0' >> /etc/network/interfaces"]
+            - [sh, -c, "echo 'auto {{ pub_iface }}' >> /etc/network/interfaces"]
+            - [sh, -c, "echo '  iface {{ pub_iface }} inet static' >> /etc/network/interfaces"]
+            - [sh, -c, "echo '  address {{ pub_ip_prfx }}.11' >> /etc/network/interfaces"]
+            - [sh, -c, "echo '  netmask 255.255.255.0' >> /etc/network/interfaces"]
+            - [sh, -c, "echo '  gateway {{ pub_ip_prfx }}.1' >> /etc/network/interfaces"]
+            - [sh, -c, "echo '  dns-nameservers 8.8.8.8' >> /etc/network/interfaces"]
+            - [sh, -c, "sudo systemctl restart networking"]
           packages:
             - python
           runcmd:
@@ -317,14 +323,21 @@ openstack:
             - [sh, -c, "mv /etc/network/interfaces /etc/network/interfaces.orig"]
             - [sh, -c, "echo 'auto lo' > /etc/network/interfaces"]
             - [sh, -c, "echo 'iface lo inet loopback' >> /etc/network/interfaces"]
-            - [sh, -c, "echo 'auto ens3' >> /etc/network/interfaces"]
-            - [sh, -c, "echo 'iface ens3 inet dhcp' >> /etc/network/interfaces"]
-            - [sh, -c, "echo 'auto ens4' >> /etc/network/interfaces"]
-            - [sh, -c, "echo 'iface ens4 inet dhcp' >> /etc/network/interfaces"]
-            - [sh, -c, "echo 'auto ens5' >> /etc/network/interfaces"]
-            - [sh, -c, "echo 'iface ens5 inet dhcp' >> /etc/network/interfaces"]
-            - [sh, -c, "sudo ifup ens4"]
-            - [sh, -c, "sudo ifup ens5"]
+            - [sh, -c, "echo 'auto {{ admin_iface }}' >> /etc/network/interfaces"]
+            - [sh, -c, "echo '  iface {{ admin_iface }} inet static' >> /etc/network/interfaces"]
+            - [sh, -c, "echo '  address {{ admin_ip_prfx }}.12' >> /etc/network/interfaces"]
+            - [sh, -c, "echo '  netmask 255.255.255.0' >> /etc/network/interfaces"]
+            - [sh, -c, "echo 'auto {{ priv_iface }}' >> /etc/network/interfaces"]
+            - [sh, -c, "echo '  iface {{ priv_iface }} inet static' >> /etc/network/interfaces"]
+            - [sh, -c, "echo '  address {{ priv_ip_prfx }}.12' >> /etc/network/interfaces"]
+            - [sh, -c, "echo '  netmask 255.255.255.0' >> /etc/network/interfaces"]
+            - [sh, -c, "echo 'auto {{ pub_iface }}' >> /etc/network/interfaces"]
+            - [sh, -c, "echo '  iface {{ pub_iface }} inet static' >> /etc/network/interfaces"]
+            - [sh, -c, "echo '  address {{ pub_ip_prfx }}.12' >> /etc/network/interfaces"]
+            - [sh, -c, "echo '  netmask 255.255.255.0' >> /etc/network/interfaces"]
+            - [sh, -c, "echo '  gateway {{ pub_ip_prfx }}.1' >> /etc/network/interfaces"]
+            - [sh, -c, "echo '  dns-nameservers 8.8.8.8' >> /etc/network/interfaces"]
+            - [sh, -c, "sudo systemctl restart networking"]
           packages:
             - python
           runcmd:
@@ -371,14 +384,21 @@ openstack:
             - [sh, -c, "mv /etc/network/interfaces /etc/network/interfaces.orig"]
             - [sh, -c, "echo 'auto lo' > /etc/network/interfaces"]
             - [sh, -c, "echo 'iface lo inet loopback' >> /etc/network/interfaces"]
-            - [sh, -c, "echo 'auto ens3' >> /etc/network/interfaces"]
-            - [sh, -c, "echo 'iface ens3 inet dhcp' >> /etc/network/interfaces"]
-            - [sh, -c, "echo 'auto ens4' >> /etc/network/interfaces"]
-            - [sh, -c, "echo 'iface ens4 inet dhcp' >> /etc/network/interfaces"]
-            - [sh, -c, "echo 'auto ens5' >> /etc/network/interfaces"]
-            - [sh, -c, "echo 'iface ens5 inet dhcp' >> /etc/network/interfaces"]
-            - [sh, -c, "sudo ifup ens4"]
-            - [sh, -c, "sudo ifup ens5"]
+            - [sh, -c, "echo 'auto {{ admin_iface }}' >> /etc/network/interfaces"]
+            - [sh, -c, "echo '  iface {{ admin_iface }} inet static' >> /etc/network/interfaces"]
+            - [sh, -c, "echo '  address {{ admin_ip_prfx }}.13' >> /etc/network/interfaces"]
+            - [sh, -c, "echo '  netmask 255.255.255.0' >> /etc/network/interfaces"]
+            - [sh, -c, "echo 'auto {{ priv_iface }}' >> /etc/network/interfaces"]
+            - [sh, -c, "echo '  iface {{ priv_iface }} inet static' >> /etc/network/interfaces"]
+            - [sh, -c, "echo '  address {{ priv_ip_prfx }}.13' >> /etc/network/interfaces"]
+            - [sh, -c, "echo '  netmask 255.255.255.0' >> /etc/network/interfaces"]
+            - [sh, -c, "echo 'auto {{ pub_iface }}' >> /etc/network/interfaces"]
+            - [sh, -c, "echo '  iface {{ pub_iface }} inet static' >> /etc/network/interfaces"]
+            - [sh, -c, "echo '  address {{ pub_ip_prfx }}.13' >> /etc/network/interfaces"]
+            - [sh, -c, "echo '  netmask 255.255.255.0' >> /etc/network/interfaces"]
+            - [sh, -c, "echo '  gateway {{ pub_ip_prfx }}.1' >> /etc/network/interfaces"]
+            - [sh, -c, "echo '  dns-nameservers 8.8.8.8' >> /etc/network/interfaces"]
+            - [sh, -c, "sudo systemctl restart networking"]
           packages:
             - python
           runcmd:
@@ -530,13 +550,13 @@ ansible:
         value: {{ pub_ip_prfx }}.30
       admin_iface:
         type: string
-        value: ens4
+        value: {{ admin_iface }}
       priv_iface:
         type: string
-        value: ens5
+        value: {{ priv_iface }}
       pub_iface:
         type: string
-        value: ens3
+        value: {{ pub_iface }}
       deployment_yaml_path:
         type: string
         value: {{ deployment_yaml_target_path }}
