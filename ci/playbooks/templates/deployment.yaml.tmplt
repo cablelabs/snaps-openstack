@@ -79,8 +79,6 @@ openstack:
             mac: {{ public_mac_3 }}
             name: {{ pub_iface }}
             type: data
-        isolcpus: ""
-        reserved_host_memory_mb: ""
         isolcpus: {{ isolcpus }}
         reserved_host_memory_mb: {{ host_memory_mb }}
         node_type:
@@ -100,8 +98,8 @@ openstack:
       subnet:
       subnet_size:
     mtu_size:
-      default: 8000
-      vxlan: 3000
+      default: 1450
+      vxlan: 1400
   proxies:
     ftp_proxy: ""
     http_proxy: ""
