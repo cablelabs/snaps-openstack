@@ -112,6 +112,7 @@ openstack:
     - tempest
     - ceilometer
     - tacker
+    - ceph
   kolla:
      base_distro: "ubuntu"
      install_type: "source"

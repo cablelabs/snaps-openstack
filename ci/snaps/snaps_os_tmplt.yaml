@@ -87,6 +87,7 @@ openstack:
               cidr: {{ admin_ip_prfx }}.0/24
               start: {{ admin_ip_prfx }}.2
               end: {{ admin_ip_prfx }}.9
+              gateway_ip: none
               dns_nameservers: []
     - network:
         os_user:
@@ -101,6 +102,7 @@ openstack:
               cidr: {{ priv_ip_prfx }}.0/24
               start: {{ priv_ip_prfx }}.2
               end: {{ priv_ip_prfx }}.9
+              gateway_ip: none
               dns_nameservers: []
     - network:
         os_user:
