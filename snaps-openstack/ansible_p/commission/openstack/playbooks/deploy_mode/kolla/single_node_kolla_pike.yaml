@@ -237,6 +237,7 @@
       copy:
        src: "{{BASE_FILE_PATH}}daemon.json"
        dest: "{{ DAEMON_DOCKER_FILE_DEST }}"
+      when: PULL_HUB != "yes"
 
     - name: systemctl daemon-reload
       command: systemctl daemon-reload

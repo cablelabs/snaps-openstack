@@ -94,7 +94,7 @@
     - name: run start-registry command
       command: docker run -d -p 4000:5000 --restart=always --name registry  registry:2
       ignore_errors: True
-
+      when: PULL_HUB != "yes"
 #    - name: replace data in init-runonce script
 #      replace:
 #        dest: '/etc/OpenStack/kolla-ansible/tools/init-runonce'
@@ -236,6 +236,7 @@
       copy:
        src: "{{BASE_FILE_PATH}}daemon.json"
        dest: "{{ DAEMON_DOCKER_FILE_DEST }}"
+      when: PULL_HUB != "yes"
 
     - name: systemctl daemon-reload
       command: systemctl daemon-reload
@@ -318,7 +319,7 @@
        dest: /etc/kolla/globals.yml
        line: 'openstack_release: "{{tag.stdout}}"'
        insertafter: '#openstack_release: "auto"'
-
+      when: PULL_HUB != "yes"
 
 
     - name: kolla generate passwords
