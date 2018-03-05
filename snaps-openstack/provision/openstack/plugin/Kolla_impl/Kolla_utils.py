@@ -456,6 +456,7 @@ def __validate_configuration(config):
    valid=False
  if (config_dict.get(consts.KOLLA).get(consts.BASE_DISTRIBUTION)==None):
    logger.info("KOLLA_BASE_DISTRO CANNOT BE NULL")
+   valid=False
  if((config_dict.get(consts.KOLLA).get(consts.BASE_DISTRIBUTION) == 'ubuntu') or (config_dict.get(consts.KOLLA).get(consts.BASE_DISTRIBUTION) == 'centos')):
     logger.info("VALID CONFIG")
  else:
