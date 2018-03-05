@@ -448,9 +448,11 @@ def __validate_configuration(config):
      if value==None:
       logger.error("User must be defined")
       valid=False
-
- if (config_dict.get(consts.KOLLA).get(consts.BASE_DISTRIBUTION)==None):
-   logger.info("KOLLA_BASE_DISTRO CANNOT BE NULL")
+ 
+ if ((config.get(consts.OPENSTACK).get(consts.KOLLA).get(consts.PULL_HUB)!=None) and(config_dict.get(consts.KOLLA).get(consts.PULL_HUB)== "yes" or config_dict.get(consts.KOLLA).get(consts.PULL_HUB)== "no")):
+   logger.info("VALID CONFIG")
+ else:
+   logger.info("KOLLA_PULL_HUB can only be yes or no")
    valid=False
  if((config_dict.get(consts.KOLLA).get(consts.BASE_DISTRIBUTION) == 'ubuntu') or (config_dict.get(consts.KOLLA).get(consts.BASE_DISTRIBUTION) == 'centos')):
     logger.info("VALID CONFIG")
