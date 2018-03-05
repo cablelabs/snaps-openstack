@@ -454,6 +454,8 @@ def __validate_configuration(config):
  else:
    logger.info("KOLLA_PULL_HUB can only be yes or no")
    valid=False
+ if (config_dict.get(consts.KOLLA).get(consts.BASE_DISTRIBUTION)==None):
+   logger.info("KOLLA_BASE_DISTRO CANNOT BE NULL")
  if((config_dict.get(consts.KOLLA).get(consts.BASE_DISTRIBUTION) == 'ubuntu') or (config_dict.get(consts.KOLLA).get(consts.BASE_DISTRIBUTION) == 'centos')):
     logger.info("VALID CONFIG")
  else:
