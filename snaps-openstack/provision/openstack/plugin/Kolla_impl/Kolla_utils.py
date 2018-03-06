@@ -112,7 +112,10 @@ def main(config, operation):
   BASE_FILE_PATH=consts.KOLLA_SOURCE_PATH
   FILES={"globals.yml","daemon.json","netvars.yml","inventory/multinode"}
   for i in FILES:
-    os.remove(BASE_FILE_PATH+i)
+    try:
+     os.remove(BASE_FILE_PATH+i)
+    except OSError:
+     logger.info("FILE MUST HAVE BEEN REMOVED")
     logger.info("deleted file "+i)
   logger.info("Successfully Done Everything")
  else:

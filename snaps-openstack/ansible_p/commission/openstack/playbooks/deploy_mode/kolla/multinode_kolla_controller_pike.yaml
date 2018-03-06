@@ -329,6 +329,10 @@
     - name: kolla ansible prechecks
       command: kolla-ansible prechecks  -i "{{ MULTINODE_FILE }}"
 
+    - name: kolla ansible pull
+      command: kolla-ansible pull  -i "{{ MULTINODE_FILE }}"
+      when: PULL_HUB == "yes"
+
     - name: kolla ansible deploy
       command: kolla-ansible deploy  -i "{{ MULTINODE_FILE }}"
 
@@ -399,6 +403,12 @@
 
     - name: Changing perm of "/etc/kolla/admin-openrc.sh", adding "+x"
       file: dest=/etc/kolla/admin-openrc.sh mode=a+x
+
+    - name: install test requirements
+      pip:
+        requirements: "{{ TEST_REQUIREMENT_KOLLA }}"
+      when: PULL_HUB != "yes"
+      ignore_errors: True
 
     - name: apt-get python-openstackclient
       command: apt-get -y install python-openstackclient
