@@ -375,6 +375,7 @@ This section is required only for Kolla based OpenStack deployment.
 | external_vip_address | N | Ip address for OpenStack external end points. |
 | external_interface | N | Interface for the OpenStack external api end points. |
 | base_size | Y | Base size for the physical volume of the cinder. |
+| pull_from_hub | N | Pull images from docker hub for deployment if set to yes (Values can be yes/no). |
 | count | Y | Total count for the physical volume created. |
 | second_storage | Y | Mount point of secondary storage for ceph. |
 

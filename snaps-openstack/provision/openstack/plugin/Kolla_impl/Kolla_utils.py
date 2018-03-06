@@ -58,13 +58,15 @@ def main(config, operation):
   logger.info("***********************KOLLA-ANSIBLE TAG **********************")
   logger.info(kolla_ansible_tag)
   logger.info("*********************GLOBAL.YML*************************")
-  __create_global(config, git_branch)
+  pull_from_hub=config.get(consts.OPENSTACK).get(consts.KOLLA).get(consts.PULL_HUB)
+  __create_global(config, git_branch,pull_from_hub)
   hostname_map=__get_hostname_map(config)
   host_node_type_map= __create_host_nodetype_map(config)
   logger.info("**************MULTINODE INVENTORY FILE******************")
   __create_inventory_multinode(config,host_node_type_map)
   logger.info("**************DOCKER DAEMON JSON ***********************")
-  __create_demon(config)
+  if pull_from_hub != "yes":
+    __create_demon(config)
 
   logger.info("PROVISION_PREPARATION METHOD CALLED")
   deployment_type=config.get(consts.OPENSTACK ).get(consts.DEPLOYMENT_TYPE)
@@ -106,11 +108,14 @@ def main(config, operation):
        hostCpuMap[interfaceData.get('ip')] = hostData.get('isolcpus')
        reserve_memory[interfaceData.get('ip')] = hostData.get('reserved_host_memory_mb')
 
-  ansible_configuration.launch_provisioning_kolla(iplist,git_branch,kolla_tag,kolla_ansible_tag,credential_dic,hostname_map,host_node_type_map,docker_registry,docker_port,kolla_base,kolla_install,ext_sub,ext_gw,ip_pool_start,ip_pool_end,second_storage, operation, hostCpuMap, reserve_memory,base_size,count,default,vxlan)
+  ansible_configuration.launch_provisioning_kolla(iplist,git_branch,kolla_tag,kolla_ansible_tag,credential_dic,hostname_map,host_node_type_map,docker_registry,docker_port,kolla_base,kolla_install,ext_sub,ext_gw,ip_pool_start,ip_pool_end,second_storage, operation, hostCpuMap, reserve_memory,base_size,count,default,vxlan,pull_from_hub)
   BASE_FILE_PATH=consts.KOLLA_SOURCE_PATH
   FILES={"globals.yml","daemon.json","netvars.yml","inventory/multinode"}
   for i in FILES:
-    os.remove(BASE_FILE_PATH+i)
+    try:
+     os.remove(BASE_FILE_PATH+i)
+    except OSError:
+     logger.info("FILE MUST HAVE BEEN REMOVED")
     logger.info("deleted file "+i)
   logger.info("Successfully Done Everything")
  else:
@@ -203,13 +208,14 @@ def __create_demon(config):
 
 
 
-def __create_global(config,git_branch):
+def __create_global(config,git_branch,pull_from_hub):
  #basefile='/home/ubuntu/E2E/Aricent_IaaS/packages/source/globals_bak.yml'
  basefile=consts.GLOBAL_BASE_FILE
  f = open(basefile,'r')
  filedata=f.read()
  newfile=consts.GLOBAL_FILE
-
+ if pull_from_hub == "yes":
+   filedata=filedata.replace('#openstack_release: "auto"','openstack_release: "pike"')
  if(config.get(consts.OPENSTACK ).get(consts.KOLLA).get(consts.BASE_DISTRIBUTION)is not None):
   kolla_base_distro= config.get(consts.OPENSTACK ).get(consts.KOLLA).get(consts.BASE_DISTRIBUTION)
   filedata=filedata.replace('#kolla_base_distro: "centos"','kolla_base_distro: "'+kolla_base_distro+'"')
@@ -237,7 +243,8 @@ def __create_global(config,git_branch):
  if(config.get(consts.OPENSTACK ).get(consts.KOLLA).get(consts.REGISTRY)is not None):
   docker_registry=config.get(consts.OPENSTACK ).get(consts.KOLLA).get(consts.REGISTRY)
   docker_port=config.get(consts.OPENSTACK ).get(consts.KOLLA).get(consts.KOLLA_REGISTRY_PORT)
-  filedata=filedata.replace('#docker_registry: "172.16.0.10:4000"','docker_registry: "'+docker_registry+':'+ str(docker_port) +'"')
+  if pull_from_hub != "yes":
+    filedata=filedata.replace('#docker_registry: "172.16.0.10:4000"','docker_registry: "'+docker_registry+':'+ str(docker_port) +'"')
  #filedata=filedata.replace('#enable_cinder: "no"','enable_cinder: "yes"')
 
  if (config.get(consts.OPENSTACK ).get(consts.SERVICES)is not None):
@@ -444,7 +451,12 @@ def __validate_configuration(config):
      if value==None:
       logger.error("User must be defined")
       valid=False
-
+ 
+ if ((config.get(consts.OPENSTACK).get(consts.KOLLA).get(consts.PULL_HUB)!=None) and(config_dict.get(consts.KOLLA).get(consts.PULL_HUB)== "yes" or config_dict.get(consts.KOLLA).get(consts.PULL_HUB)== "no")):
+   logger.info("VALID CONFIG")
+ else:
+   logger.info("KOLLA_PULL_HUB can only be yes or no")
+   valid=False
  if (config_dict.get(consts.KOLLA).get(consts.BASE_DISTRIBUTION)==None):
    logger.info("KOLLA_BASE_DISTRO CANNOT BE NULL")
    valid=False
@@ -527,6 +539,7 @@ def clean_up(config, operation):
   docker_port=config.get(consts.OPENSTACK ).get(consts.KOLLA).get(consts.KOLLA_REGISTRY_PORT)
   second_storage= config.get(consts.OPENSTACK ).get(consts.KOLLA).get("second_storage")
   git_branch=config.get(consts.OPENSTACK).get(consts.GIT_BRANCH)
+  pull_from_hub=config.get(consts.OPENSTACK).get(consts.KOLLA).get(consts.PULL_HUB)
   if list_ip is None:
     logger.info("Not valid configurations")
     exit(1)
@@ -535,7 +548,7 @@ def clean_up(config, operation):
    logger.debug(list_ip)
    service_list=_getservice_list(config)
    logger.info(service_list)
-   ret = ansible_configuration.clean_up_kolla(list_ip,git_branch,docker_registry,docker_port,service_list, operation, second_storage)
+   ret = ansible_configuration.clean_up_kolla(list_ip,git_branch,docker_registry,docker_port,service_list, operation, second_storage,pull_from_hub)
    return ret
 
 def _getservice_list(config):
