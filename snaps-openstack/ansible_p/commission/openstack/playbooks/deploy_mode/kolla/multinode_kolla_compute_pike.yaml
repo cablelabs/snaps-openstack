@@ -161,6 +161,7 @@
       copy:
        src: "{{BASE_FILE_PATH }}daemon.json"
        dest: "{{ DAEMON_DOCKER_FILE_DEST }}"
+      when: PULL_HUB != "yes" 
 #Changes for MTU size
 #    - name: Modifying neutron.conf for MTU size
 #      command: find /etc/kolla -type f -exec sed -i 's/core_plugin = ml2/core_plugin = ml2\nglobal_physnet_mtu = {{ MTU_SIZE }}/g' {} \;

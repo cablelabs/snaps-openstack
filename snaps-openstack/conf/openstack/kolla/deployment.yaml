@@ -180,6 +180,7 @@ openstack:
      external_vip_address: "10.197.103.30"
      external_interface: "eno3"
      second_storage: ""
+     pull_from_hub: "yes"
      base_size: "573741824"
      count: "20"
 

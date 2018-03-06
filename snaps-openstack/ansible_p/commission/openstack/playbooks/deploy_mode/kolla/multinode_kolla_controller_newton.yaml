@@ -198,6 +198,7 @@
       copy:
        src: "{{BASE_FILE_PATH}}daemon.json"
        dest: "{{ DAEMON_DOCKER_FILE_DEST }}"
+      when: PULL_HUB != "yes"
 
     - name: systemctl daemon-reload
       command: systemctl daemon-reload
@@ -238,6 +239,11 @@
 
     - name: kolla ansible prechecks
       command: kolla-ansible prechecks  -i "{{ MULTINODE_FILE }}"
+
+    - name: kolla ansible pull
+      command: kolla-ansible pull  -i "{{ MULTINODE_FILE }}"
+      when: PULL_HUB == "yes"
+
 
     - name: kolla ansible deploy
       command: kolla-ansible deploy  -i "{{ MULTINODE_FILE }}"

@@ -94,7 +94,7 @@
     - name: run start-registry command
       command: docker run -d -p 4000:5000 --restart=always --name registry  registry:2
       ignore_errors: True
-
+      when: PULL_HUB != "yes"
 #    - name: replace data in init-runonce script
 #      replace:
 #        dest: '/etc/OpenStack/kolla-ansible/tools/init-runonce'
@@ -236,6 +236,7 @@
       copy:
        src: "{{BASE_FILE_PATH}}daemon.json"
        dest: "{{ DAEMON_DOCKER_FILE_DEST }}"
+      when: PULL_HUB != "yes"
 
     - name: systemctl daemon-reload
       command: systemctl daemon-reload
@@ -318,7 +319,7 @@
        dest: /etc/kolla/globals.yml
        line: 'openstack_release: "{{tag.stdout}}"'
        insertafter: '#openstack_release: "auto"'
-
+      when: PULL_HUB != "yes"
 
 
     - name: kolla generate passwords
@@ -327,6 +328,10 @@
 
     - name: kolla ansible prechecks
       command: kolla-ansible prechecks  -i "{{ MULTINODE_FILE }}"
+
+    - name: kolla ansible pull
+      command: kolla-ansible pull  -i "{{ MULTINODE_FILE }}"
+      when: PULL_HUB == "yes"
 
     - name: kolla ansible deploy
       command: kolla-ansible deploy  -i "{{ MULTINODE_FILE }}"
@@ -398,6 +403,12 @@
 
     - name: Changing perm of "/etc/kolla/admin-openrc.sh", adding "+x"
       file: dest=/etc/kolla/admin-openrc.sh mode=a+x
+
+    - name: install test requirements
+      pip:
+        requirements: "{{ TEST_REQUIREMENT_KOLLA }}"
+      when: PULL_HUB != "yes"
+      ignore_errors: True
 
     - name: apt-get python-openstackclient
       command: apt-get -y install python-openstackclient
