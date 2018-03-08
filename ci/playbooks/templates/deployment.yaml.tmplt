@@ -126,3 +126,4 @@ openstack:
      second_storage: "/dev/vdb"
      base_size: "573741824"
      count: "20"
+     pull_from_hub: "yes"
