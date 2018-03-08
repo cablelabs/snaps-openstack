@@ -85,9 +85,6 @@ def provision_preparation(list_ip, proxy_dict, git_branch, kolla_tag, kolla_ansi
     return ret
 
 
-
-
-
 def clean_up_kolla(list_ip,git_branch,docker_registry,docker_port,service_list, operation, second_storage,pull_from_hub):
  """
  This method is responsible for the cleanup of openstack services
@@ -143,8 +140,8 @@ def launch_provisioning_kolla(iplist,git_branch,kolla_tag,kolla_ansible_tag,cred
  VARIABLE_FILE=consts.VARIABLE_FILE
  BASE_FILE_PATH=consts.KOLLA_SOURCE_PATH
  if pull_from_hub != "yes":
-   DOCKER_OPTS= "--insecure-registry  "+docker_registry+":"+docker_port
-   DOCKER_REGISTRY_IP=docker_registry+":"+docker_port
+   DOCKER_OPTS= "--insecure-registry  "+docker_registry+":"+ str(docker_port)
+   DOCKER_REGISTRY_IP=docker_registry+":"+ str(docker_port)
  else:
    DOCKER_OPTS=""
    DOCKER_REGISTRY_IP=""

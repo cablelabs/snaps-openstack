@@ -1,0 +1,129 @@
+openstack:
+  deployement_type: Kolla
+  git_branch: stable/pike
+  hosts:
+    -
+      host:
+        hostname: CONTROLLER1
+        interfaces:
+          -
+            ip: {{ admin_ip_1 }}
+            mac: {{ admin_mac_1 }}
+            name: {{ admin_iface }}
+            type: management
+          -
+            ip: {{ private_ip_1 }}
+            mac: {{ private_mac_1 }}
+            name: {{ priv_iface }}
+            type: tenant
+          -
+            gateway: {{ public_gateway }}
+            ip: {{ public_ip_1 }}
+            mac: {{ public_mac_1 }}
+            name: {{ pub_iface }}
+            type: data
+        isolcpus: ""
+        reserved_host_memory_mb: ""
+        node_type:
+          - network
+          - controller
+          - storage
+        password: {{ node_host_pass }}
+        service_host: ""
+        user: root
+    -
+      host:
+        hostname: COMPUTE1
+        interfaces:
+          -
+            ip: {{ admin_ip_2 }}
+            mac: {{ admin_mac_2 }}
+            name: {{ admin_iface }}
+            type: management
+          -
+            ip: {{ private_ip_2 }}
+            mac: {{ private_mac_2 }}
+            name: {{ priv_iface }}
+            type: tenant
+          -
+            gateway: {{ public_gateway }}
+            ip: {{ public_ip_2 }}
+            mac: {{ public_mac_2 }}
+            name: {{ pub_iface }}
+            type: data
+        isolcpus: ""
+        reserved_host_memory_mb: ""
+        node_type:
+          - compute
+          - storage
+        password: {{ node_host_pass }}
+        service_host: {{ admin_ip_1 }}
+        user: root
+    -
+      host:
+        hostname: COMPUTE2
+        interfaces:
+          -
+            ip: {{ admin_ip_3 }}
+            mac: {{ admin_mac_3 }}
+            name: {{ admin_iface }}
+            type: management
+          -
+            ip: {{ private_ip_3 }}
+            mac: {{ private_mac_3 }}
+            name: {{ priv_iface }}
+            type: tenant
+          -
+            gateway: {{ public_gateway }}
+            ip: {{ public_ip_3 }}
+            mac: {{ public_mac_3 }}
+            name: {{ pub_iface }}
+            type: data
+        isolcpus: {{ isolcpus }}
+        reserved_host_memory_mb: {{ host_memory_mb }}
+        node_type:
+          - compute
+          - storage
+        password: {{ node_host_pass }}
+        service_host: {{ admin_ip_1 }}
+        user: root
+  networks:
+    external:
+      gateway: {{ public_gateway }}
+      ip_pool:
+        end: {{ ip_pool_end }}
+        start: {{ ip_pool_start }}
+      subnet: {{ public_cidr }}
+    tenant:
+      subnet:
+      subnet_size:
+    mtu_size:
+      default: 1450
+      vxlan: 1400
+  proxies:
+    ftp_proxy: ""
+    http_proxy: ""
+    https_proxy: ""
+    no_proxy: ""
+  service_password: {{ node_host_pass }}
+  services:
+    - cinder
+    - magnum
+    - tempest
+    - ceilometer
+    - tacker
+    - ceph
+  kolla:
+     base_distro: "ubuntu"
+     install_type: "source"
+     keepalived_virtual_router_id: "13"
+     internal_vip_address: {{ internal_vip_address }}
+     internal_interface: {{ admin_iface }}
+     kolla_registry: {{ admin_ip_1 }}
+     kolla_registry_port: {{ kolla_registry_port }}
+     external_vip_address: {{ external_vip_address }}
+     external_interface: {{ pub_iface }}
+     second_storage: "/dev/vdb"
+     base_size: "573741824"
+     count: "20"
+     pull_from_hub: "yes"
