@@ -122,8 +122,8 @@
     - name: Apply template and copy deployment.yaml.tmplt to {{ deployment_yaml_path }}
       action: template src=templates/deployment.yaml.tmplt dest={{ deployment_yaml_path }}
 
-#    - name: Deploy - iaas_launch.py -drs *** This will run for ~45 min without output
-#      become: yes
-#      become_method: sudo
-#      become_user: root
-#      command: "python {{ src_copy_dir }}/snaps-openstack/snaps-openstack/iaas_launch.py -f {{ deployment_yaml_path }} -drs"
+    - name: Deploy - iaas_launch.py -d *** This will run for ~45 min without output
+      become: yes
+      become_method: sudo
+      become_user: root
+      command: "python {{ src_copy_dir }}/snaps-openstack/snaps-openstack/iaas_launch.py -f {{ deployment_yaml_path }} -d 2>&1 | tee /tmp/deploy1.out"
