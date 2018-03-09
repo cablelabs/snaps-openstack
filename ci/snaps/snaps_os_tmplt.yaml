@@ -204,14 +204,17 @@ openstack:
             - [sh, -c, "echo '  iface ens4 inet static' >> /etc/network/interfaces.d/ens4.cfg"]
             - [sh, -c, "echo '  address {{ admin_ip_prfx }}.10' >> /etc/network/interfaces.d/ens4.cfg"]
             - [sh, -c, "echo '  netmask 255.255.255.0' >> /etc/network/interfaces.d/ens4.cfg"]
+            - [sh, -c, "echo '  mtu 1400' >> /etc/network/interfaces.d/ens4.cfg"]
             - [sh, -c, "echo 'auto ens5' > /etc/network/interfaces.d/ens5.cfg"]
             - [sh, -c, "echo '  iface ens5 inet static' >> /etc/network/interfaces.d/ens5.cfg"]
             - [sh, -c, "echo '  address {{ priv_ip_prfx }}.10' >> /etc/network/interfaces.d/ens5.cfg"]
             - [sh, -c, "echo '  netmask 255.255.255.0' >> /etc/network/interfaces.d/ens5.cfg"]
+            - [sh, -c, "echo '  mtu 1400' >> /etc/network/interfaces.d/ens5.cfg"]
             - [sh, -c, "echo 'auto ens6' > /etc/network/interfaces.d/ens6.cfg"]
             - [sh, -c, "echo '  iface ens6 inet static' >> /etc/network/interfaces.d/ens6.cfg"]
             - [sh, -c, "echo '  address {{ pub_ip_prfx }}.10' >> /etc/network/interfaces.d/ens6.cfg"]
             - [sh, -c, "echo '  netmask 255.255.255.0' >> /etc/network/interfaces.d/ens6.cfg"]
+            - [sh, -c, "echo '  mtu 1400' >> /etc/network/interfaces.d/ens6.cfg"]
             - [sh, -c, "echo '  gateway {{ pub_ip_prfx }}.1' >> /etc/network/interfaces.d/ens6.cfg"]
             - [sh, -c, "echo '  dns-nameservers 8.8.8.8' >> /etc/network/interfaces.d/ens6.cfg"]
             - [sh, -c, "sudo systemctl restart networking"]
@@ -264,27 +267,29 @@ openstack:
             - python
           runcmd:
             - [sh, -c, "mv /etc/network/interfaces /etc/network/interfaces.orig"]
-            - [sh, -c, "echo 'auto lo"]
+            - [sh, -c, "echo 'auto lo' >> /etc/network/interfaces"]
             - [sh, -c, "echo 'iface lo inet loopback' >> /etc/network/interfaces"]
-            - [sh, -c, "echo 'auto {{ admin_iface }}"]
+            - [sh, -c, "echo 'auto {{ admin_iface }}' >> /etc/network/interfaces"]
             - [sh, -c, "echo '  iface {{ admin_iface }} inet static' >> /etc/network/interfaces"]
             - [sh, -c, "echo '  address {{ admin_ip_prfx }}.11' >> /etc/network/interfaces"]
             - [sh, -c, "echo '  netmask 255.255.255.0' >> /etc/network/interfaces"]
-            - [sh, -c, "echo '  mtu 1400 >> /etc/network/interfaces"]
-            - [sh, -c, "echo 'auto {{ priv_iface }}"]
+            - [sh, -c, "echo '  mtu 1400' >> /etc/network/interfaces"]
+            - [sh, -c, "echo 'auto {{ priv_iface }}' >> /etc/network/interfaces"]
             - [sh, -c, "echo '  iface {{ priv_iface }} inet static' >> /etc/network/interfaces"]
             - [sh, -c, "echo '  address {{ priv_ip_prfx }}.11' >> /etc/network/interfaces"]
             - [sh, -c, "echo '  netmask 255.255.255.0' >> /etc/network/interfaces"]
-            - [sh, -c, "echo '  1400 >> /etc/network/interfaces"]
-            - [sh, -c, "echo 'auto {{ pub_iface }}"]
+            - [sh, -c, "echo '  mtu 1400' >> /etc/network/interfaces >> /etc/network/interfaces"]
+            - [sh, -c, "echo 'auto {{ pub_iface }}' >> /etc/network/interfaces"]
             - [sh, -c, "echo '  iface {{ pub_iface }} inet static' >> /etc/network/interfaces"]
             - [sh, -c, "echo '  address {{ pub_ip_prfx }}.11' >> /etc/network/interfaces"]
             - [sh, -c, "echo '  netmask 255.255.255.0' >> /etc/network/interfaces"]
             - [sh, -c, "echo '  gateway {{ pub_ip_prfx }}.1' >> /etc/network/interfaces"]
             - [sh, -c, "echo '  dns-nameservers 8.8.8.8' >> /etc/network/interfaces"]
-            - [sh, -c, "echo '  mtu 1400 >> /etc/network/interfaces"]
+            - [sh, -c, "echo '  mtu 1400' >> /etc/network/interfaces"]
+            - [sh, -c, "echo 'network: {config: disabled}' > /etc/cloud/cloud.cfg.d/99-disable-network-config.cfg"]
             - ip addr flush {{ admin_iface }}
             - systemctl restart networking
+            - apt install -y python
             - sed -i -e '/^PermitRootLogin/s/^.*$/PermitRootLogin yes/' /etc/ssh/sshd_config
             - systemctl restart ssh
         ports:
@@ -333,26 +338,26 @@ openstack:
           runcmd:
             - [sh, -c, "mv /etc/network/interfaces /etc/network/interfaces.orig"]
             - [sh, -c, "echo 'iface lo inet loopback' >> /etc/network/interfaces"]
-            - [sh, -c, "echo 'auto {{ admin_iface }}"]
+            - [sh, -c, "echo 'auto {{ admin_iface }}' >> /etc/network/interfaces"]
             - [sh, -c, "echo '  iface {{ admin_iface }} inet static' >> /etc/network/interfaces"]
-            - [sh, -c, "echo '  address {{ admin_ip_prfx }}.11' >> /etc/network/interfaces"]
+            - [sh, -c, "echo '  address {{ admin_ip_prfx }}.12' >> /etc/network/interfaces"]
             - [sh, -c, "echo '  netmask 255.255.255.0' >> /etc/network/interfaces"]
-            - [sh, -c, "echo '  mtu 1400 >> /etc/network/interfaces"]
-            - [sh, -c, "echo 'auto {{ priv_iface }}"]
+            - [sh, -c, "echo '  mtu 1400' >> /etc/network/interfaces"]
+            - [sh, -c, "echo 'auto {{ priv_iface }}' >> /etc/network/interfaces"]
             - [sh, -c, "echo '  iface {{ priv_iface }} inet static' >> /etc/network/interfaces"]
-            - [sh, -c, "echo '  address {{ priv_ip_prfx }}.11' >> /etc/network/interfaces"]
+            - [sh, -c, "echo '  address {{ priv_ip_prfx }}.12' >> /etc/network/interfaces"]
             - [sh, -c, "echo '  netmask 255.255.255.0' >> /etc/network/interfaces"]
-            - [sh, -c, "echo '  1400 >> /etc/network/interfaces"]
-            - [sh, -c, "echo 'auto {{ pub_iface }}"]
+            - [sh, -c, "echo '  mut 1400' >> /etc/network/interfaces"]
+            - [sh, -c, "echo 'auto {{ pub_iface }}' >> /etc/network/interfaces"]
             - [sh, -c, "echo '  iface {{ pub_iface }} inet static' >> /etc/network/interfaces"]
-            - [sh, -c, "echo '  address {{ pub_ip_prfx }}.11' >> /etc/network/interfaces"]
+            - [sh, -c, "echo '  address {{ pub_ip_prfx }}.12' >> /etc/network/interfaces"]
             - [sh, -c, "echo '  netmask 255.255.255.0' >> /etc/network/interfaces"]
             - [sh, -c, "echo '  gateway {{ pub_ip_prfx }}.1' >> /etc/network/interfaces"]
             - [sh, -c, "echo '  dns-nameservers 8.8.8.8' >> /etc/network/interfaces"]
-            - [sh, -c, "echo '  mtu 1400 >> /etc/network/interfaces"]
+            - [sh, -c, "echo '  mtu 1400' >> /etc/network/interfaces"]
             - ip addr flush {{ admin_iface }}
             - systemctl restart networking
-
+            - apt install -y python
             - sed -i -e '/^PermitRootLogin/s/^.*$/PermitRootLogin yes/' /etc/ssh/sshd_config
             - systemctl restart ssh
         ports:
@@ -397,26 +402,26 @@ openstack:
           runcmd:
             - [sh, -c, "mv /etc/network/interfaces /etc/network/interfaces.orig"]
             - [sh, -c, "echo 'iface lo inet loopback' >> /etc/network/interfaces"]
-            - [sh, -c, "echo 'auto {{ admin_iface }}"]
-            - [sh, -c, "echo 'iface {{ admin_iface }} inet static' >> /etc/network/interfaces"]
-            - [sh, -c, "echo '  address {{ admin_ip_prfx }}.11' >> /etc/network/interfaces"]
+            - [sh, -c, "echo 'auto {{ admin_iface }}' >> /etc/network/interfaces"]
+            - [sh, -c, "echo '  iface {{ admin_iface }} inet static' >> /etc/network/interfaces"]
+            - [sh, -c, "echo '  address {{ admin_ip_prfx }}.13' >> /etc/network/interfaces"]
             - [sh, -c, "echo '  netmask 255.255.255.0' >> /etc/network/interfaces"]
-            - [sh, -c, "echo '  mtu 1400 >> /etc/network/interfaces"]
-            - [sh, -c, "echo 'auto {{ priv_iface }}"]
+            - [sh, -c, "echo '  mtu 1400' >> /etc/network/interfaces"]
+            - [sh, -c, "echo 'auto {{ priv_iface }}' >> /etc/network/interfaces"]
             - [sh, -c, "echo '  iface {{ priv_iface }} inet static' >> /etc/network/interfaces"]
-            - [sh, -c, "echo '  address {{ priv_ip_prfx }}.11' >> /etc/network/interfaces"]
+            - [sh, -c, "echo '  address {{ priv_ip_prfx }}.13' >> /etc/network/interfaces"]
             - [sh, -c, "echo '  netmask 255.255.255.0' >> /etc/network/interfaces"]
-            - [sh, -c, "echo '  1400 >> /etc/network/interfaces"]
-            - [sh, -c, "echo 'auto {{ pub_iface }}"]
+            - [sh, -c, "echo '  mut 1400' >> /etc/network/interfaces"]
+            - [sh, -c, "echo 'auto {{ pub_iface }}' >> /etc/network/interfaces"]
             - [sh, -c, "echo '  iface {{ pub_iface }} inet static' >> /etc/network/interfaces"]
-            - [sh, -c, "echo '  address {{ pub_ip_prfx }}.11' >> /etc/network/interfaces"]
+            - [sh, -c, "echo '  address {{ pub_ip_prfx }}.13' >> /etc/network/interfaces"]
             - [sh, -c, "echo '  netmask 255.255.255.0' >> /etc/network/interfaces"]
             - [sh, -c, "echo '  gateway {{ pub_ip_prfx }}.1' >> /etc/network/interfaces"]
             - [sh, -c, "echo '  dns-nameservers 8.8.8.8' >> /etc/network/interfaces"]
-            - [sh, -c, "echo '  mtu 1400 >> /etc/network/interfaces"]
+            - [sh, -c, "echo '  mtu 1400' >> /etc/network/interfaces"]
             - ip addr flush {{ admin_iface }}
             - systemctl restart networking
-
+            - apt install -y python
             - sed -i -e '/^PermitRootLogin/s/^.*$/PermitRootLogin yes/' /etc/ssh/sshd_config
             - systemctl restart ssh
         ports:
