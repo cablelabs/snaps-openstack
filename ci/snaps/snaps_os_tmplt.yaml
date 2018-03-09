@@ -260,41 +260,56 @@ openstack:
               root:{{ node_host_password }}
             expire: False
           ssh_pwauth: True
-          bootcmd:
-            - [sh, -c, "mv /etc/network/interfaces /etc/network/interfaces.orig"]
-            - [sh, -c, "echo 'auto lo' > /etc/network/interfaces"]
-            - [sh, -c, "echo 'iface lo inet loopback' >> /etc/network/interfaces"]
-            - [sh, -c, "echo 'auto {{ pub_iface }}' >> /etc/network/interfaces"]
-            - [sh, -c, "echo '  iface {{ pub_iface }} inet dhcp' >> /etc/network/interfaces"]
-            - [sh, -c, "echo 'auto {{ admin_iface }}' >> /etc/network/interfaces"]
-            - [sh, -c, "echo '  iface {{ admin_iface }} inet dhcp' >> /etc/network/interfaces"]
-            - [sh, -c, "echo 'auto {{ priv_iface }}' >> /etc/network/interfaces"]
-            - [sh, -c, "echo '  iface {{ priv_iface }} inet dhcp' >> /etc/network/interfaces"]
-            - [sh, -c, "sudo systemctl restart networking"]
           packages:
             - python
           runcmd:
+            - [sh, -c, "mv /etc/network/interfaces /etc/network/interfaces.orig"]
+            - [sh, -c, "echo 'auto lo"]
+            - [sh, -c, "echo 'iface lo inet loopback' >> /etc/network/interfaces"]
+            - [sh, -c, "echo 'auto {{ admin_iface }}"]
+            - [sh, -c, "echo '  iface {{ admin_iface }} inet static' >> /etc/network/interfaces"]
+            - [sh, -c, "echo '  address {{ admin_ip_prfx }}.11' >> /etc/network/interfaces"]
+            - [sh, -c, "echo '  netmask 255.255.255.0' >> /etc/network/interfaces"]
+            - [sh, -c, "echo '  mtu 1400 >> /etc/network/interfaces"]
+            - [sh, -c, "echo 'auto {{ priv_iface }}"]
+            - [sh, -c, "echo '  iface {{ priv_iface }} inet static' >> /etc/network/interfaces"]
+            - [sh, -c, "echo '  address {{ priv_ip_prfx }}.11' >> /etc/network/interfaces"]
+            - [sh, -c, "echo '  netmask 255.255.255.0' >> /etc/network/interfaces"]
+            - [sh, -c, "echo '  1400 >> /etc/network/interfaces"]
+            - [sh, -c, "echo 'auto {{ pub_iface }}"]
+            - [sh, -c, "echo '  iface {{ pub_iface }} inet static' >> /etc/network/interfaces"]
+            - [sh, -c, "echo '  address {{ pub_ip_prfx }}.11' >> /etc/network/interfaces"]
+            - [sh, -c, "echo '  netmask 255.255.255.0' >> /etc/network/interfaces"]
+            - [sh, -c, "echo '  gateway {{ pub_ip_prfx }}.1' >> /etc/network/interfaces"]
+            - [sh, -c, "echo '  dns-nameservers 8.8.8.8' >> /etc/network/interfaces"]
+            - [sh, -c, "echo '  mtu 1400 >> /etc/network/interfaces"]
+            - ip addr flush {{ admin_iface }}
+            - systemctl restart networking
             - sed -i -e '/^PermitRootLogin/s/^.*$/PermitRootLogin yes/' /etc/ssh/sshd_config
             - systemctl restart ssh
         ports:
-          - port:
-              name: os-deploy-pub-port-1-{{ build_id }}
-              network_name: os-public-net-{{ build_id }}
-              ip_addrs:
-                - subnet_name: os-public-subnet-{{ build_id }}
-                  ip: {{ pub_ip_prfx }}.11
           - port:
               name: os-deploy-admin-port-1-{{ build_id }}
               network_name: os-admin-net-{{ build_id }}
               ip_addrs:
                 - subnet_name: os-admin-subnet-{{ build_id }}
                   ip: {{ admin_ip_prfx }}.11
+                - subnet_name: os-admin-subnet-{{ build_id }}
+                  ip: {{ admin_ip_prfx }}.30
           - port:
               name: os-deploy-priv-port-1-{{ build_id }}
               network_name: os-priv-net-{{ build_id }}
               ip_addrs:
                 - subnet_name: os-priv-subnet-{{ build_id }}
                   ip: {{ priv_ip_prfx }}.11
+          - port:
+              name: os-deploy-pub-port-1-{{ build_id }}
+              network_name: os-public-net-{{ build_id }}
+              ip_addrs:
+                - subnet_name: os-public-subnet-{{ build_id }}
+                  ip: {{ pub_ip_prfx }}.11
+                - subnet_name: os-public-subnet-{{ build_id }}
+                  ip: {{ pub_ip_prfx }}.30
     - instance:
         os_user:
           name: os-deploy-user-{{ build_id }}
@@ -313,29 +328,34 @@ openstack:
               root:{{ node_host_password }}
             expire: False
           ssh_pwauth: True
-          bootcmd:
-            - [sh, -c, "mv /etc/network/interfaces /etc/network/interfaces.orig"]
-            - [sh, -c, "echo 'auto lo' > /etc/network/interfaces"]
-            - [sh, -c, "echo 'iface lo inet loopback' >> /etc/network/interfaces"]
-            - [sh, -c, "echo 'auto {{ pub_iface }}' >> /etc/network/interfaces"]
-            - [sh, -c, "echo '  iface {{ pub_iface }} inet dhcp' >> /etc/network/interfaces"]
-            - [sh, -c, "echo 'auto {{ admin_iface }}' >> /etc/network/interfaces"]
-            - [sh, -c, "echo '  iface {{ admin_iface }} inet dhcp' >> /etc/network/interfaces"]
-            - [sh, -c, "echo 'auto {{ priv_iface }}' >> /etc/network/interfaces"]
-            - [sh, -c, "echo '  iface {{ priv_iface }} inet dhcp' >> /etc/network/interfaces"]
-            - [sh, -c, "sudo systemctl restart networking"]
           packages:
             - python
           runcmd:
+            - [sh, -c, "mv /etc/network/interfaces /etc/network/interfaces.orig"]
+            - [sh, -c, "echo 'iface lo inet loopback' >> /etc/network/interfaces"]
+            - [sh, -c, "echo 'auto {{ admin_iface }}"]
+            - [sh, -c, "echo '  iface {{ admin_iface }} inet static' >> /etc/network/interfaces"]
+            - [sh, -c, "echo '  address {{ admin_ip_prfx }}.11' >> /etc/network/interfaces"]
+            - [sh, -c, "echo '  netmask 255.255.255.0' >> /etc/network/interfaces"]
+            - [sh, -c, "echo '  mtu 1400 >> /etc/network/interfaces"]
+            - [sh, -c, "echo 'auto {{ priv_iface }}"]
+            - [sh, -c, "echo '  iface {{ priv_iface }} inet static' >> /etc/network/interfaces"]
+            - [sh, -c, "echo '  address {{ priv_ip_prfx }}.11' >> /etc/network/interfaces"]
+            - [sh, -c, "echo '  netmask 255.255.255.0' >> /etc/network/interfaces"]
+            - [sh, -c, "echo '  1400 >> /etc/network/interfaces"]
+            - [sh, -c, "echo 'auto {{ pub_iface }}"]
+            - [sh, -c, "echo '  iface {{ pub_iface }} inet static' >> /etc/network/interfaces"]
+            - [sh, -c, "echo '  address {{ pub_ip_prfx }}.11' >> /etc/network/interfaces"]
+            - [sh, -c, "echo '  netmask 255.255.255.0' >> /etc/network/interfaces"]
+            - [sh, -c, "echo '  gateway {{ pub_ip_prfx }}.1' >> /etc/network/interfaces"]
+            - [sh, -c, "echo '  dns-nameservers 8.8.8.8' >> /etc/network/interfaces"]
+            - [sh, -c, "echo '  mtu 1400 >> /etc/network/interfaces"]
+            - ip addr flush {{ admin_iface }}
+            - systemctl restart networking
+
             - sed -i -e '/^PermitRootLogin/s/^.*$/PermitRootLogin yes/' /etc/ssh/sshd_config
             - systemctl restart ssh
         ports:
-          - port:
-              name: os-deploy-pub-port-2-{{ build_id }}
-              network_name: os-public-net-{{ build_id }}
-              ip_addrs:
-                - subnet_name: os-public-subnet-{{ build_id }}
-                  ip: {{ pub_ip_prfx }}.12
           - port:
               name: os-deploy-admin-port-2-{{ build_id }}
               network_name: os-admin-net-{{ build_id }}
@@ -348,6 +368,12 @@ openstack:
               ip_addrs:
                 - subnet_name: os-priv-subnet-{{ build_id }}
                   ip: {{ priv_ip_prfx }}.12
+          - port:
+              name: os-deploy-pub-port-2-{{ build_id }}
+              network_name: os-public-net-{{ build_id }}
+              ip_addrs:
+                - subnet_name: os-public-subnet-{{ build_id }}
+                  ip: {{ pub_ip_prfx }}.12
     - instance:
         os_user:
           name: os-deploy-user-{{ build_id }}
@@ -366,29 +392,34 @@ openstack:
               root:{{ node_host_password }}
             expire: False
           ssh_pwauth: True
-          bootcmd:
-            - [sh, -c, "mv /etc/network/interfaces /etc/network/interfaces.orig"]
-            - [sh, -c, "echo 'auto lo' > /etc/network/interfaces"]
-            - [sh, -c, "echo 'iface lo inet loopback' >> /etc/network/interfaces"]
-            - [sh, -c, "echo 'auto {{ pub_iface }}' >> /etc/network/interfaces"]
-            - [sh, -c, "echo '  iface {{ pub_iface }} inet dhcp' >> /etc/network/interfaces"]
-            - [sh, -c, "echo 'auto {{ admin_iface }}' >> /etc/network/interfaces"]
-            - [sh, -c, "echo '  iface {{ admin_iface }} inet dhcp' >> /etc/network/interfaces"]
-            - [sh, -c, "echo 'auto {{ priv_iface }}' >> /etc/network/interfaces"]
-            - [sh, -c, "echo '  iface {{ priv_iface }} inet dhcp' >> /etc/network/interfaces"]
-            - [sh, -c, "sudo systemctl restart networking"]
           packages:
             - python
           runcmd:
+            - [sh, -c, "mv /etc/network/interfaces /etc/network/interfaces.orig"]
+            - [sh, -c, "echo 'iface lo inet loopback' >> /etc/network/interfaces"]
+            - [sh, -c, "echo 'auto {{ admin_iface }}"]
+            - [sh, -c, "echo 'iface {{ admin_iface }} inet static' >> /etc/network/interfaces"]
+            - [sh, -c, "echo '  address {{ admin_ip_prfx }}.11' >> /etc/network/interfaces"]
+            - [sh, -c, "echo '  netmask 255.255.255.0' >> /etc/network/interfaces"]
+            - [sh, -c, "echo '  mtu 1400 >> /etc/network/interfaces"]
+            - [sh, -c, "echo 'auto {{ priv_iface }}"]
+            - [sh, -c, "echo '  iface {{ priv_iface }} inet static' >> /etc/network/interfaces"]
+            - [sh, -c, "echo '  address {{ priv_ip_prfx }}.11' >> /etc/network/interfaces"]
+            - [sh, -c, "echo '  netmask 255.255.255.0' >> /etc/network/interfaces"]
+            - [sh, -c, "echo '  1400 >> /etc/network/interfaces"]
+            - [sh, -c, "echo 'auto {{ pub_iface }}"]
+            - [sh, -c, "echo '  iface {{ pub_iface }} inet static' >> /etc/network/interfaces"]
+            - [sh, -c, "echo '  address {{ pub_ip_prfx }}.11' >> /etc/network/interfaces"]
+            - [sh, -c, "echo '  netmask 255.255.255.0' >> /etc/network/interfaces"]
+            - [sh, -c, "echo '  gateway {{ pub_ip_prfx }}.1' >> /etc/network/interfaces"]
+            - [sh, -c, "echo '  dns-nameservers 8.8.8.8' >> /etc/network/interfaces"]
+            - [sh, -c, "echo '  mtu 1400 >> /etc/network/interfaces"]
+            - ip addr flush {{ admin_iface }}
+            - systemctl restart networking
+
             - sed -i -e '/^PermitRootLogin/s/^.*$/PermitRootLogin yes/' /etc/ssh/sshd_config
             - systemctl restart ssh
         ports:
-          - port:
-              name: os-deploy-pub-port-3-{{ build_id }}
-              network_name: os-public-net-{{ build_id }}
-              ip_addrs:
-                - subnet_name: os-public-subnet-{{ build_id }}
-                  ip: {{ pub_ip_prfx }}.13
           - port:
               name: os-deploy-admin-port-3-{{ build_id }}
               network_name: os-admin-net-{{ build_id }}
@@ -401,6 +432,12 @@ openstack:
               ip_addrs:
                 - subnet_name: os-priv-subnet-{{ build_id }}
                   ip: {{ priv_ip_prfx }}.13
+          - port:
+              name: os-deploy-pub-port-3-{{ build_id }}
+              network_name: os-public-net-{{ build_id }}
+              ip_addrs:
+                - subnet_name: os-public-subnet-{{ build_id }}
+                  ip: {{ pub_ip_prfx }}.13
 ansible:
   # Install and configure snaps-boot to build host
   - playbook_location: {{ local_snaps_openstack_dir }}/ci/playbooks/deploy_os.yaml
