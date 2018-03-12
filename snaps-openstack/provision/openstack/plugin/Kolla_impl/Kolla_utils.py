@@ -58,7 +58,12 @@ def main(config, operation):
   logger.info("***********************KOLLA-ANSIBLE TAG **********************")
   logger.info(kolla_ansible_tag)
   logger.info("*********************GLOBAL.YML*************************")
-  pull_from_hub=config.get(consts.OPENSTACK).get(consts.KOLLA).get(consts.PULL_HUB)
+  if (config.get(consts.OPENSTACK).get(consts.KOLLA).get(consts.PULL_HUB) != None):
+    pull_from_hub=config.get(consts.OPENSTACK).get(consts.KOLLA).get(consts.PULL_HUB)
+    if pull_from_hub!= "yes":
+      pull_from_hub="no"
+  else:
+    pull_from_hub="no"
   __create_global(config, git_branch,pull_from_hub)
   hostname_map=__get_hostname_map(config)
   host_node_type_map= __create_host_nodetype_map(config)
@@ -215,7 +220,8 @@ def __create_global(config,git_branch,pull_from_hub):
  filedata=f.read()
  newfile=consts.GLOBAL_FILE
  if pull_from_hub == "yes":
-   filedata=filedata.replace('#openstack_release: "auto"','openstack_release: "pike"')
+   release_value= git_branch.split('stable/')
+   filedata=filedata.replace('#openstack_release: "auto"','openstack_release: "'+release_value[1]+'"')
  if(config.get(consts.OPENSTACK ).get(consts.KOLLA).get(consts.BASE_DISTRIBUTION)is not None):
   kolla_base_distro= config.get(consts.OPENSTACK ).get(consts.KOLLA).get(consts.BASE_DISTRIBUTION)
   filedata=filedata.replace('#kolla_base_distro: "centos"','kolla_base_distro: "'+kolla_base_distro+'"')
@@ -452,11 +458,6 @@ def __validate_configuration(config):
       logger.error("User must be defined")
       valid=False
  
- if ((config.get(consts.OPENSTACK).get(consts.KOLLA).get(consts.PULL_HUB)!=None) and(config_dict.get(consts.KOLLA).get(consts.PULL_HUB)== "yes" or config_dict.get(consts.KOLLA).get(consts.PULL_HUB)== "no")):
-   logger.info("VALID CONFIG")
- else:
-   logger.info("KOLLA_PULL_HUB can only be yes or no")
-   valid=False
  if (config_dict.get(consts.KOLLA).get(consts.BASE_DISTRIBUTION)==None):
    logger.info("KOLLA_BASE_DISTRO CANNOT BE NULL")
    valid=False

@@ -105,3 +105,11 @@
 
     - name: systemctl restart docker
       command: systemctl restart docker
+
+    - name: run admin-openrc script
+      shell: source /etc/kolla/admin-openrc.sh && /etc/OpenStack/kolla-ansible/tools/init-runonce
+      args:
+       executable: /bin/bash
+      async: 900
+      ignore_errors: True
+      delegate_to: "{{CONTROLLER_IP}}"
