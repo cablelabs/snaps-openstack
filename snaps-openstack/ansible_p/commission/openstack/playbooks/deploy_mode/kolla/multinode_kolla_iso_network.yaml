@@ -26,12 +26,6 @@
     https_proxy: "{{ https_proxy }}"
     no_proxy: "{{ no_proxy }}"
   tasks:
-    - name : Fetching OVS-container ID
-      shell: docker ps -a | grep vswitchd| awk '{print $1}'
-      register: id
-    - debug:
-        var:  id
-
     - name : Fetching public MAC
       shell: cat /sys/class/net/{{neutron_external_interface}}/address
       register: public_mac
@@ -39,10 +33,10 @@
         var:  public_mac
 
     - name : Creating EXTERNAL bridge
-      shell : docker exec openvswitch_vswitchd bash -c  ‘ovs-vsctl add-br br-ex -- set bridge br-ex other-config:hwaddr=\"{{ public_mac }}\"'
+      shell : docker exec openvswitch_vswitchd bash -c  ‘ovs-vsctl add-br br-ex -- set bridge br-ex other-config:hwaddr=\"{{ public_mac.stdout }}\"'
       ignore_errors: True
     - name : Creating EXTERNAL bridge
-      shell : docker exec {{id.stdout}} bash -c  'ovs-vsctl add-port br-ex {{neutron_external_interface}}'
+      shell : docker exec openvswitch_vswitchd bash -c  'ovs-vsctl add-port br-ex {{neutron_external_interface}}'
       ignore_errors: True
 
     - name: append data in ml2_conf
