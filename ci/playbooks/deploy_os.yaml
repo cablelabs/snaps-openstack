@@ -126,4 +126,4 @@
       become: yes
       become_method: sudo
       become_user: root
-      command: "python {{ src_copy_dir }}/snaps-openstack/snaps-openstack/iaas_launch.py -f {{ deployment_yaml_path }} -d 2>&1 | tee /tmp/deploy1.out"
+      command: "python {{ src_copy_dir }}/snaps-openstack/snaps-openstack/iaas_launch.py -f {{ deployment_yaml_path }} -d"
