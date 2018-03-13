@@ -39,7 +39,7 @@
         var:  public_mac
 
     - name : Creating EXTERNAL bridge
-      shell : docker exec openvswitch_vswitchd bash -c  ‘ovs-vsctl add-br br-ex -- set bridge br-ex other-config:hwaddr={{ public_mac }}'
+      shell : docker exec openvswitch_vswitchd bash -c  ‘ovs-vsctl add-br br-ex -- set bridge br-ex other-config:hwaddr=\"{{ public_mac }}\"'
       ignore_errors: True
     - name : Creating EXTERNAL bridge
       shell : docker exec {{id.stdout}} bash -c  'ovs-vsctl add-port br-ex {{neutron_external_interface}}'
