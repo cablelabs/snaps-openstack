@@ -355,6 +355,16 @@
       command: ip addr flush  "{{ neutron_external_interface }}"
       ignore_errors: True
 
+    - name : Fetching public MAC
+      shell: cat /sys/class/net/{{neutron_external_interface}}/address
+      register: public_mac
+    - debug:
+        var:  public_mac
+
+    - name : Setting MAC on br-ex
+      shell : docker exec openvswitch_vswitchd bash -c  ‘ovs-vsctl -- set bridge br-ex other-config:hwaddr=\"{{ public_mac.stdout }}\"'
+      ignore_errors: False
+
     - name: Flush bridg-ex IP
       command: ip addr flush br-ex
       ignore_errors: True
