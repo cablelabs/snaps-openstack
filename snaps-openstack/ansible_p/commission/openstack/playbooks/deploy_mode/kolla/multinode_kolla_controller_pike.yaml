@@ -44,6 +44,9 @@
     - name: upgrade pip
       command: pip install --upgrade pip
 
+    - name: upgrade pyOpenSSL
+      command: pip install --upgrade pyOpenSSL
+
     - name: Clone git
       git:
         repo: https://github.com/openstack/kolla-ansible.git
@@ -70,7 +73,6 @@
       command: python setup.py install
       args:
        chdir: "{{ GIT_CLONE_PATH_PIKE }}"
-
 
     - name: apt-get update again
       apt:
