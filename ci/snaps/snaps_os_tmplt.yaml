@@ -103,6 +103,7 @@ openstack:
               start: {{ priv_ip_prfx }}.2
               end: {{ priv_ip_prfx }}.9
               gateway_ip: none
+              enable_dhcp: False
               dns_nameservers: []
     - network:
         os_user:
@@ -117,6 +118,7 @@ openstack:
               cidr: {{ pub_ip_prfx }}.0/24
               start: {{ pub_ip_prfx }}.2
               end: {{ pub_ip_prfx }}.9
+              enable_dhcp: False
               dns_nameservers: [8.8.8.8]
   routers:
     - router:
