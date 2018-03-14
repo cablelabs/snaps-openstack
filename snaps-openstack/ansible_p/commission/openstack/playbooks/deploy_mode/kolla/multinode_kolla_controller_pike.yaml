@@ -18,24 +18,6 @@
       apt:
         update_cache: yes
 
-    - name: Install python-pip
-      apt:
-        name: python-pip
-        state: latest
-
-    - name: upgrade ip
-      command: pip install --upgrade pip
-
-    - name: Install ntp
-      apt:
-       name: ntp
-       state: latest
-
-    - name: Install parted
-      apt:
-        name: parted
-        state: latest
-
     - name: Install dependencies
       apt:
         name: "{{ item }}"
@@ -51,13 +33,16 @@
         - curl
         - software-properties-common
         - libltdl7
+        - python-openstackclient
+        - python-neutronclient
+        - python-novaclient
+        - git
+        - python-pip
+        - ntp
+        - parted
 
-    - name: Install git
-      apt:
-        name: git
-        update_cache: yes
-        state: latest
-
+    - name: upgrade pip
+      command: pip install --upgrade pip
 
     - name: Clone git
       git:
@@ -362,19 +347,18 @@
         var:  public_mac
 
     - name : Setting MAC on br-ex
-      shell : docker exec openvswitch_vswitchd bash -c  ‘ovs-vsctl -- set bridge br-ex other-config:hwaddr=\"{{ public_mac.stdout }}\"'
+      shell : docker exec openvswitch_vswitchd bash -c  'ovs-vsctl -- set bridge br-ex other-config:hwaddr=\"{{ public_mac.stdout }}\"'
       ignore_errors: False
 
-    - name: Flush bridg-ex IP
-      command: ip addr flush br-ex
-      ignore_errors: True
-
-    - pause:
-        seconds: 5
+#    - name: Flush bridg-ex IP
+#      command: ip addr flush br-ex
+#      ignore_errors: True
+#
+#    - pause:
+#        seconds: 5
 
     - name: Set Ip to BR-ex
       command: ip addr add {{ item }} dev br-ex
-
       ignore_errors: True
       with_items: "{{extip.stdout_lines|list}}"
 
@@ -403,6 +387,7 @@
         state: present
       with_items: "{{extip.stdout_lines.0}}"
       ignore_errors: True
+
     - name: insert route details for br-ex
       lineinfile:
         dest: /etc/network/interfaces
@@ -420,22 +405,13 @@
       when: PULL_HUB != "yes"
       ignore_errors: True
 
-    - name: apt-get python-openstackclient
-      command: apt-get -y install python-openstackclient
-
-    - name: apt-get python-neutronclient
-      command: apt-get -y install python-neutronclient
-
-    - name: apt-get python-novaclient
-      command: apt-get -y install python-novaclient
-
-
     - name: run admin-openrc script
       shell: source /etc/kolla/admin-openrc.sh && /etc/OpenStack/kolla-ansible/tools/init-runonce
       args:
        executable: /bin/bash
       async: 900
       ignore_errors: True
+
     - name: fetching external routes
       shell: route -A inet6 | grep '{{ neutron_external_interface }}' | awk {'print $1'}
       register: ext_route
