@@ -49,7 +49,13 @@ openstack:
         vcpus: 2
     - flavor:
         os_creds_name: admin-creds
-        name: os-node-flavor-{{ build_id }}
+        name: os-control-flavor-{{ build_id }}
+        ram: 16384
+        disk: 100
+        vcpus: 4
+    - flavor:
+        os_creds_name: admin-creds
+        name: os-compute-flavor-{{ build_id }}
         ram: 8192
         disk: 100
         vcpus: 4
@@ -252,7 +258,7 @@ openstack:
           name: os-deploy-user-{{ build_id }}
           project_name: os-deploy-proj-{{ build_id }}
         name: os-node-1-{{ build_id }}
-        flavor: os-node-flavor-{{ build_id }}
+        flavor: os-control-flavor-{{ build_id }}
         imageName: snaps-os-image-{{ build_id }}
         security_group_names: [os-deploy-build-sg-{{ build_id }}]
         cloud_init_timeout: 1000
@@ -322,7 +328,7 @@ openstack:
           name: os-deploy-user-{{ build_id }}
           project_name: os-deploy-proj-{{ build_id }}
         name: os-node-2-{{ build_id }}
-        flavor: os-node-flavor-{{ build_id }}
+        flavor: os-compute-flavor-{{ build_id }}
         imageName: snaps-os-image-{{ build_id }}
         security_group_names: [os-deploy-build-sg-{{ build_id }}]
         cloud_init_timeout: 1000
@@ -386,7 +392,7 @@ openstack:
           name: os-deploy-user-{{ build_id }}
           project_name: os-deploy-proj-{{ build_id }}
         name: os-node-3-{{ build_id }}
-        flavor: os-node-flavor-{{ build_id }}
+        flavor: os-compute-flavor-{{ build_id }}
         imageName: snaps-os-image-{{ build_id }}
         security_group_names: [os-deploy-build-sg-{{ build_id }}]
         cloud_init_timeout: 1000
