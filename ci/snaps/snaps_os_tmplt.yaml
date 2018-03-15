@@ -573,19 +573,9 @@ ansible:
       ip_pool_start:
         type: string
         value: {{ pub_ip_prfx }}.51
-#      ip_pool_start:
-#        type: network
-#        network_name: os-public-net-{{ build_id }}
-#        subnet_name: os-public-subnet-{{ build_id }}
-#        value: ip_range_start
       ip_pool_end:
         type: string
         value: {{ pub_ip_prfx }}.55
-#      ip_pool_end:
-#        type: network
-#        network_name: os-public-net-{{ build_id }}
-#        subnet_name: os-public-subnet-{{ build_id }}
-#        value: ip_range_end
       internal_vip_address:
         type: string
         value: {{ admin_ip_prfx }}.30
