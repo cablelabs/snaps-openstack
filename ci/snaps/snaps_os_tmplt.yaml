@@ -323,6 +323,16 @@ openstack:
                   ip: {{ pub_ip_prfx }}.11
                 - subnet_name: os-public-subnet-{{ build_id }}
                   ip: {{ pub_ip_prfx }}.30
+                - subnet_name: os-public-subnet-{{ build_id }}
+                  ip: {{ pub_ip_prfx }}.51
+                - subnet_name: os-public-subnet-{{ build_id }}
+                  ip: {{ pub_ip_prfx }}.52
+                - subnet_name: os-public-subnet-{{ build_id }}
+                  ip: {{ pub_ip_prfx }}.53
+                - subnet_name: os-public-subnet-{{ build_id }}
+                  ip: {{ pub_ip_prfx }}.54
+                - subnet_name: os-public-subnet-{{ build_id }}
+                  ip: {{ pub_ip_prfx }}.55
     - instance:
         os_user:
           name: os-deploy-user-{{ build_id }}
@@ -561,15 +571,21 @@ ansible:
         subnet_name: os-public-subnet-{{ build_id }}
         value: cidr
       ip_pool_start:
-        type: network
-        network_name: os-public-net-{{ build_id }}
-        subnet_name: os-public-subnet-{{ build_id }}
-        value: ip_range_start
+        type: string
+        value: {{ pub_ip_prfx }}.51
+#      ip_pool_start:
+#        type: network
+#        network_name: os-public-net-{{ build_id }}
+#        subnet_name: os-public-subnet-{{ build_id }}
+#        value: ip_range_start
       ip_pool_end:
-        type: network
-        network_name: os-public-net-{{ build_id }}
-        subnet_name: os-public-subnet-{{ build_id }}
-        value: ip_range_end
+        type: string
+        value: {{ pub_ip_prfx }}.55
+#      ip_pool_end:
+#        type: network
+#        network_name: os-public-net-{{ build_id }}
+#        subnet_name: os-public-subnet-{{ build_id }}
+#        value: ip_range_end
       internal_vip_address:
         type: string
         value: {{ admin_ip_prfx }}.30
@@ -600,3 +616,14 @@ ansible:
       kolla_registry_port:
         type: string
         value: 4000
+
+  # Execute tests
+  - playbook_location: {{ local_snaps_openstack_dir }}/ci/playbooks/run_tests.yaml
+    hosts:
+      - build-os-vm-{{ build_id }}
+    variables:
+      ctrl_admin_ip:
+        type: port
+        vm_name: os-node-1-{{ build_id }}
+        port_name: os-deploy-admin-port-1-{{ build_id }}
+        port_value: ip_address
