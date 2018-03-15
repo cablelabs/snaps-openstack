@@ -46,6 +46,6 @@
       command: 'scp {{ ctrl_admin_ip }}:/etc/kolla/admin-openrc.sh ~/openrc'
 
     - name: Launch SNAPS-OO validation tests
-      command: "~/snaps-venv/bin/python ~/snaps-oo/snaps/test_runner.py -e ~/openrc -a -i -k -t 2"
+      command: "~/snaps-venv/bin/python ~/snaps-oo/snaps/test_runner.py -e ~/openrc -a -k -t 2"
       register: out
     - debug: var=out.stderr_lines
