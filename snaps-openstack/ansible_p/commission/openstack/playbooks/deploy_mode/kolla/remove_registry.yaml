@@ -25,10 +25,8 @@
        var: id.stdout
 
     - name: remove registry process
-      #command: docker rm -f "{{ id.stdout }}"
-      command: docker stop -f $(docker ps -a -q)
+      command: docker stop "{{ id.stdout }}"
       ignore_errors: True
     - name: remove registry process
-      #command: docker rm -f "{{ id.stdout }}"
-      command: docker rm -f $(docker ps -a -q)
+      command: docker rm "{{ id.stdout }}"
       ignore_errors: True

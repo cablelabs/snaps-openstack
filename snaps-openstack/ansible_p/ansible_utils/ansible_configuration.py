@@ -116,7 +116,10 @@ def clean_up_kolla(list_ip,git_branch,docker_registry,docker_port,service_list, 
      ret_image=ansible_playbook_launcher.__launch_ansible_playbook(list_ip,playbook_path_remove_images,{'PROXY_DATA_FILE': PROXY_DATA_FILE, 'VARIABLE_FILE': VARIABLE_FILE})
      if(ret_image!=0):
         logger.info('Image cleanup problems might be there')
-
+  elif (operation is "cleanregistry" and pull_from_hub == "yes"):
+     ret_image=ansible_playbook_launcher.__launch_ansible_playbook(list_ip,playbook_path_remove_images,{'PROXY_DATA_FILE': PROXY_DATA_FILE, 'VARIABLE_FILE': VARIABLE_FILE})
+     if(ret_image!=0):
+        logger.info('Image cleanup problems might be there')
 
 def launch_provisioning_kolla(iplist,git_branch,kolla_tag,kolla_ansible_tag,cred_dict,host_name_map,host_node_type_map,docker_registry,docker_port,kolla_base,kolla_install,ext_sub,ext_gw,ip_pool_start,ip_pool_end,second_storage, operation, hostCpuMap, reserve_memory,base_size,count,default,vxlan,pull_from_hub):
  ret = False
@@ -199,6 +202,13 @@ def launch_provisioning_kolla(iplist,git_branch,kolla_tag,kolla_ansible_tag,cred
  else:
   check_var='absent'
   logger.info('controller not a compute')
+ if ip_control != docker_registry:
+   get_tag= False
+   logger.info("IMAGE SERVER IS DIFFERENT THAN CONTROLLER")
+   logger.info(get_tag)
+ else:
+   get_tag= True
+   logger.info(get_tag)
  logger.info('++++++++++++++++++++++++++++++++++++++++++++++++++++')
  logger.info('SETUP KOLLA BASE PACKAGES')
  if(pull_from_hub != "yes"):
@@ -219,7 +229,7 @@ def launch_provisioning_kolla(iplist,git_branch,kolla_tag,kolla_ansible_tag,cred
     ret= ansible_playbook_launcher.__launch_ansible_playbook(iplist , playbook_path_set_registry,
                                   {'target': docker_registry , 'DOCKER_OPTS' : DOCKER_OPTS , 'DOCKER_REGISTRY_IP' : DOCKER_REGISTRY_IP,
                                    'kolla_base' : kolla_base , 'kolla_install' : kolla_install, 'PROXY_DATA_FILE': PROXY_DATA_FILE,
-                                   'VARIABLE_FILE': VARIABLE_FILE, 'BASE_FILE_PATH':BASE_FILE_PATH})
+                                   'VARIABLE_FILE': VARIABLE_FILE, 'BASE_FILE_PATH':BASE_FILE_PATH, 'PULL_HUB': pull_from_hub})
     logger.info(ret)
     print '#####################################################'
     if(ret!=0):
@@ -281,7 +291,7 @@ def launch_provisioning_kolla(iplist,git_branch,kolla_tag,kolla_ansible_tag,cred
             logger.info("FAILED IN CONROLLER")
             exit(1)
           else:
-           ret_controller=ansible_playbook_launcher.__launch_ansible_playbook(iplist,playbook_path_launch_controller_pike,{ 'target' : controller_ip , 'DOCKER_OPTS' : DOCKER_OPTS , 'DOCKER_REGISTRY_IP' : DOCKER_REGISTRY_IP , 'kolla_base' : kolla_base , 'kolla_install' : kolla_install, 'PROXY_DATA_FILE': PROXY_DATA_FILE, 'VARIABLE_FILE': VARIABLE_FILE ,'BASE_FILE_PATH':BASE_FILE_PATH,'EXT_SUB':ext_sub,'EXT_GW':ext_gw,'START_IP':ip_pool_start,'END_IP':ip_pool_end,'DEFAULT': default,'VXLAN': vxlan, 'GIT_BRANCH':git_branch,'KOLLA_TAG':kolla_tag,'KOLLA_ANSIBLE_TAG':kolla_ansible_tag, 'CHECK_VAR':check_var, 'PULL_HUB': pull_from_hub})
+           ret_controller=ansible_playbook_launcher.__launch_ansible_playbook(iplist,playbook_path_launch_controller_pike,{ 'target' : controller_ip , 'DOCKER_OPTS' : DOCKER_OPTS , 'DOCKER_REGISTRY_IP' : DOCKER_REGISTRY_IP , 'kolla_base' : kolla_base , 'kolla_install' : kolla_install, 'PROXY_DATA_FILE': PROXY_DATA_FILE, 'VARIABLE_FILE': VARIABLE_FILE ,'BASE_FILE_PATH':BASE_FILE_PATH,'EXT_SUB':ext_sub,'EXT_GW':ext_gw,'START_IP':ip_pool_start,'END_IP':ip_pool_end,'DEFAULT': default,'VXLAN': vxlan, 'GIT_BRANCH':git_branch,'KOLLA_TAG':kolla_tag,'KOLLA_ANSIBLE_TAG':kolla_ansible_tag, 'CHECK_VAR':check_var, 'PULL_HUB': pull_from_hub, 'GET_TAG': get_tag})
            if (ret_controller !=0):
             logger.info("FAILED IN CONROLLER PIKE")
             print ret_controller
@@ -297,7 +307,7 @@ def launch_provisioning_kolla(iplist,git_branch,kolla_tag,kolla_ansible_tag,cred
         for node_ip in list_compute:
            vcpu_pin=hostCpuMap.get(node_ip)
            memory=reserve_memory.get(node_ip)
-           ret= ansible_playbook_launcher.__launch_ansible_playbook(iplist,playbook_path_launch_set_pin,{ 'target': node_ip,'PROXY_DATA_FILE': PROXY_DATA_FILE, 'VARIABLE_FILE': VARIABLE_FILE, 'BASE_FILE_PATH':BASE_FILE_PATH, 'vcpu_pin': vcpu_pin, 'memory': memory, 'DEFAULT': default, 'VXLAN': vxlan, 'GIT_BRANCH':git_branch, 'KOLLA_TAG':kolla_tag, 'KOLLA_ANSIBLE_TAG':kolla_ansible_tag})
+           ret= ansible_playbook_launcher.__launch_ansible_playbook(iplist,playbook_path_launch_set_pin,{ 'target': node_ip,'PROXY_DATA_FILE': PROXY_DATA_FILE, 'VARIABLE_FILE': VARIABLE_FILE, 'BASE_FILE_PATH':BASE_FILE_PATH, 'vcpu_pin': vcpu_pin, 'memory': memory, 'DEFAULT': default, 'VXLAN': vxlan, 'GIT_BRANCH':git_branch, 'KOLLA_TAG':kolla_tag, 'KOLLA_ANSIBLE_TAG':kolla_ansible_tag,'CONTROLLER_IP':ip_control})
            if(ret !=0):
               logger.error(" FAILED IN COMPUTE")
               exit(1)

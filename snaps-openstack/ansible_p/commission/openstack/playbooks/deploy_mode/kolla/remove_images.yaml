@@ -25,6 +25,6 @@
     no_proxy: "{{ no_proxy }}"
   tasks:
     - name: remove images
-      shell: docker rmi -f $(docker images -a -q)
+      shell: docker rmi $(docker images -a -q)
       ignore_errors: True
       failed_when: "all images deleted"
