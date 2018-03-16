@@ -37,15 +37,16 @@
         state: absent
         dest: ~/snaps-venv
 
+    - name: Create virtualenv
+      shell: /home/ubuntu/.local/bin/virtualenv ~/snaps-venv
+
     - name: Install snaps-oo
-      pip:
-        name: ~/snaps-oo
-        virtualenv: ~/snaps-venv
+      shell: ~/snaps-venv/bin/pip install -e ~/snaps-oo
 
     - name: Copy RC file from control server @ {{ ctrl_admin_ip }}
-      command: 'scp {{ ctrl_admin_ip }}:/etc/kolla/admin-openrc.sh ~/openrc'
+      command: 'sudo scp -o StrictHostKeyChecking=no {{ ctrl_admin_ip }}:/etc/kolla/admin-openrc.sh ~/openrc'
 
     - name: Launch SNAPS-OO validation tests
-      command: "~/snaps-venv/bin/python ~/snaps-oo/snaps/test_runner.py -e ~/openrc -a -k -t 2"
+      command: "~/snaps-venv/bin/python ~/snaps-oo/snaps/test_runner.py -e ~/openrc -n {{ ext_net_name }} -a -k -t 2"
       register: out
     - debug: var=out.stderr_lines

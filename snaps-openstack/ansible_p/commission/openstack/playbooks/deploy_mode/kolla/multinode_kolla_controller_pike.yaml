@@ -41,6 +41,18 @@
     - name: upgrade pip
       command: pip install --upgrade pip
 
+    - name: install python-openstackclient
+      pip:
+        name: python-openstackclient
+
+    - name: install python-neutronclient
+      pip:
+        name: python-neutronclient
+
+    - name: install python-novaclient
+      pip:
+        name: python-novaclient
+
     - name: upgrade pyOpenSSL
       command: pip install --upgrade pyOpenSSL
 
@@ -79,31 +91,6 @@
       command: docker run -d -p 4000:5000 --restart=always --name registry  registry:2
       ignore_errors: True
       when: PULL_HUB != "yes"
-#    - name: replace data in init-runonce script
-#      replace:
-#        dest: '/etc/OpenStack/kolla-ansible/tools/init-runonce'
-#        regexp: '^(.*)neutron subnet-create --name 1-subnet --allocation-pool start=172.19.27.250,end=172.19.27.230 public1 172.19.27.0/24 --gateway 172.19.27.1(.*)$'
-#        replace: 'neutron subnet-create --name 1-subnet --allocation-pool start={{START_IP}},end={{END_IP}} public1 {{EXT_SUB}} --gateway {{EXT_GW}}'
-
-#    - lineinfile:
-#       destfile: '/etc/OpenStack/kolla-ansible/tools/init-runonce'
-#       state: absent
-#       regexp:  '(.*)neutron net-create demo-net --provider:network_type vxlan(.*)$'
-
-#    - lineinfile:
-#       destfile: '/etc/OpenStack/kolla-ansible/tools/init-runonce'
-#       state: absent
-#       regexp:  '(.*)neutron subnet-create demo-net 10.0.0.0/24 --name demo-subnet --gateway 10.0.0.1 --dns-nameservers list=true 8.8.8.8(.*)$'
-
-#    - lineinfile:
-#       destfile: '/etc/OpenStack/kolla-ansible/tools/init-runonce'
-#       state: absent
-#       regexp:  '(.*)neutron router-interface-add demo-router demo-subnet(.*)$'
-
-#    - lineinfile:
-#       destfile: '/etc/OpenStack/kolla-ansible/tools/init-runonce'
-#       line: 'openstack role add --project admin --user admin heat_stack_owner'
-#       insertbefore: 'cat << EOF'
 
     - name: replace data in init-runonce script
       ignore_errors: True
@@ -232,29 +219,23 @@
       lineinfile:
        dest: /etc/modules
        line: 'configfs'
-#      when: enable_cinder == "yes" and CHECK_VAR == "present"
       when: enable_cinder == "yes"
 
     - name: update-initramfs
       command: update-initramfs -u
       ignore_errors: True
-#      when: enable_cinder == "yes" and CHECK_VAR == "present"
       when: enable_cinder == "yes"
     - name: systemctl stop open-iscsi
       command: systemctl stop open-iscsi
-#      when: enable_cinder == "yes" and CHECK_VAR == "present"
       when: enable_cinder == "yes"
     - name: systemctl disable open-iscsi
       command: systemctl disable open-iscsi
-#      when: enable_cinder == "yes" and CHECK_VAR == "present"
       when: enable_cinder == "yes"
     - name: systemctl stop iscsid
       command: systemctl stop iscsid
-#      when: enable_cinder == "yes" and CHECK_VAR == "present"
       when: enable_cinder == "yes"
     - name: systemctl disable iscsid
       command: systemctl disable iscsid
-#      when: enable_cinder == "yes" and CHECK_VAR == "present"
       when: enable_cinder == "yes"
 
     - name: add line to all.yml
@@ -297,7 +278,6 @@
     - debug:
         var: tag
 
-
     - name: adding openstack release tag in globals.yaml
       lineinfile:
        dest: /etc/kolla/globals.yml
@@ -305,37 +285,35 @@
        insertafter: '#openstack_release: "auto"'
       when: PULL_HUB != "yes" and GET_TAG
 
-
     - name: kolla generate passwords
       command: kolla-genpwd
 
-
-    - name: kolla ansible prechecks
+    - name: kolla ansible prechecks with file {{ MULTINODE_FILE }}
       command: kolla-ansible prechecks  -i "{{ MULTINODE_FILE }}"
 
-    - name: kolla ansible pull
+    - name: kolla ansible pull with file {{ MULTINODE_FILE }}
       command: kolla-ansible pull  -i "{{ MULTINODE_FILE }}"
       when: PULL_HUB == "yes"
 
-    - name: kolla ansible deploy
+    - name: kolla ansible deploy with file {{ MULTINODE_FILE }}
       command: kolla-ansible deploy  -i "{{ MULTINODE_FILE }}"
+      register: out
+    - debug: var=out.stdout_lines
+    - debug: var=out.stderr_lines
 
     - name: kolla ansible post deploy
       command: kolla-ansible post-deploy
+      register: out
+    - debug: var=out.stdout_lines
+    - debug: var=out.stderr_lines
 
-    - name: Extract IP of the neutron_external_interface
+    - name: Extract IP of the neutron_external_interface - {{ neutron_external_interface }}
       shell: ip a show "{{ neutron_external_interface }}" | grep inet | grep global | awk '{ print$2}'
       register: extip
     - debug:
         var: extip
 
-
-#    - name: Delete conn neutron_external_interface using nmcli
-
-#      command: nmcli conn del "{{ neutron_external_interface }}"
-#      ignore_errors: True
-
-    - name: Flush IP from neutron_external_interface
+    - name: Flush IP from neutron_external_interface - {{ neutron_external_interface }}
       command: ip addr flush  "{{ neutron_external_interface }}"
       ignore_errors: True
 
@@ -347,20 +325,10 @@
 
     - name : Setting MAC on br-ex
       shell : docker exec openvswitch_vswitchd bash -c  'ovs-vsctl -- set bridge br-ex other-config:hwaddr=\"{{ public_mac.stdout }}\"'
-      ignore_errors: False
 
-#    - name: Flush bridg-ex IP
-#      command: ip addr flush br-ex
-#      ignore_errors: True
-#
-#    - pause:
-#        seconds: 5
-
-    - name: Set Ip to BR-ex
+    - name: Set Ip to BR-ex - {{ item }}
       command: ip addr add {{ item }} dev br-ex
-      ignore_errors: True
       with_items: "{{extip.stdout_lines|list}}"
-
 
     - pause:
         seconds: 5
@@ -371,9 +339,8 @@
     - pause:
         seconds: 5
 
-    - name: Set Br-ex a defaults gateway route
+    - name: Set Br-ex a defaults gateway route on nic {{ external_gw }}
       command: ip route add default via "{{ external_gw }}" dev br-ex
-      ignore_errors: True
 
     - name: insert/update br-ex & default configuration in /etc/network/interfaces
       lineinfile:
@@ -385,38 +352,29 @@
                netmask 255.255.255.0\n"
         state: present
       with_items: "{{extip.stdout_lines.0}}"
-      ignore_errors: True
 
     - name: insert route details for br-ex
       lineinfile:
         dest: /etc/network/interfaces
         backup: yes
         line: "post-up ip addr add {{ extip.stdout_lines.1 }} dev br-ex\nup route add default gw {{ external_gw }} dev br-ex\npost-up sleep 5; for i in $(ip -6 r | grep {{ neutron_external_interface }} | awk {'print $1'}); do ip -6 r d $i dev {{ neutron_external_interface }}; done\npost-up ip addr flush {{ neutron_external_interface }}"
-      ignore_errors: True
- 
 
     - name: Changing perm of "/etc/kolla/admin-openrc.sh", adding "+x"
       file: dest=/etc/kolla/admin-openrc.sh mode=a+x
 
-    - name: install test requirements
+    - name: install test requirements - {{ TEST_REQUIREMENT_KOLLA }}
       pip:
         requirements: "{{ TEST_REQUIREMENT_KOLLA }}"
       when: PULL_HUB != "yes"
-      ignore_errors: True
 
-    - name: install requirements
-      command: pip install python-openstackclient===3.14.0
-      when: PULL_HUB == "yes"
-      ignore_errors: True
-
-    - name: apt-get python-openstackclient
-      command: apt-get -y install python-openstackclient
-
-    - name: apt-get python-neutronclient
-      command: apt-get -y install python-neutronclient
-
-    - name: apt-get python-novaclient
-      command: apt-get -y install python-novaclient
+    - name: run init-runonce
+      shell: source /etc/kolla/admin-openrc.sh && /etc/OpenStack/kolla-ansible/tools/init-runonce
+      args:
+       executable: /bin/bash
+      async: 900
+      register: out
+    - debug: var=out.stdout_lines
+    - debug: var=out.stderr_lines
 
     - name: fetching external routes
       shell: route -A inet6 | grep '{{ neutron_external_interface }}' | awk {'print $1'}
@@ -449,27 +407,3 @@
 
     - name: systemctl restart docker
       command: systemctl restart docker
-
-
-
-
-#Changes for MTU size
-#    - name: Modifying neutron.conf for MTU size
-#      command: find /etc/kolla -type f -exec sed -i 's/core_plugin = ml2/core_plugin = ml2\nglobal_physnet_mtu = {{ MTU_SIZE }}/g' {} \;
-#      when: global_physnet_mtu.stdout
-#      ignore_errors: True
-#
-#    - name: Modifying ml2_conf.ini for MTU size
-#      command: find /etc/kolla -type f -exec sed -i 's/type_drivers = flat,vlan,vxlan/type_drivers = flat,vlan,vxlan\npath_mtu = {{ MTU_SIZE }}/g' {} \;
-#      ignore_errors: True
-
-#    - name: Configuring nodes with static ip
-#      lineinfile:
-#          dest: /etc/network/interfaces
-#          state: present
-#          backrefs: yes
-#          regexp: 'iface {{ network_interface }} inet dhcp'
-#          line: "iface {{ network_interface }} inet static\naddress {{ target }}\nnetmask 255.255.255.0\ngateway {{ external_gw }}"
-#
-#    - name: Restart networking service
-#      command: /etc/init.d/networking restart
