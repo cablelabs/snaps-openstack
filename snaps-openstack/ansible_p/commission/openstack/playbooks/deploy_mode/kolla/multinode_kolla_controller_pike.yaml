@@ -319,7 +319,7 @@
        dest: /etc/kolla/globals.yml
        line: 'openstack_release: "{{tag.stdout}}"'
        insertafter: '#openstack_release: "auto"'
-      when: PULL_HUB != "yes" and GET_TAG
+      when: PULL_HUB != "yes"
 
 
     - name: kolla generate passwords
