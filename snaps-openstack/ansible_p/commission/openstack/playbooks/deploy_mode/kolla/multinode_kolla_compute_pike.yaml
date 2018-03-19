@@ -162,13 +162,7 @@
        src: "{{BASE_FILE_PATH }}daemon.json"
        dest: "{{ DAEMON_DOCKER_FILE_DEST }}"
       when: PULL_HUB != "yes" 
-#Changes for MTU size
-#    - name: Modifying neutron.conf for MTU size
-#      command: find /etc/kolla -type f -exec sed -i 's/core_plugin = ml2/core_plugin = ml2\nglobal_physnet_mtu = {{ MTU_SIZE }}/g' {} \;
-#      ignore_errors: True
-#    - name: Modifying ml2_conf.ini for MTU size
-#      command: find /etc/kolla -type f -exec sed -i 's/type_drivers = flat,vlan,vxlan/type_drivers = flat,vlan,vxlan\npath_mtu = {{ MTU_SIZE }}/g' {} \;
-#      ignore_errors: True
+
     - name: systemctl daemon-reload
       command: systemctl daemon-reload
 
@@ -204,7 +198,7 @@
       when: enable_cinder == "yes"
 
 
-    - name: Extract IP of the neutron_external_interface
+    - name: Extract IP of the neutron_external_interface - {{ neutron_external_interface }}
       shell: ip a show "{{ neutron_external_interface }}" | grep inet | grep global | awk '{ print$2}'
       register: extip
     - debug:
@@ -227,47 +221,3 @@
         backup: yes
         line:  "up route add default gw {{ external_gw }} dev br-ex\npost-up sleep 5; for i in $(ip -6 r | grep {{ neutron_external_interface }} | awk {'print $1'}); do ip -6 r d $i dev {{ neutron_external_interface }}; done\npost-up ip addr flush {{ neutron_external_interface }}"
       ignore_errors: True
-#    - name: insert/update br-ex & default configuration in /etc/network/interfaces
-#      blockinfile:
-#        path: /etc/network/interfaces
-#        backup: yes
-#        block: |
-#           auto br-ex
-#           iface br-ex inet static
-#               address {{ item }}
-#               netmask 255.255.255.0
-#               gateway "{{ external_gw }}"
-#
-#           up route add default gw "{{ external_gw }}" dev br-ex
-#        state: present
-#      with_items: "{{extip.stdout_lines|list}}"
-#      ignore_errors: True
-
-
-#    - name: insert/update br-ex & default configuration in /etc/network/interfaces
-#      blockinfile:
-#        path: /etc/network/interfaces
-#        backup: yes
-#        block: |
-#           auto br-ex
-#           iface br-ex inet static
-#               address {{ item }}
-#               netmask 255.255.255.0
-#               gateway "{{ external_gw }}"
-#
-#           up route add default gw "{{ external_gw }}" dev br-ex
-#        state: present
-#      with_items: "{{extip.stdout_lines|list}}"
-#      ignore_errors: True
-#
-#    - name: Configuring nodes with static ip
-#      lineinfile:
-#          dest: /etc/network/interfaces
-#          state: present
-#          backrefs: yes
-#          regexp: 'iface {{ network_interface }} inet dhcp'
-#          line: "iface {{ network_interface }} inet static\naddress {{ target }}\nnetmask 255.255.255.0\ngateway {{ external_gw }}"
-#
-#    - name: Restart networking service
-#      command: /etc/init.d/networking restart
-

@@ -22,6 +22,12 @@
       become_user: root
       apt: name=git
 
+    - name: Install Pip
+      become: yes
+      become_method: sudo
+      become_user: root
+      apt: name=python-pip
+
     - name: Install virtualenv
       become: yes
       become_method: sudo
@@ -51,9 +57,18 @@
       shell: ~/snaps-venv/bin/pip install -e ~/snaps-oo
 
     - name: Copy RC file from control server @ {{ ctrl_admin_ip }}
-      command: 'sudo scp -o StrictHostKeyChecking=no {{ ctrl_admin_ip }}:/etc/kolla/admin-openrc.sh ~/openrc'
+      become: yes
+      become_method: sudo
+      become_user: root
+      command: 'scp -o StrictHostKeyChecking=no {{ ctrl_admin_ip }}:/etc/kolla/admin-openrc.sh ~/openrc'
 
     - name: Launch SNAPS-OO validation tests
       command: "~/snaps-venv/bin/python ~/snaps-oo/snaps/test_runner.py -e ~/openrc -n {{ ext_net_name }} -a -k -t 2"
       register: out
+      ignore_errors: True
+    - debug: var=out.stdout_lines
     - debug: var=out.stderr_lines
+
+    - name: fail the play if the previous command did not succeed
+      fail: msg="SNAPS-OO validation tests failed"
+      when: out.rc != 0
