@@ -33,6 +33,9 @@ openstack:
         name: os-deploy-proj-{{ build_id }}
         description: Project for Orchestrators
         users: [os-deploy-user-{{ build_id }}, {{ admin_user }}]
+        quotas:
+          ram: 102400
+          cores: 40
   users:
     - user:
         os_creds_name: admin-creds
@@ -44,21 +47,21 @@ openstack:
     - flavor:
         os_creds_name: admin-creds
         name: os-build-flavor-{{ build_id }}
-        ram: 4096
-        disk: 80
-        vcpus: 2
-    - flavor:
-        os_creds_name: admin-creds
-        name: os-control-flavor-{{ build_id }}
-        ram: 16384
-        disk: 100
-        vcpus: 4
-    - flavor:
-        os_creds_name: admin-creds
-        name: os-compute-flavor-{{ build_id }}
         ram: 8192
         disk: 100
         vcpus: 4
+    - flavor:
+        os_creds_name: admin-creds
+        name: os-control-flavor-{{ build_id }}
+        ram: 24576
+        disk: 300
+        vcpus: 8
+    - flavor:
+        os_creds_name: admin-creds
+        name: os-compute-flavor-{{ build_id }}
+        ram: 16384
+        disk: 300
+        vcpus: 8
   images:
     - image:
         os_creds_name: admin-creds
