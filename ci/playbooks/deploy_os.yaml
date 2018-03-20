@@ -132,6 +132,6 @@
     - debug: var=out.stdout_lines
     - debug: var=out.stderr_lines
 
-    - name: fail the play if the previous command did not succeed
+    - name: Validating OpenStack deploy returned 0
       fail: msg="iaas_launch.py -d command failed"
       when: out.rc != 0

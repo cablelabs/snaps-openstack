@@ -59,13 +59,13 @@
     - name: Copy RC file from control server @ {{ ctrl_admin_ip }}
       command: 'sudo scp -o StrictHostKeyChecking=no {{ ctrl_admin_ip }}:/etc/kolla/admin-openrc.sh ~/openrc'
 
-    - name: Launch SNAPS-OO validation tests
+    - name: Launch snaps-oo validation tests
       command: "~/snaps-venv/bin/python ~/snaps-oo/snaps/test_runner.py -e ~/openrc -n {{ ext_net_name }} -c"
       register: out
       ignore_errors: True
     - debug: var=out.stdout_lines
     - debug: var=out.stderr_lines
 
-    - name: fail the play if the previous command did not succeed
+    - name: Validating snaps-oo validation tests completed with return code 0
       fail: msg="SNAPS-OO validation tests failed"
       when: out.rc != 0
