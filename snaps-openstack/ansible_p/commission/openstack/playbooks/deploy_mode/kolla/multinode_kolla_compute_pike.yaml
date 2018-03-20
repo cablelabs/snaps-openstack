@@ -39,6 +39,7 @@
         - curl
         - software-properties-common
         - libltdl7
+        - aufs-tools
 
     - name: Clone git
       git:

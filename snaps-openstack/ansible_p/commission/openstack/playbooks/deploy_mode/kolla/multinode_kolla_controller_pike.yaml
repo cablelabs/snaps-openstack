@@ -300,7 +300,7 @@
     - debug: var=out.stdout_lines
     - debug: var=out.stderr_lines
 
-    - name: fail the play if the previous command did not succeed
+    - name: Validating task [kolla ansible prechecks] returned 0
       fail: msg="kolla-ansible prechecks command failed"
       when: out.rc != 0
 
@@ -308,25 +308,25 @@
       command: kolla-ansible pull  -i "{{ MULTINODE_FILE }}"
       when: PULL_HUB == "yes"
 
-    - name: kolla ansible deploy with file {{ MULTINODE_FILE }}
+    - name: kolla-ansible deploy with file {{ MULTINODE_FILE }}
       command: kolla-ansible deploy  -i "{{ MULTINODE_FILE }}"
       register: out
       ignore_errors: True
     - debug: var=out.stdout_lines
     - debug: var=out.stderr_lines
 
-    - name: fail the play if the previous command did not succeed
+    - name: Validating task [kolla-ansible deploy] returned 0
       fail: msg="kolla-ansible deploy command failed"
       when: out.rc != 0
 
-    - name: kolla ansible post deploy
+    - name: kolla-ansible post-deploy
       command: kolla-ansible post-deploy
       register: out
       ignore_errors: True
     - debug: var=out.stdout_lines
     - debug: var=out.stderr_lines
 
-    - name: fail the play if the previous command did not succeed
+    - name: Validating task [kolla-ansible post-deploy] returned 0
       fail: msg="kolla-ansible post-deploy command failed"
       when: out.rc != 0
 
@@ -400,7 +400,7 @@
     - debug: var=out.stdout_lines
     - debug: var=out.stderr_lines
 
-    - name: fail the play if the previous command did not succeed
+    - name: Validating task [run init-runonce] returned 0
       fail: msg="run init-runonce command failed"
       when: out.rc != 0
 
