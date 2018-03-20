@@ -36,6 +36,7 @@
         - python-pip
         - ntp
         - parted
+        - aufs-tools
 
     - name: upgrade pip
       command: pip install --upgrade pip
