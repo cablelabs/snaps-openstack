@@ -364,6 +364,7 @@
 
     - name: Set Br-ex a defaults gateway route on nic {{ external_gw }}
       command: ip route add default via "{{ external_gw }}" dev br-ex
+      ignore_errors: True
 
     - name: insert/update br-ex & default configuration in /etc/network/interfaces
       lineinfile:
@@ -375,12 +376,15 @@
                netmask 255.255.255.0\n"
         state: present
       with_items: "{{extip.stdout_lines.0}}"
+      ignore_errors: True
 
     - name: insert route details for br-ex
       lineinfile:
         dest: /etc/network/interfaces
         backup: yes
+        state: present
         line: "post-up ip addr add {{ extip.stdout_lines.1 }} dev br-ex\nup route add default gw {{ external_gw }} dev br-ex\npost-up sleep 5; for i in $(ip -6 r | grep {{ neutron_external_interface }} | awk {'print $1'}); do ip -6 r d $i dev {{ neutron_external_interface }}; done\npost-up ip addr flush {{ neutron_external_interface }}"
+      ignore_errors: True
 
     - name: Changing perm of "/etc/kolla/admin-openrc.sh", adding "+x"
       file: dest=/etc/kolla/admin-openrc.sh mode=a+x
@@ -389,6 +393,7 @@
       pip:
         requirements: "{{ TEST_REQUIREMENT_KOLLA }}"
       when: PULL_HUB != "yes"
+      ignore_errors: True
 
     - name: run init-runonce
       shell: source /etc/kolla/admin-openrc.sh && /etc/OpenStack/kolla-ansible/tools/init-runonce
