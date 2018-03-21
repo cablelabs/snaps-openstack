@@ -48,12 +48,12 @@
       pip:
         name: pathlib
 
-    - name: Delete existing snaps-openstack directory
+    - name: Delete existing snaps-openstack directory - {{ src_copy_dir }}/snaps-openstack
       file:
         state: absent
         dest: "{{ src_copy_dir }}/snaps-openstack"
 
-    - name: Copy this source tree
+    - name: Copy this source tree to - {{ src_copy_dir }}/snaps-openstack
       synchronize:
         src: ../../../
         dest: "{{ src_copy_dir }}/snaps-openstack"
@@ -61,15 +61,15 @@
           - "--no-motd"
           - "--exclude=.git"
 
-    - name: Delete root's private key
+    - name: Delete root's private key - /root/.ssh/id_rsa
       file:
         state: absent
         dest: /root/.ssh/id_rsa
 
-    - name: Delete root's public key
+    - name: Delete root's public key - /root/.ssh/id_rsa.pub
       file:
         state: absent
-        dest: /root/.ssh/id_rsa.pub
+        dest: /root/.ssh/id_rsa.pub - /root/.ssh/id_rsa
 
     - name: Generate root's key
       command: ssh-keygen -P '' -f /root/.ssh/id_rsa
@@ -122,8 +122,16 @@
     - name: Apply template and copy deployment.yaml.tmplt to {{ deployment_yaml_path }}
       action: template src=templates/deployment.yaml.tmplt dest={{ deployment_yaml_path }}
 
-#    - name: Deploy - iaas_launch.py -drs *** This will run for ~45 min without output
-#      become: yes
-#      become_method: sudo
-#      become_user: root
-#      command: "python {{ src_copy_dir }}/snaps-openstack/snaps-openstack/iaas_launch.py -f {{ deployment_yaml_path }} -drs"
+    - name: Deploy - iaas_launch.py -d *** This will run for around an hour without output
+      become: yes
+      become_method: sudo
+      become_user: root
+      command: "python {{ src_copy_dir }}/snaps-openstack/snaps-openstack/iaas_launch.py -f {{ deployment_yaml_path }} -d"
+      register: out
+      ignore_errors: True
+    - debug: var=out.stdout_lines
+    - debug: var=out.stderr_lines
+
+    - name: Validating OpenStack deploy returned 0
+      fail: msg="iaas_launch.py -d command failed"
+      when: out.rc != 0
