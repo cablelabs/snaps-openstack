@@ -535,7 +535,7 @@ of configuration server expect the user should be explicitly switched (using
 
 #### Step 2
 
-Go to directory `~/snaps-openstack/conf/openstack/kolla`
+Go to directory `<repo_dir>/snaps-openstack/conf/openstack/kolla`
 
 Modify file `deployment.yaml` for provisioning of OpenStack nodes on cloud
 cluster host machines (controller node, compute nodes). Modify this file
@@ -543,12 +543,12 @@ according to your set up environment only (Refer section 3).
 
 #### Step 3
 
-Go to directory `~/snaps-openstack/`
+Go to directory `<repo_dir>/snaps-openstack/`
 
 Run `iaas_launch.py` as shown below:
 
 ```
-sudo python iaas_launch.py -f conf/openstack/kolla/deployment.yaml -drs
+sudo python <repo_dir>/iaas_launch.py -f <repo_dir>/conf/openstack/kolla/deployment.yaml -drs
 ```
 
 This will install Kolla OpenStack service on host machines. Your OpenStack
@@ -558,14 +558,14 @@ installation will start and will get completed in ~40 minutes.
 
 #### Step 1
 
-Go to `~/snaps-openstack/utilities/` directory.
+Go to `<repo_dir>/snaps_openstack/utilities/` directory.
 
 Define VLAN ports per host in `var.yaml` file under TenantVLAN task (we can
 define multiple vlan ports for multiple hosts).
 
 #### Step 2
 
-Run the following command from `~/snaps-openstack/utilities` directory:
+Run the following command from `<repo_dir>/snaps_openstack/utilities` directory:
 
 ```
 python utils.py -f var.yaml -tvlan
@@ -577,13 +577,13 @@ Please configure the switch for tagged vlan ports.
 
 #### Step 1
 
-Go to `~/snaps-openstack/utilities/` directory.
+Go to `<repo_dir>/snaps_openstack/utilities/` directory.
 
 Define MTU size for NICS per host in `var.yaml` file under mtu task.
 
 #### Step 2
 
-Run the following command from `~/snaps-openstack/utilities` directory:
+Run the following command from `<repo_dir>/snaps_openstack/utilities` directory:
 
 ```
 python utils.py -f var.yaml -mtu
@@ -597,7 +597,7 @@ If docker based images for OpenStack services are already available run
 `iaas_launch.py` as shown below:
 
 ```
-sudo python iaas_launch.py -f conf/openstack/kolla/deployment.yaml -d
+sudo python <repo_dir>/iaas_launch.py -f <repo_dir>/conf/openstack/kolla/deployment.yaml -d
 ```
 
 ### 5.2 Re-deployment
@@ -608,25 +608,25 @@ In case previous deployment attempt has failed or new changes are required
 First, Clean up previous OpenStack deployment:
 
 ```
-sudo python iaas_launch.py -f conf/openstack/kolla/deployment.yaml -c
+sudo python <repo_dir>/iaas_launch.py -f <repo_dir>/conf/openstack/kolla/deployment.yaml -c
 ```
 
 Or Clean up previous deployment along with docker repository:
 
 ```
-sudo python iaas_launch.py -f conf/openstack/kolla/deployment.yaml -drc
+sudo python <repo_dir>/iaas_launch.py -f <repo_dir>/conf/openstack/kolla/deployment.yaml -drc
 ```
 
 Then, re-install OpenStack. If docker repository exists:
 
 ```
-sudo python iaas_launch.py -f conf/openstack/kolla/deployment.yaml -d
+sudo python <repo_dir>/iaas_launch.py -f <repo_dir>/conf/openstack/kolla/deployment.yaml -d
 ```
 
 Or if docker repository needs to be built:
 
 ```
-sudo python iaas_launch.py -f conf/openstack/kolla/deployment.yaml -drs
+sudo python <repo_dir>/iaas_launch.py -f <repo_dir>/conf/openstack/kolla/deployment.yaml -drs
 ```
 
 ### 5.3 Cleanup
@@ -634,11 +634,11 @@ sudo python iaas_launch.py -f conf/openstack/kolla/deployment.yaml -drs
 Clean up previous OpenStack deployment:
 
 ```
-sudo python iaas_launch.py -f conf/openstack/kolla/deployment.yaml -c
+sudo python <repo_dir>/iaas_launch.py -f <repo_dir>/conf/openstack/kolla/deployment.yaml -c
 ```
 
 Clean up previous deployment along with docker repository:
 
 ```
-sudo python iaas_launch.py -f conf/openstack/kolla/deployment.yaml -drc
+sudo python <repo_dir>/iaas_launch.py -f <repo_dir>/conf/openstack/kolla/deployment.yaml -drc
 ```

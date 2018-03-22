@@ -20,12 +20,12 @@ Created By :Ashish
 import subprocess
 import os
 import sys
-from common.utils import file_utils
-from ansible_p.ansible_utils import ansible_configuration
+from snaps_openstack.common.utils import file_utils
+from snaps_openstack.ansible_p.ansible_utils import ansible_configuration
 import logging
 import random
 import shutil
-from common.consts import consts
+from snaps_openstack.common.consts import consts
 from collections import OrderedDict
 logger = logging.getLogger('deploy_venv')
 def main(config, operation):

@@ -126,7 +126,7 @@
       become: yes
       become_method: sudo
       become_user: root
-      command: "python {{ src_copy_dir }}/snaps-openstack/snaps-openstack/iaas_launch.py -f {{ deployment_yaml_path }} -d"
+      command: "python {{ src_copy_dir }}/snaps-openstack/iaas_launch.py -f {{ deployment_yaml_path }} -d"
       register: out
       ignore_errors: True
     - debug: var=out.stdout_lines
