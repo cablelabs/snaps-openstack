@@ -20,8 +20,8 @@ import sys
 import os
 
 sys.path.append("common/utils")
-from common.utils import file_utils
-from provision.openstack.deployment import deploy_infra
+from snaps_openstack.common.utils import file_utils
+from snaps_openstack.provision.openstack.deployment import deploy_infra
 
 # from provision.hardware import pxe_utils
 

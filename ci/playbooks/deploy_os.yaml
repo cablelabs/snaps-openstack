@@ -19,34 +19,13 @@
   become_user: root
 
   tasks:
-    - name: Install Git
-      apt: name=git
-
-    - name: Install sshpass
-      apt: name=sshpass
-
-    - name: Install Pip
-      apt: name=python-pip
-
-    - name: Install pyyaml
-      pip:
-        name: pyyaml
-
-    - name: Install six
-      become: yes
-      become_method: sudo
-      become_user: root
-      pip:
-        name: six
-
-    - name: Install ansible 2.3
-      pip:
-        name: ansible
-        version: 2.3.0.0
-
-    - name: Install pathlib
-      pip:
-        name: pathlib
+    - name: Install dependencies
+      apt:
+        name: "{{ item }}"
+      with_items:
+        - git
+        - python-pip
+        - sshpass
 
     - name: Delete existing snaps-openstack directory - {{ src_copy_dir }}/snaps-openstack
       file:
@@ -60,6 +39,9 @@
         rsync_opts:
           - "--no-motd"
           - "--exclude=.git"
+
+    - name: Install snaps-openstack
+      command: pip install -e {{ src_copy_dir }}/snaps-openstack
 
     - name: Delete root's private key - /root/.ssh/id_rsa
       file:
@@ -123,10 +105,7 @@
       action: template src=templates/deployment.yaml.tmplt dest={{ deployment_yaml_path }}
 
     - name: Deploy - iaas_launch.py -d *** This will run for around an hour without output
-      become: yes
-      become_method: sudo
-      become_user: root
-      command: "python {{ src_copy_dir }}/snaps-openstack/snaps-openstack/iaas_launch.py -f {{ deployment_yaml_path }} -d"
+      command: "python {{ src_copy_dir }}/snaps-openstack/iaas_launch.py -f {{ deployment_yaml_path }} -d"
       register: out
       ignore_errors: True
     - debug: var=out.stdout_lines

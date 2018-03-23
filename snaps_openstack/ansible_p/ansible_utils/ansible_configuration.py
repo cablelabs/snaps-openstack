@@ -21,7 +21,7 @@ import os
 import logging
 import sys
 #Change the system path to import consts file
-from common.consts import consts
+from snaps_openstack.common.consts import consts
 
 DEFAULT_REPLACE_EXTENSIONS = None
 
