@@ -17,10 +17,10 @@ except ImportError:
     from distutils.core import setup
 
 config = {
-    'description': 'OpenStack Installer',
+    'description': 'SNAPS OpenStack Installer',
     'author': 'Steve Pisarski',
-    'url': 'URL to get it at.',
-    'download_url': 'Where to download it.',
+    'url': 'https://github.com/cablelabs/snaps-openstack',
+    'download_url': 'https://github.com/cablelabs/snaps-openstack/archive/master.zip',
     'author_email': 's.pisarski@cablelabs.com',
     'version': '1.0',
     'packages': find_packages(),
