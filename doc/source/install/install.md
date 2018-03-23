@@ -535,15 +535,13 @@ of configuration server expect the user should be explicitly switched (using
 
 #### Step 2
 
-Go to directory `<repo_dir>/snaps_openstack/conf/openstack/kolla`
+Go to directory `<repo_dir>/conf/openstack/kolla`
 
 Modify file `deployment.yaml` for provisioning of OpenStack nodes on cloud
 cluster host machines (controller node, compute nodes). Modify this file
 according to your set up environment only (Refer section 3).
 
 #### Step 3
-
-Go to directory `<repo_dir>/snaps_openstack/`
 
 Run `iaas_launch.py` as shown below:
 
