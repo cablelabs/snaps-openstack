@@ -12,20 +12,30 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from plugin_loader import PluginLoader
 import logging
+import os
+import sys
 
-#data= {"1":"abc", "def":"123", "2":"ghy"}
+from snaps_openstack.provision.openstack.plugin.kolla_impl import kolla_utils
+
 logger = logging.getLogger('deploy_infra')
 
-def deploy_infra (conf, flag):
 
-     deploy=PluginLoader()
-     ret=False
-     deployment_type = conf.get('openstack').get('deployement_type')
-     if deploy.load(deployment_type, conf, flag) :
-         logger.info('Openstack operation is unsuccessfull')
-         ret=False
-     else:
-         logger.info('Openstack operation is successfull')
-         ret=True
+def deploy_infra(conf, flag):
+    if __load(conf, flag):
+        logger.info('Openstack operation is unsuccessfull')
+    else:
+        logger.info('Openstack operation is successfull')
+
+
+def __load(data, operation):
+    dir_path = os.path.dirname(os.path.realpath(__file__))
+    plugin_path = dir_path + "/plugin/"
+    logger.info(plugin_path)
+    sys.path.append(plugin_path)
+    if operation is "clean" or operation is "cleanregistry":
+        ret = kolla_utils.clean_up(data, operation)
+    else:
+        ret = kolla_utils.main(data, operation)
+
+    return ret

@@ -12,20 +12,17 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# This script is responsible for deploying Aricent_Iaas environments and Openstack Services
+# This script is responsible for deploying Aricent_Iaas environments and
+# Openstack Services
 import argparse
 import logging
 import sys
-
 import os
 
-sys.path.append("common/utils")
 from snaps_openstack.common.utils import file_utils
 from snaps_openstack.provision.openstack.deployment import deploy_infra
 
-# from provision.hardware import pxe_utils
-
-
+sys.path.append("common/utils")
 __author__ = '_ARICENT'
 
 logger = logging.getLogger('launch_provisioning')
@@ -33,19 +30,12 @@ logger = logging.getLogger('launch_provisioning')
 ARG_NOT_SET = "argument not set"
 
 
-# def __readhwconfig(config, operation):
-#    """
-#     This will launch the provisioning of PXE setup on the configuration node.
-#     :param config : This configuration data extracted from the host.yaml.
-#    """
-#    if config:
-#      logger.info("Read & Validate functionality for Hardware Provisioning")
-#      pxe_utils.__main(config,operation)
-
 def __manage_operation(config, operation):
     """
-     This will launch the provisioning of openstack setup on the cluster node which are defined in the conf/openstack/devstack/deployment.yaml.
-     :param config : This configuration data extracted from the provided yaml file.
+     This will launch the provisioning of openstack setup on the cluster node
+     which are defined in the conf/openstack/devstack/deployment.yaml.
+     :param config: This configuration data extracted from the provided yaml
+                    file.
     """
 
     if config:
@@ -70,8 +60,9 @@ def main(arguments):
      This will launch the provisioning of Bare metat & IaaS.
      There is pxe based configuration defined to provision the bare metal.
      For IaaS provisioning different deployment models are supported.
-     Relevant conf files related to PXE based Hw provisioning & Openstack based IaaS must be present in ./conf folder.
-     :param command_line options: This expects command line options to be entered by user for relavant operations.
+     Relevant conf files related to PXE based Hw provisioning & Openstack based
+     IaaS must be present in ./conf folder.
+     :param arguments: the command line arguments
      :return: To the OS
     """
 
@@ -85,12 +76,11 @@ def main(arguments):
     dir_path = os.path.dirname(os.path.realpath(__file__))
     export_path = dir_path + "/"
     os.environ['CWD_IAAS'] = export_path
-    print "===========================Current Exported Relevant Path=================================="
+    print("==================Current Exported Relevant Path==================")
     logger.info(export_path)
 
     config = file_utils.read_yaml(arguments.config)
     logger.info('Read configuration file - ' + arguments.config)
-    # try:
 
     if arguments.deploy is not ARG_NOT_SET:
         __manage_operation(config, "deploy")
@@ -106,63 +96,55 @@ def main(arguments):
         __manage_operation(config, "clean")
 
     logger.info('Completed opeartion successfully')
-    # except Exception as e:
-    #     logger.error(
-    #         'Unexpected error deploying environment. Rolling back due to - ' + e.message)
-    #     raise e
 
 
 if __name__ == '__main__':
-
-    #    if os.environ.get('CWD_IAAS') is None:
-    #         path=os.getcwd()
-
-    #         print'ENVIRONMENT VARIABLE "CWD_IAAS" IS NOT EXPORTED OR USER IS NOT ROOT USER : USE COMMAND: su root; export CWD_IAAS="'+path+ "\""
-    #         exit(1)
-
-    # To ensure any files referenced via a relative path will begin from the diectory in which this file resides
+    # To ensure any files referenced via a relative path will begin from the
+    # directory in which this file resides
     os.chdir(os.path.dirname(os.path.realpath(__file__)))
 
     parser = argparse.ArgumentParser()
-    parser.add_argument('-d', '--deploy', dest='deploy', nargs='?',
-                        default=ARG_NOT_SET,
-                        help='When used, deployment and provisioning of openstack will be started')
-    parser.add_argument('-c', '--clean', dest='clean', nargs='?',
-                        default=ARG_NOT_SET,
-                        help='When used, the openstack environment will be removed')
-    parser.add_argument('-f', '--file', dest='config', required=True,
-                        help='The configuration file in YAML format - REQUIRED',
-                        metavar="FILE")
-    parser.add_argument('-l', '--log-level', dest='log_level', default='INFO',
-                        help='Logging Level (INFO|DEBUG)')
-    parser.add_argument('-drs', '--dreg', dest='dreg', nargs='?',
-                        default=ARG_NOT_SET,
-                        help='When used, to set up kolla registry along with deployment')
-    parser.add_argument('-drc', '--dregc', dest='dregclean', nargs='?',
-                        default=ARG_NOT_SET,
-                        help='When used, to cleanup up kolla registry')
+    parser.add_argument(
+        '-d', '--deploy', dest='deploy', nargs='?', default=ARG_NOT_SET,
+        help='When used, deployment and provisioning of openstack will be '
+             'started')
+    parser.add_argument(
+        '-c', '--clean', dest='clean', nargs='?', default=ARG_NOT_SET,
+        help='When used, the openstack environment will be removed')
+    parser.add_argument(
+        '-f', '--file', dest='config', required=True,
+        help='The configuration file in YAML format - REQUIRED',
+        metavar="FILE")
+    parser.add_argument(
+        '-l', '--log-level', dest='log_level', default='INFO',
+        help='Logging Level (INFO|DEBUG)')
+    parser.add_argument(
+        '-drs', '--dreg', dest='dreg', nargs='?', default=ARG_NOT_SET,
+        help='When used, to set up kolla registry along with deployment')
+    parser.add_argument(
+        '-drc', '--dregc', dest='dregclean', nargs='?', default=ARG_NOT_SET,
+        help='When used, to cleanup up kolla registry')
     args = parser.parse_args()
 
-    if args.dreg is ARG_NOT_SET and \
-                    args.dregclean is ARG_NOT_SET and \
-                    args.deploy is ARG_NOT_SET and \
-                    args.clean is ARG_NOT_SET:
-        logger.info('Must enter either -d for deploy IaaS or -c for cleaning up and environment or \
-               -drc to cleanup registry or -drs to setup registry')
+    if (args.dreg is ARG_NOT_SET and args.dregclean is ARG_NOT_SET
+            and args.deploy is ARG_NOT_SET and args.clean is ARG_NOT_SET):
+        logger.info(
+            'Must enter either -d for deploy IaaS or -c for cleaning up and '
+            'environment or -drc to cleanup registry or -drs to setup '
+            'registry')
         exit(1)
     if args.deploy is not ARG_NOT_SET and args.clean is not ARG_NOT_SET:
         logger.info('Cannot enter both options -d/--deploy and -c/--clean')
         exit(1)
     if args.deploy is not ARG_NOT_SET and args.config is ARG_NOT_SET:
         logger.info(
-            'Cannot start deploy operation without configuration. Choose the option -f/--file')
+            'Cannot start deploy operation without configuration. '
+            'Choose the option -f/--file')
         exit(1)
     if args.deploy is ARG_NOT_SET and args.config is ARG_NOT_SET:
         logger.info(
-            'Cannot start any deploy iaas operation without both -d/--deploy and -f/--file')
+            'Cannot start any deploy iaas operation without both -d/--deploy '
+            'and -f/--file')
         exit(1)
-    #    if args.hardware is not ARG_NOT_SET and args.clean is not ARG_NOT_SET:
-    #        print 'Cannot start any deploy iaas operation without -d/--deploy and -f/--file'
-    #        exit(1)
 
     main(args)

@@ -12,19 +12,15 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import os
-import urllib2
 import logging
 
 import yaml
-
 
 """
 Utilities for file handling functions
 """
 
 logger = logging.getLogger('file_utils')
-
 
 
 def read_yaml(config_file_path):
