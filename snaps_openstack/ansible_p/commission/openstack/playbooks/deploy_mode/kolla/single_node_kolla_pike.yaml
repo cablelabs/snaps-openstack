@@ -145,8 +145,10 @@
       when: enable_cinder == "yes"
     - name: prepare ceph OSD drive
       when: enable_ceph == "yes"
-      command: "parted {{ SECOND_STORAGE }} -s -- mklabel gpt mkpart KOLLA_CEPH_OSD_BOOTSTRAP 1 -1"
-      ignore_errors: True
+      command: "parted {{ item }} -s -- mklabel gpt mkpart KOLLA_CEPH_OSD_BOOTSTRAP 1 -1"
+#      ignore_errors: True
+      with_items:
+        "{{SECOND_STORAGE}}"
     - name: "Creating directory /etc/kolla/config"
       when: enable_ceph == "yes"
       file:
@@ -293,10 +295,7 @@
        dest: "{{ MAIN_DEST_PIKE }}"
 
     - name: Copy /etc/kolla folder
-      copy:
-       src: "{{GIT_CLONE_PATH_PIKE}}/etc/kolla"
-       dest: "/etc/"
-
+      command: cp -r /etc/OpenStack/kolla-ansible/etc/kolla/ /etc/
 
     - name: Copy contents of /usr/local/share/kolla/ansible/inventory/ to /etc/kolla_packages/source/
       copy:

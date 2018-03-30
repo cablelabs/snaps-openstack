@@ -62,7 +62,7 @@ def provision_preparation(proxy_dict, user_dict):
 
 
 def clean_up_kolla(list_ip, git_branch, docker_registry, service_list,
-                   operation, second_storage, pull_from_hub):
+                   operation, pull_from_hub, host_storage_node_map):
     """
     This method is responsible for the cleanup of openstack services
     """
@@ -78,6 +78,11 @@ def clean_up_kolla(list_ip, git_branch, docker_registry, service_list,
             logger.info('FAILED IN CLEANUP')
             exit(1)
         if 'cinder' in service_list:
+            for key,value in host_storage_node_map.iteritems():
+               ip = key
+               second_storage = value
+               logger.info(ip)
+               logger.info(second_storage)   
             remove_storage_pb = pkg_resources.resource_filename(
                 consts.KOLLA_PB_PKG, consts.KOLLA_REMOVE_STORAGE)
             ret_storage = apbl.launch_ansible_playbook(
@@ -125,9 +130,9 @@ def launch_provisioning_kolla(iplist, git_branch, kolla_tag, kolla_ansible_tag,
                               host_name_map, host_node_type_map,
                               docker_registry, docker_port, kolla_base,
                               kolla_install, ext_sub, ext_gw, ip_pool_start,
-                              ip_pool_end, second_storage, operation,
+                              ip_pool_end, operation,
                               host_cpu_map, reserve_memory, base_size, count,
-                              default, vxlan, pull_from_hub):
+                              default, vxlan, pull_from_hub, host_storage_node_map):
     if pull_from_hub != "yes":
         docker_opts = "--insecure-registry  " + docker_registry + ":" + str(
             docker_port)
@@ -270,9 +275,12 @@ def launch_provisioning_kolla(iplist, git_branch, kolla_tag, kolla_ansible_tag,
             '**********************MULTINODE_DEPLOYMENT**********************')
         if list_storage:
             for storage_ip in list_storage:
-                set_storage_pb = pkg_resources.resource_filename(
+              for key,value in host_storage_node_map.iteritems():
+                if key is storage_ip:
+                  second_storage=value 
+                  set_storage_pb = pkg_resources.resource_filename(
                     consts.KOLLA_PB_PKG, consts.KOLLA_SET_STORAGE)
-                ret_storage = apbl.launch_ansible_playbook(
+                  ret_storage = apbl.launch_ansible_playbook(
                     iplist, set_storage_pb, {
                         'target': storage_ip,
                         'PROXY_DATA_FILE': proxy_data_file,
@@ -282,7 +290,7 @@ def launch_provisioning_kolla(iplist, git_branch, kolla_tag, kolla_ansible_tag,
                         'OPERATION': operation, 'BASE_SIZE': base_size,
                         'COUNT': count})
 
-                if ret_storage != 0:
+                  if ret_storage != 0:
                     logger.info("FAILED IN SETTING STORAGE")
                     exit(1)
 
@@ -434,6 +442,14 @@ def launch_provisioning_kolla(iplist, git_branch, kolla_tag, kolla_ansible_tag,
                     "*****************EXECUTED SUCCESSFULLY*****************")
     else:
         logger.info('ALL IN ONE DEPLOYEMENT')
+        if(len(host_storage_node_map)==1):
+          second_storage=host_storage_node_map.values()[0]
+          logger.info(host_storage_node_map)
+          logger.info(second_storage)
+        else:
+          logger.info("Failed in creating storage map")
+          exit(1)
+
         if git_branch.lower() == 'stable/newton':
             single_node_pb = pkg_resources.resource_filename(
                 consts.KOLLA_PB_PKG, consts.SINGLE_NODE_KOLLA_YAML)
