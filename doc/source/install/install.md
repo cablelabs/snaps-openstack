@@ -236,6 +236,12 @@ below.
   </tr>
   <tr>
     <td/>
+    <td colspan="2">second_storage</td>
+    <td>Y</td>
+    <td>List of Mount point of secondary storage for ceph. Has to be present if the node_type is "storage"</td>
+  </tr>
+  <tr>
+    <td/>
     <td colspan="2">service_host</td>
     <td>Y</td>
     <td>IP of controller machine. Not required if the machine is controller.</td>
@@ -377,7 +383,6 @@ This section is required only for Kolla based OpenStack deployment.
 | base_size | Y | Base size for the physical volume of the cinder. |
 | pull_from_hub | Y | Pull images from docker hub for deployment if set to yes (Values can be yes/no). |
 | count | Y | Total count for the physical volume created. |
-| second_storage | Y | Mount point of secondary storage for ceph. |
 
 ### 3.2 var.yaml (VLAN Configuration)
 
