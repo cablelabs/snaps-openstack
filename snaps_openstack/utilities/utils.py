@@ -19,9 +19,10 @@ import logging
 import sys
 
 import os
-from snaps_openstack.common.utils import file_utils
 
-sys.path.append("../common/utils")
+utils_path = os.path.abspath(os.path.join(__file__, '..', '..', 'common', 'utils'))
+sys.path.append(utils_path)
+import file_utils
 
 __author__ = '_ARICENT'
 
@@ -93,6 +94,7 @@ def __tenant_vlan(task):
                                   + ip + "\",\"vlan_id\": \"" + str(vlan_id)\
                                   + "\",\"size\": \"" + str(size) + "\"}\' "
                 logger.info("launching ansible :" + ansible_command)
+                ret = os.system(ansible_command)
         ansible_command_restart = "ansible-playbook playbooks/restartdoc.yaml  --extra-vars=\'{\"target\": \""\
                                   + ip + "\"}\' "
         logger.info("launching ansible :" + ansible_command_restart)
@@ -100,6 +102,20 @@ def __tenant_vlan(task):
 
     return ret
 
+def __mtu(task):
+    ret = None
+
+    for host in task.get("HOSTS"):
+        ip = host.get("ip")
+        for interface in host.get("interfaces"):
+            size = interface.get("size")
+            port = interface.get("port_name")
+            ansible_command = "ansible-playbook playbooks/physical_mtu.yaml -i \"" + ip + ",\"  --extra-vars=\'{\"size\": \""\
+                              + size + "\",\"interface\": \"" + port + "\"}\'"
+        logger.info(ansible_command)
+        ret = os.system(ansible_command)
+
+    return ret
 
 def main(arguments):
     """
@@ -145,7 +161,7 @@ def main(arguments):
                         'name') + " with arguments")
                     logger.info("--mtu")
                     __addansiblehosts(task.get("HOSTS"))
-                    ret = 0
+                    ret = __mtu(task)
                     if ret == 0:
                         logger.info('Completed opeartion successfully')
                     else:
