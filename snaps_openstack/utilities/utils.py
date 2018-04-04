@@ -94,13 +94,14 @@ def __tenant_vlan(task):
                                   + ip + "\",\"vlan_id\": \"" + str(vlan_id)\
                                   + "\",\"size\": \"" + str(size) + "\"}\' "
                 logger.info("launching ansible :" + ansible_command)
-                ret = os.system(ansible_command)
+                os.system(ansible_command)
         ansible_command_restart = "ansible-playbook playbooks/restartdoc.yaml  --extra-vars=\'{\"target\": \""\
                                   + ip + "\"}\' "
         logger.info("launching ansible :" + ansible_command_restart)
         ret = os.system(ansible_command_restart)
 
     return ret
+
 
 def __mtu(task):
     ret = None
@@ -116,6 +117,7 @@ def __mtu(task):
         ret = os.system(ansible_command)
 
     return ret
+
 
 def main(arguments):
     """
