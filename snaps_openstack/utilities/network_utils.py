@@ -86,7 +86,7 @@ def tenant_vlan(task):
                     'snaps_openstack.utilities.playbooks',
                     'vlan_playbook.yaml')
 
-                ansible_command = vlan_pb_loc \
+                ansible_command = "ansible-playbook " + vlan_pb_loc \
                                   + " --extra-vars=\'{\"vlan_interface\": \"" \
                                   + str(vlan_interface) + "\",\"target\": \"" \
                                   + ip + "\",\"vlan_id\": \"" + str(vlan_id) \
@@ -96,7 +96,7 @@ def tenant_vlan(task):
 
         restart_doc_pb_loc = pkg_resources.resource_filename(
             'snaps_openstack.utilities.playbooks', 'restartdoc.yaml')
-        ansible_command_restart = restart_doc_pb_loc \
+        ansible_command_restart = "ansible-playbook " + restart_doc_pb_loc \
                                   + " --extra-vars=\'{\"target\": \"" + ip + "\"}\' "
         logger.info("launching ansible :" + ansible_command_restart)
         ret = os.system(ansible_command_restart)
@@ -112,7 +112,11 @@ def mtu(task):
         for interface in host.get("interfaces"):
             size = interface.get("size")
             port = interface.get("port_name")
-            ansible_command = "ansible-playbook playbooks/physical_mtu.yaml -i \"" \
+            mtu_pb_loc = pkg_resources.resource_filename(
+                'snaps_openstack.utilities.playbooks',
+                'physical_mtu.yaml')
+
+            ansible_command = "ansible-playbook " + mtu_pb_loc + " -i \"" \
                               + ip + ",\"  --extra-vars=\'{\"size\": \"" \
                               + size + "\",\"interface\": \"" + port + "\"}\'"
         logger.info(ansible_command)
