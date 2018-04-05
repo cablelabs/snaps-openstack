@@ -19,9 +19,9 @@ import logging
 import sys
 
 import os
-from snaps_openstack.common.utils import file_utils
 
 sys.path.append("../common/utils")
+import file_utils
 
 __author__ = '_ARICENT'
 
@@ -44,7 +44,7 @@ def __addansiblehosts(config):
         for line in host_file:
             file_content = file_content + line
         for host in hosts:
-            if host.get("ip") in file_content:
+            if host.get("ip")+" " in file_content:
                 logger.info("")
             else:
                 host_str = host.get("ip") + " ansible_ssh_user=" + host.get(
@@ -77,12 +77,17 @@ def __addansiblehosts(config):
 
 def __tenant_vlan(task):
     ret = None
+    physical_network = task.get("physical_network")
+    min_vlan_range = task.get("min_vlan_range")
+    max_vlan_range = task.get("max_vlan_range")
+    logger.info("physical network : "+physical_network)
+    logger.info("min_vlan_range : "+str(min_vlan_range))
+    logger.info("max_vlan_range : "+str(max_vlan_range))
 
     for host in task.get("HOSTS"):
         ip = host.get("ip")
         for interface in host.get("interfaces"):
             vlan_interface = interface.get("port_name")
-            vlan_id = str(interface.get("vlan_id"))
             size = interface.get("size")
             if size is None:
                 logger.error("Configure MTU size for Vlan")
@@ -90,11 +95,47 @@ def __tenant_vlan(task):
             else:
                 ansible_command = "ansible-playbook playbooks/vlan_playbook.yaml  --extra-vars=\'{\"vlan_interface\": \""\
                                   + str(vlan_interface) + "\",\"target\": \""\
-                                  + ip + "\",\"vlan_id\": \"" + str(vlan_id)\
-                                  + "\",\"size\": \"" + str(size) + "\"}\' "
+                                  + ip + "\",\"min_vlan_range\": \"" + str(min_vlan_range)\
+                                  + "\",\"max_vlan_range\": \"" + str(max_vlan_range)\
+                                  + "\",\"size\": \"" + str(size) + "\",\"physical_network\": \"" + str(physical_network)\
+                                  + "\"}\' "
                 logger.info("launching ansible :" + ansible_command)
+                ret=os.system(ansible_command)
         ansible_command_restart = "ansible-playbook playbooks/restartdoc.yaml  --extra-vars=\'{\"target\": \""\
                                   + ip + "\"}\' "
+        logger.info("launching ansible :" + ansible_command_restart)
+        ret = os.system(ansible_command_restart)
+
+    return ret
+
+
+def __tenant_vlan_clean(task):
+    ret = None
+    physical_network = task.get("physical_network")
+    min_vlan_range = task.get("min_vlan_range")
+    max_vlan_range = task.get("max_vlan_range")
+    logger.info("physical network : "+physical_network)
+    logger.info("min_vlan_range : "+str(min_vlan_range))
+    logger.info("max_vlan_range : "+str(max_vlan_range))
+    for host in task.get("HOSTS"):
+        ip = host.get("ip")
+        for interface in host.get("interfaces"):
+            vlan_interface = interface.get("port_name")
+            size = interface.get("size")
+            if size is None:
+                logger.error("Configure MTU size for Vlan")
+                exit(1)
+            else:
+                ansible_command = "ansible-playbook playbooks/vlan_cleanup_playbook.yaml  --extra-vars=\'{\"vlan_interface\": \""\
+                                  + str(vlan_interface) + "\",\"target\": \""\
+                                  + ip + "\",\"min_vlan_range\": \"" + str(min_vlan_range)\
+                                  + "\",\"max_vlan_range\": \"" + str(max_vlan_range)\
+                                  + "\",\"size\": \"" + str(size) + "\",\"physical_network\": \"" + str(physical_network)\
+                                  + "\"}\' "
+                logger.info("launching ansible :" + ansible_command)
+                ret=os.system(ansible_command)
+        ansible_command_restart = "ansible-playbook playbooks/restartdoc.yaml  --extra-vars=\'{\"target\": \""\
+                                   + ip + "\"}\' "
         logger.info("launching ansible :" + ansible_command_restart)
         ret = os.system(ansible_command_restart)
 
@@ -138,6 +179,15 @@ def main(arguments):
                         logger.info('Completed opeartion successfully')
                     else:
                         logger.info('Error while performing operation')
+        if args.tenant_vlan_clean is not ARG_NOT_SET:
+            for task in config.get("TASKS"):
+                if task.get("name") == "TenantVLAN":
+                    ret = __tenant_vlan_clean(task)
+                    if ret == 0:
+                        logger.info('Completed opeartion successfully')
+                    else:
+                        logger.info('Error while performing operation')
+
         if args.mtu is not ARG_NOT_SET:
             for task in config.get("TASKS"):
                 if task.get("name") == "mtu":
@@ -175,6 +225,11 @@ if __name__ == '__main__':
         '-tvlan', '--tenant_vlan', dest='tenant_vlan', nargs='?',
         default=ARG_NOT_SET,
         help='When used, deployment and provisioning of openstack will be '
+             'started')
+    parser.add_argument(
+        '-tvclean', '--tenant_vlan_clean', dest='tenant_vlan_clean', nargs='?',
+        default=ARG_NOT_SET,
+        help='When used, vlan cleanup will be '
              'started')
     parser.add_argument(
         '-mtu', '--mtu', dest='mtu', nargs='?', default=ARG_NOT_SET,
