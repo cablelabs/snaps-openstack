@@ -30,6 +30,8 @@ openstack:
           - network
           - controller
           - storage
+        second_storage:
+          - "/dev/sdb/"
         password: cable123
         service_host: ""
         user: root
@@ -58,6 +60,7 @@ openstack:
         reserved_host_memory_mb: "16384"
         node_type:
           - compute
+        second_storage:
         password: cable123
         service_host: "10.197.101.22"
         user: root
@@ -85,6 +88,7 @@ openstack:
         reserved_host_memory_mb: "16384"
         node_type:
           - compute
+        second_storage: 
         password: cable123
         service_host: "10.197.101.22"
         user: root
@@ -113,6 +117,8 @@ openstack:
         node_type:
           - compute
           - storage
+        second_storage:
+          - "/dev/sdb/"
         password: cable123
         service_host: "10.197.101.22"
         user: root
@@ -141,6 +147,8 @@ openstack:
         node_type:
           - compute
           - storage
+        second_storage:
+          - "/dev/sdb/"
         password: cable123
         service_host: "10.197.101.22"
         user: root
@@ -179,7 +187,6 @@ openstack:
      kolla_registry_port: "4000"
      external_vip_address: "10.197.103.30"
      external_interface: "eno3"
-     second_storage: ""
      pull_from_hub: "yes"
      base_size: "573741824"
      count: "20"

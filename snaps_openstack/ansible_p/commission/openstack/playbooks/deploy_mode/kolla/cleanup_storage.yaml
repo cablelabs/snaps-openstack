@@ -13,7 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-- hosts: all
+- hosts: "{{ target }}"
   become: true
 #  become_user: root
   vars_files:
@@ -31,11 +31,15 @@
       command: losetup -d /dev/loop2
       ignore_errors: True
     - name: remove partition data
-      command: "parted -s {{ SECOND_STORAGE }} rm 1"
+      command: "parted -s {{ item }} rm 1"
       ignore_errors: True
+      with_items:
+        "{{ SECOND_STORAGE }}"
     - name: remove partition data
-      command: "parted -s {{ SECOND_STORAGE }} rm 2"
+      command: "parted -s {{ item }} rm 2"
       ignore_errors: True
+      with_items:
+        "{{ SECOND_STORAGE }}"
     - name: unmount Secondary drive
       command: "umount {{SECOND_STORAGE}}"
       ignore_errors: True
