@@ -402,6 +402,21 @@ explained below:
     <td>Should be <code>TenantVLAN</code>.</td>
   </tr>
   <tr>
+    <td colspan="3">physical_network</td>
+    <td>N</td>
+    <td>Should be <code>name of physical network to be used for VLAN</code>.</td>
+  </tr>
+  <tr>
+    <td colspan="3">min_vlan_range</td>
+    <td>N</td>
+    <td>Should be <code>minimum value of vlan id to be used</code>.</td>
+  </tr>
+  <tr>
+    <td colspan="3">max_vlan_range</td>
+    <td>N</td>
+    <td>Should be <code>maximum value of vlan id to be used</code>.</td>
+  </tr>
+  <tr>
     <td colspan="4">host</td>
     <td>Define this set of parameters for each host machine (A separate host section should be defined for each host machine).</td>
   </tr>
@@ -417,26 +432,13 @@ explained below:
     <td>N</td>
     <td>Interface name attached to the vlan.</td>
   </tr>
-  <tr>
-    <td/>
-    <td/>
-    <td>vlan_id</td>
-    <td>N</td>
-    <td>Vlan id configured at the switch.</td>
-  </tr>
+  
   <tr>
     <td/>
     <td/>
     <td>size</td>
     <td>N</td>
     <td>Vlan MTU size.</td>
-  </tr>
-  <tr>
-    <td/>
-    <td/>
-    <td>type</td>
-    <td>N</td>
-    <td>Traffic type (<code>management</code>).</td>
   </tr>
   <tr>
     <td/>
@@ -639,4 +641,12 @@ Clean up previous deployment along with docker repository:
 
 ```
 sudo python <repo_dir>/iaas_launch.py -f <repo_dir>/conf/openstack/kolla/deployment.yaml -drc
+```
+
+Clean up previous vlan configuration:
+
+Run the following command from `<repo_dir>/snaps_openstack/utilities` directory:
+
+```
+sudo python utils.py -f var.yaml -tvclean
 ```
