@@ -48,5 +48,3 @@ We use an [Apache 2.0 License](LICENSE) for SNAPS-OpenStack.
 Questions? Just send us an email at
 [snaps@cablelabs.com](mailto:snaps@cablelabs.com) or join the conversation:
 [![IRC](https://www.irccloud.com/invite-svg?channel=%23cablelabs-snaps&amp;hostname=irc.freenode.net&amp;port=6697&amp;ssl=1)](http://webchat.freenode.net/?channels=cablelabs-snaps).
-
-[![Analytics](https://ga-beacon.appspot.com/UA-116900940-1/cablelabs/snaps-openstack)](https://github.com/igrigorik/ga-beacon)
