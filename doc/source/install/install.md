@@ -563,10 +563,10 @@ define multiple vlan ports for multiple hosts).
 
 #### Step 2
 
-Run the following command from `<repo_dir>/snaps_openstack/utilities` directory:
+Run `network_config.py` as shown below:
 
 ```
-python utils.py -f var.yaml -tvlan
+sudo python <repo_dir>/network_config.py -f <repo_dir>/snaps_openstack/utilities/var.yaml -tvlan
 ```
 
 Please configure the switch for tagged vlan ports.
@@ -581,10 +581,10 @@ Define MTU size for NICS per host in `var.yaml` file under mtu task.
 
 #### Step 2
 
-Run the following command from `<repo_dir>/snaps_openstack/utilities` directory:
+Run `network_config.py` as shown below:
 
 ```
-python utils.py -f var.yaml -mtu
+sudo python <repo_dir>/network_config.py -f <repo_dir>/snaps_openstack/utilities/var.yaml -mtu
 ```
 
 ## 5 Cleanup and Troubleshooting
