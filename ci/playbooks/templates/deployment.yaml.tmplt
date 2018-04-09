@@ -28,6 +28,8 @@ openstack:
           - network
           - controller
           - storage
+        second_storage: 
+          - "/dev/vdb"
         password: {{ node_host_pass }}
         service_host: ""
         user: root
@@ -56,6 +58,8 @@ openstack:
         node_type:
           - compute
           - storage
+        second_storage: 
+          - "/dev/vdb"
         password: {{ node_host_pass }}
         service_host: {{ admin_ip_1 }}
         user: root
@@ -84,6 +88,8 @@ openstack:
         node_type:
           - compute
           - storage
+        second_storage: 
+          - "/dev/vdb"
         password: {{ node_host_pass }}
         service_host: {{ admin_ip_1 }}
         user: root
@@ -123,7 +129,6 @@ openstack:
      kolla_registry_port: {{ kolla_registry_port }}
      external_vip_address: {{ external_vip_address }}
      external_interface: {{ pub_iface }}
-     second_storage: "/dev/vdb"
      base_size: "573741824"
      count: "20"
      pull_from_hub: "yes"
