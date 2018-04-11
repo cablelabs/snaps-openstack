@@ -63,6 +63,14 @@ def __main(arguments):
                         logger.info('Completed opeartion successfully')
                     else:
                         logger.info('Error while performing operation')
+        if arguments.tenant_vlan_clean is not ARG_NOT_SET:
+            for task in config.get("TASKS"):
+                if task.get("name") == "TenantVLAN":
+                    ret = network_utils.tenant_vlan_clean(task)
+                    if ret == 0:
+                        logger.info('Completed opeartion successfully')
+                    else:
+                        logger.info('Error while performing operation')
         if arguments.mtu is not ARG_NOT_SET:
             for task in config.get("TASKS"):
                 if task.get("name") == "mtu":
@@ -99,7 +107,12 @@ if __name__ == '__main__':
     parser.add_argument(
         '-tvlan', '--tenant_vlan', dest='tenant_vlan', nargs='?',
         default=ARG_NOT_SET,
-        help='When used, deployment and provisioning of openstack will be '
+        help='When used, vlan configuration will be '
+             'started')
+    parser.add_argument(
+        '-tvclean', '--tenant_vlan_clean', dest='tenant_vlan_clean', nargs='?',
+        default=ARG_NOT_SET,
+        help='When used, vlan cleanup will be '
              'started')
     parser.add_argument(
         '-mtu', '--mtu', dest='mtu', nargs='?', default=ARG_NOT_SET,

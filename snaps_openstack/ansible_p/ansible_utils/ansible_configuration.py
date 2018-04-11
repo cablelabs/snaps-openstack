@@ -148,6 +148,7 @@ def launch_provisioning_kolla(iplist, git_branch, kolla_tag, kolla_ansible_tag,
     list_controller = []
     list_compute = []
     ip_control = None
+    second_storage = None 
     for key, value in host_name_map.items():
         ip = value
         host_name = key
