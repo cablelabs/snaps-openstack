@@ -1,9 +1,16 @@
-notifications:
-  webhooks:
-    urls:
-      - http://52.4.116.120:8081/webhook
-    on_success: always # default: always
-    on_failure: always # default: always
-    on_start: always   # default: never
-    on_cancel: always # default: always
-    on_error: always # default: always
+language: python
+python:
+  - "2.7"
+
+services:
+  - echo "No services here"
+
+install:
+  - pip install pycodestyle
+
+script:
+  - echo "Checking pep8 compliance"
+  - pycodestyle .
+
+after_success:
+  - echo "Executing after_success, nothing here"
