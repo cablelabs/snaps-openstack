@@ -15,23 +15,24 @@
 TASKS:
   -
     name: TenantVLAN
+    physical_network: physnet2
+    min_vlan_id: 1001
+    max_vlan_id: 1002
     HOSTS:
       -
         interfaces:
           -
-            port_name: enp5s0f0
-            vlan_id: 1001
-            size: 1500
-        ip: "172.16.141.25"
+            port_name: eno2
+            size: 8000
+        ip: "172.16.141.42"
         password: ChangeMe
         username: root
       -
         interfaces:
           -
-            port_name: enp5s0f0
-            vlan_id: 1001
-            size: 1500
-        ip: "172.16.141.26"
+            port_name: eno2
+            size: 8000
+        ip: "172.16.141.9"
         password: ChangeMe
         username: root
   -

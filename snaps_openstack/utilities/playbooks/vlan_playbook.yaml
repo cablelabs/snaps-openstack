@@ -40,23 +40,31 @@
 #    - name : Adding type_drivers
 #      shell: find /etc/kolla -exec sed -i -e 's/type_drivers = flat,vlan,vxlan/type_drivers = gre,vlan,vxlan/g' {} \;
 #      ignore_errors: True
+
+    - name : Adding tenant network types
+      shell: find /etc/kolla -exec sed -i -e 's/tenant_network_types = vxlan/tenant_network_types = vlan,vxlan/g' {} \;
+      ignore_errors: True
+
     - name : Adding network_vlan_ranges
-      shell: find /etc/kolla -exec sed -i -e 's/network_vlan_ranges =/network_vlan_ranges = vlan{{ item }}:{{ item }}:{{ item }}\,/g' {} \;
+      shell: find /etc/kolla -exec sed -i -e 's/network_vlan_ranges =/network_vlan_ranges = {{ physical_network }}:{{ min_vlan_id }}:{{ max_vlan_id }}/g' {} \;
       ignore_errors: True
-      with_items:
-          "{{ vlan_id }}"
+
+    - name : Adding flat network
+      shell: find /etc/kolla -exec sed -i -e 's/flat_networks = physnet1/flat_networks = physnet1,{{ physical_network }}/g' {} \;
+      ignore_errors: True
+ 
     - name : Adding bridge_mappings
-      shell: find /etc/kolla -exec sed -i -e 's/bridge_mappings = /bridge_mappings = vlan{{ item }}:br-vlan\,/g' {} \;
+      shell: find /etc/kolla -exec sed -i -e 's/bridge_mappings = /bridge_mappings = {{ physical_network }}:br-vlan,/g' {} \;
       ignore_errors: True
-      with_items:
-          "{{ vlan_id }}"
+
     - name : Fetching physnet mtu configuration
       shell: grep -inr mtus /etc/kolla | awk 'NR==1{print $3}'
       register: physnet_var
       ignore_errors: True
     - debug:
         var: physnet_var.stdout
+
     - name: Modifying ml2_conf.ini for MTU size of VLAN
-      command: find /etc/kolla -type f -exec sed -i 's/physical_network_mtus = {{ physnet_var.stdout }}/physical_network_mtus = {{ physnet_var.stdout }},vlan{{ vlan_id }}:{{ size }}/g' {} \;
+      command: find /etc/kolla -type f -exec sed -i 's/physical_network_mtus = {{ physnet_var.stdout }}/physical_network_mtus = {{ physnet_var.stdout }},{{ physical_network }}:{{ size }}/g' {} \;
       when: size is defined
       ignore_errors: True
