@@ -60,7 +60,7 @@ def __main(arguments):
                     network_utils.add_ansible_hosts(task.get("HOSTS"))
                     ret = network_utils.tenant_vlan(task)
                     if ret == 0:
-                        logger.info('Completed opeartion successfully')
+                        logger.info('Completed operation successfully')
                     else:
                         logger.info('Error while performing operation')
         if arguments.tenant_vlan_clean is not ARG_NOT_SET:
@@ -68,7 +68,7 @@ def __main(arguments):
                 if task.get("name") == "TenantVLAN":
                     ret = network_utils.tenant_vlan_clean(task)
                     if ret == 0:
-                        logger.info('Completed opeartion successfully')
+                        logger.info('Completed operation successfully')
                     else:
                         logger.info('Error while performing operation')
         if arguments.mtu is not ARG_NOT_SET:
