@@ -76,7 +76,7 @@ def tenant_vlan(task):
     max_vlan_id = task.get("max_vlan_id")
     logger.info("physical network : "+physical_network)
     logger.info("min_vlan_id : "+str(min_vlan_id))
-    logger.info("min_vlan_id : "+str(min_vlan_id))
+    logger.info("max_vlan_id : "+str(max_vlan_id))
     for host in task.get("HOSTS"):
         ip = host.get("ip")
         for interface in host.get("interfaces"):
@@ -117,7 +117,7 @@ def tenant_vlan_clean(task):
     max_vlan_id = task.get("max_vlan_id")
     logger.info("physical network : "+physical_network)
     logger.info("min_vlan_id : "+str(min_vlan_id))
-    logger.info("min_vlan_id : "+str(min_vlan_id))
+    logger.info("max_vlan_id : "+str(max_vlan_id))
     for host in task.get("HOSTS"):
         ip = host.get("ip")
         for interface in host.get("interfaces"):
