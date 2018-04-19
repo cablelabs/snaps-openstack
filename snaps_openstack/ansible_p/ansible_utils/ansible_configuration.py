@@ -86,7 +86,7 @@ def clean_up_kolla(list_ip, git_branch, docker_registry, service_list,
             remove_storage_pb = pkg_resources.resource_filename(
                 consts.KOLLA_PB_PKG, consts.KOLLA_REMOVE_STORAGE)
             ret_storage = apbl.launch_ansible_playbook(
-                list_ip, remove_storage_pb, {
+                list_ip, remove_storage_pb, {'target':ip,
                     'PROXY_DATA_FILE': proxy_data_file,
                     'VARIABLE_FILE': variable_file,
                     'BASE_FILE_PATH': consts.KOLLA_SOURCE_PATH,
