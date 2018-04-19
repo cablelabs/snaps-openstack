@@ -95,7 +95,7 @@ def main(arguments):
     if arguments.clean is not ARG_NOT_SET:
         __manage_operation(config, "clean")
 
-    logger.info('Completed opeartion successfully')
+    logger.info('Completed operation successfully')
 
 
 if __name__ == '__main__':

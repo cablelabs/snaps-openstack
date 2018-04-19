@@ -83,17 +83,18 @@ def clean_up_kolla(list_ip, git_branch, docker_registry, service_list,
                second_storage = value
                logger.info(ip)
                logger.info(second_storage)   
-            remove_storage_pb = pkg_resources.resource_filename(
-                consts.KOLLA_PB_PKG, consts.KOLLA_REMOVE_STORAGE)
-            ret_storage = apbl.launch_ansible_playbook(
-                list_ip, remove_storage_pb, {
-                    'PROXY_DATA_FILE': proxy_data_file,
-                    'VARIABLE_FILE': variable_file,
-                    'BASE_FILE_PATH': consts.KOLLA_SOURCE_PATH,
-                    'SECOND_STORAGE': second_storage})
-            if ret_storage != 0:
-                logger.info('FAILED')
-                exit(1)
+               remove_storage_pb = pkg_resources.resource_filename(
+                   consts.KOLLA_PB_PKG, consts.KOLLA_REMOVE_STORAGE)
+               ret_storage = apbl.launch_ansible_playbook(
+                   list_ip, remove_storage_pb, {
+                       'target': ip,
+                       'PROXY_DATA_FILE': proxy_data_file,
+                       'VARIABLE_FILE': variable_file,
+                       'BASE_FILE_PATH': consts.KOLLA_SOURCE_PATH,
+                       'SECOND_STORAGE': second_storage})
+               if ret_storage != 0:
+                   logger.info('FAILED')
+                   exit(1)
 
         remove_images_pb = pkg_resources.resource_filename(
             consts.KOLLA_PB_PKG, consts.KOLLA_REMOVE_IMAGES)
