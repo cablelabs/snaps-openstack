@@ -166,7 +166,7 @@ def mtu(task):
             ansible_command = "ansible-playbook " + mtu_pb_loc + " -i \"" \
                               + ip + ",\"  --extra-vars=\'{\"size\": \"" \
                               + size + "\",\"interface\": \"" + port + "\"}\'"
-        logger.info(ansible_command)
-        ret = os.system(ansible_command)
+            logger.info(ansible_command)
+            ret = os.system(ansible_command)
 
     return ret
