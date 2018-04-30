@@ -651,4 +651,15 @@ Clean up previous vlan configuration:
 
 ```
 sudo python <repo_dir>/network_config.py -f <repo_dir>/snaps_openstack/utilities/var.yaml -tvclean
+
+Due to an upstream defect https://bugs.launchpad.net/neutron/+bug/1743425, apply the following
+workaround steps as well to remove the vlan mappings from neutron database:
+- ssh to control node: sudo ssh <control-node-ip>
+- From the wsrep_sst_auth attribute in /etc/kolla/mariadb/galera.cnf file, obtain the maria db
+credentials
+- Run interactive bash shell from mariadb container: docker exec -ti mariadb bash
+- Connect to neutron DB as root (enter root credential when prompted): mysql neutron -u root -p
+- Remove vlan mappings from neutron DB: TRUNCATE TABLE ml2_vlan_allocations;
+- Exit from neutron DB: exit
+- Exit from mariadb container interactive mode: exit
 ```
