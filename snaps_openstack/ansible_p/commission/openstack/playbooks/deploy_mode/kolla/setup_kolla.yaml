@@ -19,15 +19,26 @@
   vars_files:
     - "{{ PROXY_DATA_FILE }}"
     - "{{ VARIABLE_FILE }}"
+    - "{{BASE_FILE_PATH}}globals.yml"
+    - "{{BASE_FILE_PATH}}netvars.yml"
+
   environment:
     http_proxy: "{{ http_proxy }}"
     https_proxy: "{{ https_proxy }}"
+    ftp_proxy: "{{ ftp_proxy }}"
     no_proxy: "{{ no_proxy }}"
   tasks:
 
     - name: apt-get update
       apt:
         update_cache: yes 
+
+    - name: apt-get install network-manager
+      apt:
+        name: network-manager
+    - name: apt-get install crudini
+      apt:
+        name: crudini
     
     - name: Install python-pip
       apt:
@@ -236,6 +247,13 @@
       pip:
         requirements: "{{ TEST_REQUIREMENT_KOLLA }}"
 
+    - name: replace data in template-override
+      lineinfile:
+        dest: "{{ GIT_CLONE_PATH }}/contrib/template-override/ovs-dpdk.j2"
+        line: 'ENV RTE_DEVEL_BUILD="n"'
+        insertafter: 'WORKDIR /dpdk'
+        state: present
+
     - name : install kolla
       command: pip install "{{ GIT_CLONE_PATH }}"
 
@@ -248,6 +266,13 @@
       command: tox -e genconfig
       args:
          chdir: "{{ GIT_CLONE_PATH }}"
+
+
+    - name: add kolla-build.conf
+      copy:
+         src: "{{BASE_FILE_PATH}}kolla-build.conf"
+         dest: /etc/kolla/
+         backup: yes
 
 
 #    - name: run start-registry command

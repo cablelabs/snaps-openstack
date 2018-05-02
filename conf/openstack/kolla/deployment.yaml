@@ -25,6 +25,8 @@ openstack:
             name: eno3
             type: data
         isolcpus: ""
+        hugepage_size: "2MB"
+        hugepage_count: "25000"
         reserved_host_memory_mb: ""
         node_type:
           - network
@@ -57,6 +59,8 @@ openstack:
             name: eno3
             type: data
         isolcpus: "0-15"
+        hugepage_size: "2MB"
+        hugepage_count: "25000"
         reserved_host_memory_mb: "16384"
         node_type:
           - compute
@@ -85,6 +89,8 @@ openstack:
             name: eno3
             type: data
         isolcpus: "0-15"
+        hugepage_size: "2MB"
+        hugepage_count: "25000"
         reserved_host_memory_mb: "16384"
         node_type:
           - compute
@@ -113,6 +119,8 @@ openstack:
             name: eno3
             type: data
         isolcpus: "0-15"
+        hugepage_size: "2MB"
+        hugepage_count: "25000"
         reserved_host_memory_mb: "16384"
         node_type:
           - compute
@@ -143,6 +151,8 @@ openstack:
             name: eno3
             type: data
         isolcpus: "0-15"
+        hugepage_size: "2MB"
+        hugepage_count: "25000"
         reserved_host_memory_mb: "16384"
         node_type:
           - compute
@@ -172,6 +182,7 @@ openstack:
     no_proxy: ""
   service_password: cable123
   services:
+    - dpdk
     - cinder
     - magnum
     - tempest

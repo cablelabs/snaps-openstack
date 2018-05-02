@@ -26,6 +26,14 @@
     https_proxy: "{{ https_proxy }}"
     no_proxy: "{{ no_proxy }}"
   tasks:
+    - name: append data in ml2_conf
+      lineinfile:
+        dest: /etc/kolla/neutron-openvswitch-agent/ml2_conf.ini
+        line: "bridge_mappings = physnet1:dpdk_bridge"
+        insertafter: '^\[ovs\]'
+        state: present
+      when: enable_ovs_dpdk == "yes"
+
     - name: Check if nova.conf exists
       stat: path=/etc/kolla/nova-compute/nova.conf
       register: check_file

@@ -62,7 +62,7 @@ def provision_preparation(proxy_dict, user_dict):
 
 
 def clean_up_kolla(list_ip, git_branch, docker_registry, service_list,
-                   operation, pull_from_hub, host_storage_node_map):
+                   operation, pull_from_hub, host_storage_node_map,dpdk_enable):
     """
     This method is responsible for the cleanup of openstack services
     """
@@ -73,7 +73,7 @@ def clean_up_kolla(list_ip, git_branch, docker_registry, service_list,
             list_ip, cleanup_hosts_pb, {
                 'PROXY_DATA_FILE': proxy_data_file,
                 'VARIABLE_FILE': variable_file,
-                'GIT_BRANCH': git_branch})
+                'GIT_BRANCH': git_branch,'DPDK_ENABLE':dpdk_enable})
         if ret != 0:
             logger.info('FAILED IN CLEANUP')
             exit(1)
@@ -133,7 +133,8 @@ def launch_provisioning_kolla(iplist, git_branch, kolla_tag, kolla_ansible_tag,
                               kolla_install, ext_sub, ext_gw, ip_pool_start,
                               ip_pool_end, operation,
                               host_cpu_map, reserve_memory, base_size, count,
-                              default, vxlan, pull_from_hub, host_storage_node_map):
+                              default, vxlan, pull_from_hub, host_storage_node_map,
+                              hostpagecount_map,hostpagesize_map,dpdk_enable):
     if pull_from_hub != "yes":
         docker_opts = "--insecure-registry  " + docker_registry + ":" + str(
             docker_port)
@@ -228,7 +229,8 @@ def launch_provisioning_kolla(iplist, git_branch, kolla_tag, kolla_ansible_tag,
                 'BASE_FILE_PATH': consts.KOLLA_SOURCE_PATH,
                 'GIT_BRANCH': git_branch,
                 'KOLLA_TAG': kolla_tag,
-                'KOLLA_ANSIBLE_TAG': kolla_ansible_tag})
+                'KOLLA_ANSIBLE_TAG': kolla_ansible_tag,
+                'LIST_ALL':iplist})
         logger.info(ret)
         print('#####################################################')
         if ret != 0:
@@ -322,6 +324,10 @@ def launch_provisioning_kolla(iplist, git_branch, kolla_tag, kolla_ansible_tag,
                         "***********PLAYBOOK EXECUTED SUCCESSFULLY***********")
         else:
             for node_ip in list_node:
+                if node_ip in hostpagecount_map:
+                     pagecount=hostpagecount_map.get(node_ip)
+                if node_ip in hostpagesize_map:
+                     pagesize=hostpagesize_map.get(node_ip)
                 multi_node_pike_pb = pkg_resources.resource_filename(
                     consts.KOLLA_PB_PKG,
                     consts.MULTI_NODE_KOLLA_COMPUTE_YAML_PIKE)
@@ -339,7 +345,9 @@ def launch_provisioning_kolla(iplist, git_branch, kolla_tag, kolla_ansible_tag,
                         'KOLLA_TAG': kolla_tag,
                         'KOLLA_ANSIBLE_TAG': kolla_ansible_tag,
                         'DEFAULT': default, 'VXLAN': vxlan,
-                        'PULL_HUB': pull_from_hub})
+                        'PULL_HUB': pull_from_hub,
+                        'PAGE_COUNT': pagecount,
+                        'PAGE_SIZE': pagesize})
 
                 if ret != 0:
                     print(ret)
@@ -381,6 +389,12 @@ def launch_provisioning_kolla(iplist, git_branch, kolla_tag, kolla_ansible_tag,
                     logger.info("FAILED IN CONROLLER")
                     exit(1)
             else:
+                if controller_ip in hostpagecount_map:
+                     pagecount=hostpagecount_map.get(controller_ip)
+                     logger.info(pagecount)
+                if controller_ip in hostpagesize_map:
+                     pagesize=hostpagesize_map.get(controller_ip)
+                     logger.info(pagesize)
                 multi_node_pike_pb = pkg_resources.resource_filename(
                     consts.KOLLA_PB_PKG,
                     consts.MULTI_NODE_KOLLA_CONTROLLER_YAML_PIKE)
@@ -398,27 +412,29 @@ def launch_provisioning_kolla(iplist, git_branch, kolla_tag, kolla_ansible_tag,
                      'GIT_BRANCH': git_branch, 'KOLLA_TAG': kolla_tag,
                      'KOLLA_ANSIBLE_TAG': kolla_ansible_tag,
                      'CHECK_VAR': check_var, 'PULL_HUB': pull_from_hub,
-                     'GET_TAG': get_tag})
+                     'GET_TAG': get_tag, 'PAGE_COUNT': pagecount, 'PAGE_SIZE': pagesize})
+
                 if ret_controller != 0:
                     logger.info("FAILED IN CONROLLER PIKE")
                     print(ret_controller)
                     exit(1)
         for node_ip in list_node:
-            multi_node_pb = pkg_resources.resource_filename(
-                consts.KOLLA_PB_PKG,
-                consts.MULTI_NODE_KOLLA_ISO_NWK_YAML)
-            ret = apbl.launch_ansible_playbook(
-                iplist, multi_node_pb, {
-                    'target': node_ip,
-                    'PROXY_DATA_FILE': proxy_data_file,
-                    'VARIABLE_FILE': variable_file,
-                    'BASE_FILE_PATH': consts.KOLLA_SOURCE_PATH})
-            if ret != 0:
-                logger.error("NETWORK ADAPTATION FAILED IN COMPUTE")
-                exit(1)
-            else:
-                logger.info(
-                    "*********ISO NWK PLAYBOOK EXECUTED SUCCESSFULLY*********")
+           if dpdk_enable!="yes":
+              multi_node_pb = pkg_resources.resource_filename(
+                  consts.KOLLA_PB_PKG,
+                  consts.MULTI_NODE_KOLLA_ISO_NWK_YAML)
+              ret = apbl.launch_ansible_playbook(
+                  iplist, multi_node_pb, {
+                      'target': node_ip,
+                      'PROXY_DATA_FILE': proxy_data_file,
+                      'VARIABLE_FILE': variable_file,
+                      'BASE_FILE_PATH': consts.KOLLA_SOURCE_PATH})
+              if ret != 0:
+                  logger.error("NETWORK ADAPTATION FAILED IN COMPUTE")
+                  exit(1)
+              else:
+                  logger.info(
+                      "*********ISO NWK PLAYBOOK EXECUTED SUCCESSFULLY*********")
 
         for node_ip in list_compute:
             vcpu_pin = host_cpu_map.get(node_ip)
