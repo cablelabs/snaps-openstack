@@ -169,4 +169,11 @@ def mtu(task):
             logger.info(ansible_command)
             ret = os.system(ansible_command)
 
+        restart_net_pb_loc = pkg_resources.resource_filename(
+            'snaps_openstack.utilities.playbooks', 'restart_network.yaml')
+        ansible_command_restart = "ansible-playbook " + restart_net_pb_loc \
+                                  + " --extra-vars=\'{\"target\": \"" + ip + "\"}\' "
+        logger.info("launching ansible :" + ansible_command_restart)
+        ret = os.system(ansible_command_restart)
+
     return ret
