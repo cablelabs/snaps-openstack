@@ -92,7 +92,3 @@
        destfile: /usr/local/share/kolla-ansible/ansible/group_vars/all.yml
        state: absent
        regexp:  'container_proxy: {}' 
-    - name: rebooting server
-      shell: reboot
-      when: DPDK_ENABLE == "yes"
-      ignore_errors: True
