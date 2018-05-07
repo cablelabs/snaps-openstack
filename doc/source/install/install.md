@@ -264,6 +264,18 @@ below.
     <td>Y</td>
     <td>CPUs to be pinned for VMs on this host machine.</td>
   </tr>
+   <tr>
+    <td/>
+    <td colspan="2">hugepage_size</td>
+    <td>Y</td>
+    <td>HugePage size for host machine</td>
+  </tr>
+    <tr>
+    <td/>
+    <td colspan="2">hugepage_count</td>
+    <td>Y</td>
+    <td>HugePage count for host machine</td>
+  </tr>
   <tr>
     <td/>
     <td colspan="2">reserved_host_memory_mb</td>
