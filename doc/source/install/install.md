@@ -652,3 +652,44 @@ Clean up previous vlan configuration:
 ```
 sudo python <repo_dir>/network_config.py -f <repo_dir>/snaps_openstack/utilities/var.yaml -tvclean
 ```
+
+#### 5.3.1 Vlan Mapping Cleanup
+
+Only perform the steps below after you've run vlan configuration cleanup script as instructed
+in 5.3 above. The manual cleanup steps in this section are necessary to workaround an upstream
+defect in https://bugs.launchpad.net/neutron/+bug/1743425:
+
+Ssh to control node:
+```
+sudo ssh <control-node-ip>
+```
+
+Obtain the maria db root credential:
+```
+grep wsrep_sst_auth /etc/kolla/mariadb/galera.cnf | cut -d":" -f2
+```
+
+Run interactive bash shell from mariadb container:
+```
+docker exec -ti mariadb bash
+```
+
+Connect to neutron DB as root (enter maria db root credential when prompted):
+```
+mysql neutron -u root -p
+```
+
+Remove vlan mappings from neutron DB:
+```
+TRUNCATE TABLE ml2_vlan_allocations;
+```
+
+Exit from neutron DB:
+```
+exit
+```
+
+Exit from mariadb container interactive mode:
+```
+exit
+```
