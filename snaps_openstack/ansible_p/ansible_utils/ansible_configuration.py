@@ -134,7 +134,7 @@ def launch_provisioning_kolla(iplist, git_branch, kolla_tag, kolla_ansible_tag,
                               ip_pool_end, operation,
                               host_cpu_map, reserve_memory, base_size, count,
                               default, vxlan, pull_from_hub, host_storage_node_map,
-                              hostpagecount_map,hostpagesize_map,dpdk_enable):
+                              dpdk_enable):
     if pull_from_hub != "yes":
         docker_opts = "--insecure-registry  " + docker_registry + ":" + str(
             docker_port)
@@ -163,7 +163,8 @@ def launch_provisioning_kolla(iplist, git_branch, kolla_tag, kolla_ansible_tag,
             iplist, set_hosts_pb, {
                 'target': ip, 'host_name': host_name,
                 'PROXY_DATA_FILE': proxy_data_file,
-                'VARIABLE_FILE': variable_file})
+                'VARIABLE_FILE': variable_file,
+                'BASE_FILE_PATH': consts.KOLLA_SOURCE_PATH})
         if ret_hosts != 0:
             logger.info("FAILED IN SETTING HOSTS FILE")
             exit(1)
@@ -324,10 +325,6 @@ def launch_provisioning_kolla(iplist, git_branch, kolla_tag, kolla_ansible_tag,
                         "***********PLAYBOOK EXECUTED SUCCESSFULLY***********")
         else:
             for node_ip in list_node:
-                if node_ip in hostpagecount_map:
-                     pagecount=hostpagecount_map.get(node_ip)
-                if node_ip in hostpagesize_map:
-                     pagesize=hostpagesize_map.get(node_ip)
                 multi_node_pike_pb = pkg_resources.resource_filename(
                     consts.KOLLA_PB_PKG,
                     consts.MULTI_NODE_KOLLA_COMPUTE_YAML_PIKE)
@@ -345,9 +342,7 @@ def launch_provisioning_kolla(iplist, git_branch, kolla_tag, kolla_ansible_tag,
                         'KOLLA_TAG': kolla_tag,
                         'KOLLA_ANSIBLE_TAG': kolla_ansible_tag,
                         'DEFAULT': default, 'VXLAN': vxlan,
-                        'PULL_HUB': pull_from_hub,
-                        'PAGE_COUNT': pagecount,
-                        'PAGE_SIZE': pagesize})
+                        'PULL_HUB': pull_from_hub})
 
                 if ret != 0:
                     print(ret)
@@ -389,12 +384,6 @@ def launch_provisioning_kolla(iplist, git_branch, kolla_tag, kolla_ansible_tag,
                     logger.info("FAILED IN CONROLLER")
                     exit(1)
             else:
-                if controller_ip in hostpagecount_map:
-                     pagecount=hostpagecount_map.get(controller_ip)
-                     logger.info(pagecount)
-                if controller_ip in hostpagesize_map:
-                     pagesize=hostpagesize_map.get(controller_ip)
-                     logger.info(pagesize)
                 multi_node_pike_pb = pkg_resources.resource_filename(
                     consts.KOLLA_PB_PKG,
                     consts.MULTI_NODE_KOLLA_CONTROLLER_YAML_PIKE)
@@ -412,7 +401,7 @@ def launch_provisioning_kolla(iplist, git_branch, kolla_tag, kolla_ansible_tag,
                      'GIT_BRANCH': git_branch, 'KOLLA_TAG': kolla_tag,
                      'KOLLA_ANSIBLE_TAG': kolla_ansible_tag,
                      'CHECK_VAR': check_var, 'PULL_HUB': pull_from_hub,
-                     'GET_TAG': get_tag, 'PAGE_COUNT': pagecount, 'PAGE_SIZE': pagesize})
+                     'GET_TAG': get_tag})
 
                 if ret_controller != 0:
                     logger.info("FAILED IN CONROLLER PIKE")

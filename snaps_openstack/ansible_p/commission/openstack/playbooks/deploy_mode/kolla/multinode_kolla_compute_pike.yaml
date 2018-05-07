@@ -13,18 +13,6 @@
     no_proxy: "{{ no_proxy }}"
   tasks:
 
-    - name: check HugePages
-      shell: grep Huge /proc/meminfo | grep HugePages_Total | awk '{print $2}'
-      register: pagesize
-
-    - debug:
-        var: pagesize
-
-    - name: Validating HugePages
-      fail: msg="kolla-ansible failed to set Hugepages"
-      when: (pagesize.stdout == "0" and((PAGE_SIZE is undefined) or (PAGE_SIZE is none) or (PAGE_SIZE | trim == ''))) or (pagesize.stdout == "0" and( (PAGE_COUNT is undefined) or (PAGE_COUNT is none) or (PAGE_COUNT | trim == '')))
-
-
     - name: apt-get update
       apt:
         update_cache: yes
@@ -210,14 +198,14 @@
        dest: /etc/modules
        line: 'configfs'
       when: enable_cinder == "yes"
-#    - name: load uio_pci_generic kernel module
-#      command: modprobe uio_pci_generic
-#      ignore_errors: True
-#      when: enable_ovs_dpdk == "yes"
-#    - name: load vfio_pci kernel module
-#      command: modprobe vfio_pci
-#      ignore_errors: True
-#      when: enable_ovs_dpdk == "yes"
+    - name: load uio_pci_generic kernel module
+      shell: modprobe uio_pci_generic
+      ignore_errors: True
+      when: enable_ovs_dpdk == "yes"
+    - name: load vfio_pci kernel module
+      shell: modprobe vfio_pci
+      ignore_errors: True
+      when: enable_ovs_dpdk == "yes"
 
     - name: add line to /etc/modules
       lineinfile:
@@ -251,32 +239,6 @@
     - name: systemctl disable iscsid
       command: systemctl disable iscsid
       when: enable_cinder == "yes"
-
-    - name: set HugePage in /etc/default/grub
-      lineinfile:
-         dest: "/etc/default/grub"
-         state: present
-         line: 'GRUB_CMDLINE_LINUX="$GRUB_CMDLINE_LINUX default_hugepagesz={{PAGE_SIZE}} hugepagesz={{PAGE_SIZE}} hugepages={{PAGE_COUNT}}"'
-      when : (not((PAGE_SIZE is undefined) or (PAGE_SIZE is none) or (PAGE_SIZE | trim == '')))and (not((PAGE_COUNT is undefined) or (PAGE_COUNT is none) or (PAGE_COUNT | trim == ''))) 
-
-    - name: update-grub
-      shell: update-grub
-      ignore_errors: True
-      when : enable_ovs_dpdk == "yes"
-
-    - name: "Reboot if required"
-      shell: sleep 1 && shutdown -r now 'Reboot required'
-      become: true
-      async: 1
-      poll: 0
-      ignore_errors: true
-      when : enable_ovs_dpdk == "yes"
-
-    - name: "Wait for reboot"
-      local_action: wait_for host={{ target }} port=22 delay=10 state=started
-      become: false
-      when : enable_ovs_dpdk == "yes"
-
 
     - name: Extract IP of the neutron_external_interface - {{ neutron_external_interface }}
       shell: ip a show "{{ neutron_external_interface }}" | grep inet | grep global | awk '{ print$2}'

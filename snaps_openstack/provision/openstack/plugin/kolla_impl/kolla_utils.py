@@ -71,8 +71,6 @@ def main(config, operation):
         else:
             pull_from_hub = "no"
         __create_global(config, git_branch, pull_from_hub)
-        hostpagecount_map=__get_hostpagecount_map(config)
-        hostpagesize_map=__get_hostpagesize_map(config)
         hostname_map = __get_hostname_map(config)
         host_node_type_map = __create_host_nodetype_map(config)
         host_storage_node_map = __create_host_storage_node_map(config, host_node_type_map)
@@ -137,7 +135,7 @@ def main(config, operation):
             kolla_install, ext_sub, ext_gw, ip_pool_start, ip_pool_end,
             operation, host_cpu_map, reserve_memory, base_size,
             count, default, vxlan, pull_from_hub, host_storage_node_map,
-            hostpagecount_map,hostpagesize_map,dpdk_enable)
+            dpdk_enable)
         base_file_path = consts.KOLLA_SOURCE_PATH
         files = {"globals.yml", "daemon.json", "netvars.yml",
                  "inventory/multinode"}
@@ -151,42 +149,6 @@ def main(config, operation):
     else:
         logger.info("Cannot read configuration")
 
-
-def __get_hostpagecount_map(config):
-    if config:
-        hosts = config.get(consts.OPENSTACK).get(consts.HOSTS)
-        pagecountMap = {}
-        # TODO/FIXME - Why is 'i' controlling both inner and outer loops???
-        for i in range(len(hosts)):
-            interfaces = hosts[i].get(consts.HOST).get(consts.INTERFACES)
-            hostname = hosts[i].get(consts.HOST).get('hostname')
-            pagecount= hosts[i].get(consts.HOST).get('hugepage_count')
-            host_ip = ""
-            for i in range(len(interfaces)):
-                ip = interfaces[i].get(consts.IP)
-                iface_type = interfaces[i].get(consts.TYPE)
-                if (iface_type == "management"):
-                 host_ip = ip
-            pagecountMap.update({host_ip:pagecount})
-    return  pagecountMap
-
-def __get_hostpagesize_map(config):
-    if config:
-        hosts = config.get(consts.OPENSTACK).get(consts.HOSTS)
-        pagesizeMap = {}
-        # TODO/FIXME - Why is 'i' controlling both inner and outer loops???
-        for i in range(len(hosts)):
-            interfaces = hosts[i].get(consts.HOST).get(consts.INTERFACES)
-            hostname = hosts[i].get(consts.HOST).get('hostname')
-            pagesize= hosts[i].get(consts.HOST).get('hugepage_size')
-            host_ip = ""
-            for i in range(len(interfaces)):
-                ip = interfaces[i].get(consts.IP)
-                iface_type = interfaces[i].get(consts.TYPE)
-                if (iface_type == "management"):
-                 host_ip = ip
-            pagesizeMap.update({host_ip:pagesize})
-    return  pagesizeMap
 
 
 def __create_host_storage_node_map(config, host_node_type_map):
