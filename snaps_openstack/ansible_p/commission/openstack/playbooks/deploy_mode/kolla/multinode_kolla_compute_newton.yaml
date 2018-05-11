@@ -83,7 +83,7 @@
         update_cache: yes
 
 
-    - name: dpkgi -i docker-engine=1.12.0-0~xenial
+    - name: dpkg -i docker-engine=1.12.0-0~xenial
       command: dpkg -i "{{ DOCKER_LIST_DEST }}"
 
     - name: Install ntp
