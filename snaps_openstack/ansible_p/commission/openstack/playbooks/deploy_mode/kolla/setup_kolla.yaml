@@ -33,7 +33,7 @@
       apt:
         name: python-pip
         state: latest
-    - name: upgrade ip
+    - name: upgrade pip
       command: pip install --upgrade pip
     - name: Install OpenSSL
       command: pip install pyOpenSSL
@@ -121,11 +121,11 @@
       when: GIT_BRANCH == "stable/newton"
 
 
-    - name: dpkgi -i docker-engine=1.12.0-0~xenial
+    - name: dpkg -i docker-engine=1.12.0-0~xenial
       command: dpkg -i "{{ DOCKER_LIST_DEST }}"
       when: GIT_BRANCH == "stable/newton"
 
-    - name: dpkgi -i docker-engine=17.05~xenial
+    - name: dpkg -i docker-engine=17.05~xenial
       command: dpkg -i "{{ DOCKER_LIST_DEST_PIKE }}"
       when: GIT_BRANCH == "stable/pike"
 

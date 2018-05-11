@@ -126,7 +126,7 @@
 
 #    - name: apt-get install docker-engine=1.12.0-0~xenial
 #      command: apt-get -y --allow-unauthenticated  install docker-engine=1.12.0-0~xenial
-    - name: dpkgi -i docker-engine=1.12.0-0~xenial
+    - name: dpkg -i docker-engine=1.12.0-0~xenial
       command: dpkg -i "{{ DOCKER_LIST_DEST }}"
 
 
