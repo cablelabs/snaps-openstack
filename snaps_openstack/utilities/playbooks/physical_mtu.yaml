@@ -23,7 +23,7 @@
      shell: ip link set dev {{ interface}} mtu {{ size }}
    - name: insert MTU size for given interface in /etc/network/interfaces
      blockinfile:
-       path: /etc/network/interfaces
+       dest: /etc/network/interfaces
        marker: "# {mark} ANSIBLE MANAGED BLOCK {{ interface }}"
        backup: yes
        insertafter: "iface {{ interface }} inet static"
