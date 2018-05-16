@@ -402,12 +402,15 @@
       async: 900
       register: out
       ignore_errors: True
-    - debug: var=out.stdout_lines
-    - debug: var=out.stderr_lines
+    - debug: var=out.ansible_job_id
 
-    - name: Validating task [run init-runonce] returned 0
-      fail: msg="run init-runonce command failed"
-      when: out.rc != 0
+    - name: Validating task [run init-runonce] is successful
+      async_status:
+        jid: "{{ out.ansible_job_id }}"
+      register: job_result
+      until: job_result.finished
+      retries: 60
+      delay: 15
 
     - name: fetching external routes
       shell: route -A inet6 | grep '{{ neutron_external_interface }}' | awk {'print $1'}
