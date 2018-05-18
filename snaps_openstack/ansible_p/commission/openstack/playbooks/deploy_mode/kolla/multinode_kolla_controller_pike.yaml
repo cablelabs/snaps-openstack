@@ -13,6 +13,28 @@
     no_proxy: "{{ no_proxy }}"
 
   tasks:
+
+    - name: load uio_pci_generic kernel module
+      shell: modprobe uio_pci_generic
+      ignore_errors: True
+      when: enable_ovs_dpdk == "yes"
+    - name: load vfio_pci kernel module
+      shell: modprobe vfio_pci
+      ignore_errors: True
+      when: enable_ovs_dpdk == "yes"
+
+    - name: add line to /etc/modules
+      lineinfile:
+       dest: /etc/modules
+       line: 'uio_pci_generic'
+      when: enable_ovs_dpdk == "yes"
+    - name: add line to /etc/modules
+      lineinfile:
+       dest: /etc/modules
+       line: 'vfio_pci'
+      when: enable_ovs_dpdk == "yes"
+
+
     - name: apt-get update
       apt:
         update_cache: yes
@@ -37,6 +59,8 @@
         - ntp
         - parted
         - aufs-tools
+        - network-manager
+        - crudini
 
     - name: upgrade pip
       command: pip install --upgrade pip
@@ -83,6 +107,19 @@
       pip:
         requirements: "{{ REQUIREMENT_KOLLA_ANSIBLE }}"
 
+    - name: replace data in ovsdpdk-db.json.j2
+      lineinfile:
+        dest: "{{GIT_CLONE_PATH_PIKE}}/ansible/roles/ovs-dpdk/templates/ovsdpdk-db.json.j2"
+        regexp: '^(.*)    "command": "start-ovsdb-server(.*)$'
+        line: '    "command": "start-ovsdb-server 127.0.0.1",'
+        backrefs: yes
+    - name: replace data in setup.cfg
+      lineinfile:
+        dest: "{{ GIT_CLONE_PATH_PIKE }}/setup.cfg"
+        line: "    share/kolla-ansible/tools = tools/ovs-dpdkctl.sh"
+        insertafter: '^\    share/kolla-ansible/tools = tools/stop-containers'
+        state: present
+
     - name: run setup.py
       command: python setup.py install
       args:
@@ -128,6 +165,10 @@
     - lineinfile:
        destfile: '/etc/OpenStack/kolla-ansible/tools/init-runonce'
        line: 'openstack role add --project admin --user admin heat_stack_owner'
+       insertbefore: 'cat << EOF'
+    - lineinfile:
+       destfile: '/etc/OpenStack/kolla-ansible/tools/init-runonce'
+       line: 'openstack flavor set m1.large --property hw:mem_page_size=large'
        insertbefore: 'cat << EOF'
     - lineinfile:
        destfile: '/etc/OpenStack/kolla-ansible/tools/init-runonce'
@@ -179,6 +220,12 @@
       pip:
        name: ansible
        version: 2.2.2.0
+
+    - name: Install ansible for dpdk
+      pip:
+       name: ansible
+       version: 2.3.1.0
+      when: enable_ovs_dpdk == "yes"
 
     - name:  insert docker_opts in docker
       lineinfile:
@@ -269,6 +316,18 @@
        src: "{{BASE_FILE_PATH}}globals.yml"
        dest: "{{ GLOBAL_FILE_DEST }}"
 
+    - name: Make directory config
+      file:
+       dest: /etc/kolla/config/neutron
+       state: directory
+
+    - name: Copy ml2_conf.ini
+      copy:
+       src: "{{BASE_FILE_PATH}}ml2_conf.ini"
+       dest: "/etc/kolla/config/neutron/ml2_conf.ini"
+      when : enable_ovs_dpdk == "yes"
+
+
     - name: cleanup-dangling images
       shell: ./cleanup-images --dangling
       when: GIT_BRANCH == "stable/pike"
@@ -302,7 +361,7 @@
 
     - name: Validating task [kolla ansible prechecks] returned 0
       fail: msg="kolla-ansible prechecks command failed"
-      when: out.rc != 0
+      when: out.rc != 0 and enable_ovs_dpdk == "no"
 
     - name: kolla ansible pull with file {{ MULTINODE_FILE }}
       command: kolla-ansible pull  -i "{{ MULTINODE_FILE }}"
@@ -343,21 +402,25 @@
     - name : Fetching public MAC
       shell: cat /sys/class/net/{{neutron_external_interface}}/address
       register: public_mac
+      when: enable_ovs_dpdk == "no"
     - debug:
         var:  public_mac
-
+      when: enable_ovs_dpdk == "no"
     - name : Setting MAC on br-ex
       shell : docker exec openvswitch_vswitchd bash -c  'ovs-vsctl -- set bridge br-ex other-config:hwaddr=\"{{ public_mac.stdout }}\"'
+      when: enable_ovs_dpdk == "no"
 
     - name: Set Ip to BR-ex - {{ item }}
       command: ip addr add {{ item }} dev br-ex
       with_items: "{{extip.stdout_lines|list}}"
+      when: enable_ovs_dpdk == "no"
 
     - pause:
         seconds: 5
 
     - name: Bring br-ex interface up
       command: ip link set br-ex up
+      when: enable_ovs_dpdk == "no"
 
     - pause:
         seconds: 5
@@ -365,6 +428,7 @@
     - name: Set Br-ex a defaults gateway route on nic {{ external_gw }}
       command: ip route add default via "{{ external_gw }}" dev br-ex
       ignore_errors: True
+      when: enable_ovs_dpdk == "no"
 
     - name: insert/update br-ex & default configuration in /etc/network/interfaces
       lineinfile:
@@ -377,6 +441,20 @@
         state: present
       with_items: "{{extip.stdout_lines.0}}"
       ignore_errors: True
+      when: enable_ovs_dpdk == "no"
+    - name: add default route
+      shell: "route add default gw {{ external_gw }} dev dpdk_bridge"
+      when: enable_ovs_dpdk == "yes"
+
+    - name: insert/update dpdk_bridge & default configuration in /etc/network/interfaces
+      lineinfile:
+        dest: /etc/network/interfaces.d/dpdk_bridge.cfg
+        backup: yes
+        line: "gateway {{ external_gw }}"
+        state: present
+      ignore_errors: True
+      when: enable_ovs_dpdk == "yes"
+
 
     - name: insert route details for br-ex
       lineinfile:
@@ -385,6 +463,7 @@
         state: present
         line: "post-up ip addr add {{ extip.stdout_lines.1 }} dev br-ex\nup route add default gw {{ external_gw }} dev br-ex\npost-up sleep 5; for i in $(ip -6 r | grep {{ neutron_external_interface }} | awk {'print $1'}); do ip -6 r d $i dev {{ neutron_external_interface }}; done\npost-up ip addr flush {{ neutron_external_interface }}"
       ignore_errors: True
+      when: enable_ovs_dpdk == "no"
 
     - name: Changing perm of "/etc/kolla/admin-openrc.sh", adding "+x"
       file: dest=/etc/kolla/admin-openrc.sh mode=a+x
@@ -415,13 +494,18 @@
     - name: fetching external routes
       shell: route -A inet6 | grep '{{ neutron_external_interface }}' | awk {'print $1'}
       register: ext_route
+      when: enable_ovs_dpdk == "no"
+
     - debug:
         var: ext_route.stdout_lines
+      when: enable_ovs_dpdk == "no"
+
     - name: Deleting external routes
       shell: ip -6 r d {{ item }} dev '{{ neutron_external_interface }}'
       with_items:
          - "{{ ext_route.stdout_lines.0 }}" 
       ignore_errors: True
+      when: enable_ovs_dpdk == "no"
 
     - name: check values for MTU parameters
       command: grep -inr global_physnet_mtu /etc/kolla

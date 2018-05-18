@@ -40,6 +40,9 @@
         - software-properties-common
         - libltdl7
         - aufs-tools
+        - network-manager
+        - crudini
+
 
     - name: Clone git
       git:
@@ -74,6 +77,20 @@
     - name: install requirements
       pip:
         requirements: "{{ REQUIREMENT_KOLLA_ANSIBLE }}"
+    - name: replace data in ovsdpdk-db.json.j2
+      lineinfile:
+        dest: "{{ GIT_CLONE_PATH_PIKE }}/ansible/roles/ovs-dpdk/templates/ovsdpdk-db.json.j2"
+        regexp: '^(.*)    "command": "start-ovsdb-server(.*)$'
+        line: '    "command": "start-ovsdb-server 127.0.0.1",'
+        backrefs: yes
+
+    - name: replace data in setup.cfg
+      lineinfile:
+        dest: "{{ GIT_CLONE_PATH_PIKE }}/setup.cfg"
+        line: "    share/kolla-ansible/tools = tools/ovs-dpdkctl.sh"
+        insertafter: '^\    share/kolla-ansible/tools = tools/stop-containers'
+        state: present
+
 
     - name: run setup.py
       command: python setup.py install
@@ -128,7 +145,12 @@
       pip:
        name: ansible
        version: 2.2.2.0
-
+      when: enable_ovs_dpdk == "no"
+    - name: Install ansible for dpdk
+      pip:
+       name: ansible
+       version: 2.3.1.0
+      when: enable_ovs_dpdk == "yes"
     - name:  insert docker_opts in docker
       lineinfile:
         dest: "{{ DEFAULT_DOCKER_FILE }}"
@@ -176,6 +198,26 @@
        dest: /etc/modules
        line: 'configfs'
       when: enable_cinder == "yes"
+    - name: load uio_pci_generic kernel module
+      shell: modprobe uio_pci_generic
+      ignore_errors: True
+      when: enable_ovs_dpdk == "yes"
+    - name: load vfio_pci kernel module
+      shell: modprobe vfio_pci
+      ignore_errors: True
+      when: enable_ovs_dpdk == "yes"
+
+    - name: add line to /etc/modules
+      lineinfile:
+       dest: /etc/modules
+       line: 'uio_pci_generic'
+      when: enable_ovs_dpdk == "yes"
+
+    - name: add line to /etc/modules
+      lineinfile:
+       dest: /etc/modules
+       line: 'vfio_pci'
+      when: enable_ovs_dpdk == "yes"
 
     - name: update-initramfs
       command: update-initramfs -u
@@ -198,7 +240,6 @@
       command: systemctl disable iscsid
       when: enable_cinder == "yes"
 
-
     - name: Extract IP of the neutron_external_interface - {{ neutron_external_interface }}
       shell: ip a show "{{ neutron_external_interface }}" | grep inet | grep global | awk '{ print$2}'
       register: extip
@@ -216,9 +257,21 @@
         state: present
       with_items: "{{extip.stdout_lines.0}}"
       ignore_errors: True
+      when : enable_ovs_dpdk == "no"
     - name: insert route details for br-ex
       lineinfile:
         dest: /etc/network/interfaces
         backup: yes
         line:  "up route add default gw {{ external_gw }} dev br-ex\npost-up sleep 5; for i in $(ip -6 r | grep {{ neutron_external_interface }} | awk {'print $1'}); do ip -6 r d $i dev {{ neutron_external_interface }}; done\npost-up ip addr flush {{ neutron_external_interface }}"
       ignore_errors: True
+      when : enable_ovs_dpdk == "no"
+
+    - name: insert/update dpdk_bridge & default configuration in /etc/network/interfaces
+      lineinfile:
+        dest: /etc/network/interfaces.d/dpdk_bridge.cfg
+        backup: yes
+        line: "gateway {{ external_gw }}"
+        state: present
+      ignore_errors: True
+      when: enable_ovs_dpdk == "yes"
+

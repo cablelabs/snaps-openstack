@@ -193,7 +193,7 @@ enable_magnum: "no"
 #enable_octavia: "no"
 #enable_opendaylight: "no"
 #enable_openvswitch: "{{ neutron_plugin_agent != 'linuxbridge' }}"
-#enable_ovs_dpdk: "no"
+enable_ovs_dpdk: "no"
 #enable_osprofiler: "no"
 #enable_panko: "no"
 #enable_qdrouterd: "no"
@@ -212,7 +212,8 @@ enable_magnum: "no"
 #enable_vmtp: "no"
 #enable_watcher: "no"
 #enable_zun: "no"
-
+#ovs_datapath: "netdev"
+#neutron_bridge_name: "dpdk_bridge"
 ###################
 # Ceph options
 ###################

@@ -33,3 +33,7 @@
       ignore_errors: True
       command: kolla-build --base "{{ kolla_base }}" --type "{{ kolla_install }}" --registry "{{ DOCKER_REGISTRY_IP }}"  --push
       when: PULL_HUB != "yes"
+    - name: Push ovsdpdk image
+      ignore_errors: True
+      command: kolla-build --base "{{ kolla_base }}" --type "{{ kolla_install }}" --registry "{{ DOCKER_REGISTRY_IP }}" --config-file "/etc/kolla/kolla-build.conf" --template-override "{{ GIT_CLONE_PATH }}/contrib/template-override/ovs-dpdk.j2" dpdk  --push
+      when: PULL_HUB != "yes"

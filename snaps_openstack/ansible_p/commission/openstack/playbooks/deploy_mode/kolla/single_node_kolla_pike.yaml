@@ -203,7 +203,37 @@
        name: ansible
        version: 2.2.2.0
 
+    - name: load uio_pci_generic kernel module
+      shell: modprobe uio_pci_generic
+      ignore_errors: True
+      when: enable_ovs_dpdk == "yes"
+    - name: load vfio_pci kernel module
+      shell: modprobe vfio_pci
+      ignore_errors: True
+      when: enable_ovs_dpdk == "yes"
 
+    - name: add line to /etc/modules
+      lineinfile:
+       dest: /etc/modules
+       line: 'uio_pci_generic'
+      when: enable_ovs_dpdk == "yes"
+    - name: add line to /etc/modules
+      lineinfile:
+       dest: /etc/modules
+       line: 'vfio_pci'
+      when: enable_ovs_dpdk == "yes"
+
+    - name: Install ansible for dpdk
+      pip:
+       name: ansible
+       version: 2.3.1.0
+      when: enable_ovs_dpdk == "yes"
+
+    - name: Copy ml2_conf.ini
+      copy:
+       src: "{{BASE_FILE_PATH}}ml2_conf.ini"
+       dest: "/etc/kolla/config/neutron/ml2_conf.ini"
+      when : enable_ovs_dpdk == "yes"
 
     - name:  insert docker_opts in docker
       lineinfile:

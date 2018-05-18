@@ -172,6 +172,7 @@ openstack:
     no_proxy: ""
   service_password: cable123
   services:
+    - dpdk
     - cinder
     - magnum
     - tempest

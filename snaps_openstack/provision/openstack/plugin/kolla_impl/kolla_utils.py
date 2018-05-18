@@ -105,6 +105,11 @@ def main(config, operation):
         logger.info(ip_pool_start)
         ip_pool_end = networks.get("external").get("ip_pool").get("end")
         logger.info(ip_pool_end)
+        dpdk_enable=None
+        service_list = config.get(consts.OPENSTACK).get(consts.SERVICES)
+        if 'dpdk' in service_list:
+           dpdk_enable="yes"
+        logger.info(dpdk_enable)
         base_size = config.get(consts.OPENSTACK).get(consts.KOLLA).get(
             consts.BASE_SIZE)
         logger.info(base_size)
@@ -129,7 +134,8 @@ def main(config, operation):
             host_node_type_map, docker_registry, docker_port, kolla_base,
             kolla_install, ext_sub, ext_gw, ip_pool_start, ip_pool_end,
             operation, host_cpu_map, reserve_memory, base_size,
-            count, default, vxlan, pull_from_hub, host_storage_node_map)
+            count, default, vxlan, pull_from_hub, host_storage_node_map,
+            dpdk_enable)
         base_file_path = consts.KOLLA_SOURCE_PATH
         files = {"globals.yml", "daemon.json", "netvars.yml",
                  "inventory/multinode"}
@@ -142,6 +148,8 @@ def main(config, operation):
         logger.info("Successfully Done Everything")
     else:
         logger.info("Cannot read configuration")
+
+
 
 def __create_host_storage_node_map(config, host_node_type_map):
  if config:
@@ -314,6 +322,47 @@ def __create_global(config, git_branch, pull_from_hub):
                 'docker_registry: "' + docker_registry + ':' + str(
                     docker_port) + '"')
 
+    proxy_http = config.get(consts.OPENSTACK).get('proxies').get('http_proxy')
+    proxy_https = config.get(consts.OPENSTACK).get('proxies').get(
+        'https_proxy')
+    filedata = filedata.replace(
+        '#docker_registry_password: "correcthorsebatterystaple"',
+        '#docker_registry_password: "correcthorsebatterystaple" \ncontainer_proxy: \n  http_proxy: "'
+        + proxy_http + '"\n  https_proxy: "' + proxy_https
+        + '"\n  no_proxy: "localhost,127.0.0.1,{{ kolla_internal_vip_address }},{{ api_interface_address }}"')
+    hosts = config.get(consts.OPENSTACK).get(consts.HOSTS)
+    gateway = ""
+    netmask = ""
+    # TODO/FIXME - Why is 'i' controlling both inner and outer loops???
+    for i in range(len(hosts)):
+        interfaces = hosts[i].get(consts.HOST).get(consts.INTERFACES)
+        node_type = hosts[i].get(consts.HOST).get(consts.NODE_TYPE)
+        if 'controller' in node_type or len(hosts) == 1:
+            for i in range(len(interfaces)):
+                name = interfaces[i].get(consts.NAME)
+                name = name.lower()
+                iface_type = interfaces[i].get(consts.TYPE)
+                iface_type = iface_type.lower()
+                if iface_type == "management":
+                    filedata = filedata.replace(
+                        '#network_interface: "eth0"',
+                        'network_interface: "' + name + '"')
+
+                elif iface_type == "data":
+                    filedata = filedata.replace(
+                        '#neutron_external_interface: "eth1"',
+                        'neutron_external_interface: "' + name + '"')
+                    gateway = interfaces[i].get("gateway")
+                   # netmask = interfaces[i].get("netmask")
+                elif iface_type == "tenant":
+                    filedata = filedata.replace(
+                        '#tunnel_interface: "{{ network_interface }}"',
+                        'tunnel_interface: "' + name + '"')
+                else:
+                    logger.error("Incorrect interface type")
+                    exit(1)
+
+
     if config.get(consts.OPENSTACK).get(consts.SERVICES) is not None:
         service_str = config.get(consts.OPENSTACK).get(consts.SERVICES)
 
@@ -385,44 +434,20 @@ def __create_global(config, git_branch, pull_from_hub):
                                             'enable_redis: "yes"')
                 filedata = filedata.replace('#enable_barbican: "no"',
                                             'enable_barbican: "yes"')
-    proxy_http = config.get(consts.OPENSTACK).get('proxies').get('http_proxy')
-    proxy_https = config.get(consts.OPENSTACK).get('proxies').get(
-        'https_proxy')
-    filedata = filedata.replace(
-        '#docker_registry_password: "correcthorsebatterystaple"',
-        '#docker_registry_password: "correcthorsebatterystaple" \ncontainer_proxy: \n  http_proxy: "'
-        + proxy_http + '"\n  https_proxy: "' + proxy_https
-        + '"\n  no_proxy: "localhost,127.0.0.1,{{ kolla_internal_vip_address }},{{ api_interface_address }}"')
-    hosts = config.get(consts.OPENSTACK).get(consts.HOSTS)
-    gateway = ""
-
-    # TODO/FIXME - Why is 'i' controlling both inner and outer loops???
-    for i in range(len(hosts)):
-        interfaces = hosts[i].get(consts.HOST).get(consts.INTERFACES)
-        node_type = hosts[i].get(consts.HOST).get(consts.NODE_TYPE)
-        if 'controller' in node_type or len(hosts) == 1:
-            for i in range(len(interfaces)):
-                name = interfaces[i].get(consts.NAME)
-                name = name.lower()
-                iface_type = interfaces[i].get(consts.TYPE)
-                iface_type = iface_type.lower()
-                if iface_type == "management":
-                    filedata = filedata.replace(
-                        '#network_interface: "eth0"',
-                        'network_interface: "' + name + '"')
-
-                elif iface_type == "data":
-                    filedata = filedata.replace(
-                        '#neutron_external_interface: "eth1"',
-                        'neutron_external_interface: "' + name + '"')
-                    gateway = interfaces[i].get("gateway")
-                elif iface_type == "tenant":
-                    filedata = filedata.replace(
-                        '#tunnel_interface: "{{ network_interface }}"',
-                        'tunnel_interface: "' + name + '"')
-                else:
-                    logger.error("Incorrect interface type")
-                    exit(1)
+            if services == 'dpdk':
+                filedata = filedata.replace('#ovs_datapath: "netdev"',
+                                            'ovs_datapath: "netdev"')
+                filedata = filedata.replace('enable_ovs_dpdk: "no"',
+                                            'enable_ovs_dpdk: "yes"')
+                filedata = filedata.replace('#enable_openvswitch: "{{ neutron_plugin_agent != \'linuxbridge\' }}"',
+                                            'enable_openvswitch: "yes"')
+                filedata = filedata.replace('#tunnel_interface: "{{ network_interface }}"',
+                                            'tunnel_interface: "dpdk_bridge"')
+                filedata = filedata.replace('#neutron_bridge_name: "dpdk_bridge"',
+                                            'neutron_bridge_name: "dpdk_bridge"')
+                external_interface = config.get(consts.OPENSTACK).get(consts.KOLLA).get(consts.EXTERNAL_INTERFACE)
+                filedata = filedata.replace('kolla_external_vip_interface: '+'"'+external_interface+'"',
+                                            'kolla_external_vip_interface: "dpdk_bridge"')
 
     f.close()
     shutil.copy2(basefile, newfile)
@@ -676,6 +701,11 @@ def clean_up(config, operation):
         consts.PULL_HUB)
     host_node_type_map= __create_host_nodetype_map(config)
     host_storage_node_map = __create_host_storage_node_map(config, host_node_type_map)
+    dpdk_enable=None
+    service_list = config.get(consts.OPENSTACK).get(consts.SERVICES)
+    if 'dpdk' in service_list:
+      dpdk_enable="yes"
+
     if list_ip is None:
         logger.info("Not valid configurations")
         exit(1)
@@ -687,7 +717,7 @@ def clean_up(config, operation):
         logger.info(service_list)
         ret = ansible_configuration.clean_up_kolla(
             list_ip, git_branch, docker_registry, service_list, operation,
-            pull_from_hub, host_storage_node_map)
+            pull_from_hub, host_storage_node_map,dpdk_enable)
         return ret
 
 
