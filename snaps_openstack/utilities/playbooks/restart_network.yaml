@@ -1,5 +1,5 @@
 ---
-# Copyright 2017 ARICENT HOLDINGS LUXEMBOURG SARL. and
+# Copyright 2018 ARICENT HOLDINGS LUXEMBOURG SARL. and
 # Cable Television Laboratories, Inc.
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -13,19 +13,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-- hosts: all
+- hosts: "{{ target }}"
   become: yes
   become_user: root
 #  vars_files:
 #  vars:
   tasks:
-   - name: Assign MTU on given interface
-     shell: ip link set dev {{ interface}} mtu {{ size }}
-   - name: insert MTU size for given interface in /etc/network/interfaces
-     blockinfile:
-       dest: /etc/network/interfaces
-       marker: "# {mark} ANSIBLE MANAGED BLOCK {{ interface }}"
-       backup: yes
-       insertafter: "iface {{ interface }} inet static"
-       block: |
-         mtu {{ size }}
+    - name : Restart networking
+      shell: systemctl restart networking
+      ignore_errors: True

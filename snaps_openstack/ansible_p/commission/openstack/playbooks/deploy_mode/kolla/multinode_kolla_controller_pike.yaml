@@ -186,7 +186,7 @@
        src: "{{BASE_FILE_PATH}}docker-engine_17.05.0-ce-0-ubuntu-xenial_amd64.deb"
        dest: "{{ DOCKER_LIST_DEST_PIKE }}"
 
-    - name: dpkgi -i docker-engine=17.05~xenial
+    - name: dpkg -i docker-engine=17.05~xenial
       command: dpkg -i "{{ DOCKER_LIST_DEST_PIKE }}"
 
 
@@ -474,20 +474,22 @@
       when: PULL_HUB != "yes"
       ignore_errors: True
 
-#    - name: run init-runonce
-#      shell: source /etc/kolla/admin-openrc.sh && /etc/OpenStack/kolla-ansible/tools/init-runonce
-#      args:
-#       executable: /bin/bash
-#      async: 900
-#      poll: 5
-#      register: out
-#      ignore_errors: True
-#    - debug: var=out.stdout_lines
-#    - debug: var=out.stderr_lines
+    - name: run init-runonce
+      shell: source /etc/kolla/admin-openrc.sh && /etc/OpenStack/kolla-ansible/tools/init-runonce
+      args:
+       executable: /bin/bash
+      async: 900
+      register: out
+      ignore_errors: True
+    - debug: var=out.ansible_job_id
 
-#    - name: Validating task [run init-runonce] returned 0
-#      fail: msg="run init-runonce command failed"
-#      when: out.rc != 0
+    - name: Validating task [run init-runonce] is successful
+      async_status:
+        jid: "{{ out.ansible_job_id }}"
+      register: job_result
+      until: job_result.finished
+      retries: 60
+      delay: 15
 
     - name: fetching external routes
       shell: route -A inet6 | grep '{{ neutron_external_interface }}' | awk {'print $1'}
