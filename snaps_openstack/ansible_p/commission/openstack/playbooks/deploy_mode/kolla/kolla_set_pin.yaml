@@ -40,6 +40,7 @@
     - name: check if filter exist in nova.conf
       shell: "grep -nr 'scheduler_default_filters' /etc/kolla/{{ item }}/nova.conf"
       register: contents_should_have
+      ignore_errors: True
       with_items:
         - nova-compute
     - debug:
@@ -88,6 +89,7 @@
     - name: check if whitelist exist in nova.conf
       shell: "grep -nr 'passthrough_whitelist' /etc/kolla/{{ item }}/nova.conf"
       register: contents_would_have
+      ignore_errors: True
       with_items:
         - nova-compute
     - debug:
