@@ -421,10 +421,10 @@ def __create_global(config, git_branch, pull_from_hub):
     hosts = config.get(consts.OPENSTACK).get(consts.HOSTS)
     gateway = ""
     netmask = ""
-    # TODO/FIXME - Why is 'i' controlling both inner and outer loops???
-    for i in range(len(hosts)):
-        interfaces = hosts[i].get(consts.HOST).get(consts.INTERFACES)
-        node_type = hosts[i].get(consts.HOST).get(consts.NODE_TYPE)
+    
+    for j in range(len(hosts)):
+        interfaces = hosts[j].get(consts.HOST).get(consts.INTERFACES)
+        node_type = hosts[j].get(consts.HOST).get(consts.NODE_TYPE)
         if 'controller' in node_type or len(hosts) == 1:
             for i in range(len(interfaces)):
                 name = interfaces[i].get(consts.NAME)
