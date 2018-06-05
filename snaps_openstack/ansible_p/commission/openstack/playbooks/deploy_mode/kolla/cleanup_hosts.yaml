@@ -40,14 +40,14 @@
       ignore_errors: True
     - name: cleanup-containers script
       shell: ./cleanup-containers
-      when: GIT_BRANCH == "stable/pike"      
+      when: GIT_BRANCH == "stable/queens"
       args:
        chdir: /etc/OpenStack/kolla-ansible/tools
        executable: /bin/bash
       ignore_errors: True
     - name: cleanup-hosts script
       shell: ./cleanup-host
-      when: GIT_BRANCH == "stable/pike"      
+      when: GIT_BRANCH == "stable/queens"
       args:
         chdir: /etc/OpenStack/kolla-ansible/tools
         executable: /bin/bash
@@ -70,6 +70,11 @@
        state: absent
        regexp:  'configfs'
 
+    - name: remove the config folder
+      file:
+        state: absent
+        path: /etc/kolla/config
+      ignore_errors: True
     - lineinfile:
        destfile: /etc/modules
        state: absent
@@ -79,9 +84,3 @@
        destfile: /etc/modules
        state: absent
        regexp:  'uio_pci_generic'
-
-
-    - lineinfile:
-       destfile: /usr/local/share/kolla-ansible/ansible/group_vars/all.yml
-       state: absent
-       regexp:  'container_proxy: {}' 

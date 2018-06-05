@@ -1,5 +1,5 @@
 ---
-no_proxy: ""
-https_proxy: ""
-http_proxy: ""
-ftp_proxy: ""
+no_proxy: "127.0.0.1,172.16.141.41,172.16.141.21,172.16.141.22,172.16.141.145"
+https_proxy: "https://gur44646:Verizon1230@165.225.104.34:80"
+http_proxy: "http://gur44646:Verizon1230@165.225.104.34:80"
+ftp_proxy: "ftp://gur44646:Verizon1230@165.225.104.34:80"

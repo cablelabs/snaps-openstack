@@ -33,55 +33,50 @@
         insertafter: '^\[ovs\]'
         state: present
       when: enable_ovs_dpdk == "yes"
-
     - name: Check if nova.conf exists
       stat: path=/etc/kolla/nova-compute/nova.conf
       register: check_file
-    - name: nova.conf changes
-      when: (check_file.stat.exists and not(vcpu_pin == "")) and GIT_BRANCH == "stable/newton"
-      lineinfile:
-        dest: "/etc/kolla/{{ item }}/nova.conf"
-        line: "scheduler_default_filters = RetryFilter,AvailabilityZoneFilter,RamFilter,DiskFilter,ComputeFilter,ComputeCapabilitiesFilter,ImagePropertiesFilter,ServerGroupAntiAffinityFilter,ServerGroupAffinityFilter,SameHostFilter,DifferentHostFilter,NUMATopologyFilter,AggregateInstanceExtraSpecsFilter \nvcpu_pin_set= {{vcpu_pin}} "
-        insertafter: '^\[DEFAULT\]'
-        state: present
+
+    - name: check if filter exist in nova.conf
+      shell: "grep -nr 'scheduler_default_filters' /etc/kolla/{{ item }}/nova.conf"
+      register: contents_should_have
       with_items:
-        - nova-conductor
         - nova-compute
-        - nova-api
-        - nova-consoleauth
-        - nova-novncproxy
-        - nova-scheduler
-        - nova-spicehtml5proxy
-    - name: nova.conf changes
-      when: (check_file.stat.exists and not(memory == "")) and GIT_BRANCH == "stable/newton"
-      lineinfile:
-        dest: "/etc/kolla/{{ item }}/nova.conf"
-        line: "reserved_host_memory_mb={{memory}}  "
-        insertafter: '^\[DEFAULT\]'
-        state: present
-      with_items:
-        - nova-conductor
-        - nova-compute
-        - nova-api
-        - nova-consoleauth
-        - nova-novncproxy
-        - nova-scheduler
-        - nova-spicehtml5proxy
+    - debug:
+       var: contents_should_have
 
 
     - name: nova.conf changes
-      when: (check_file.stat.exists and not(vcpu_pin == ""))and GIT_BRANCH == "stable/pike"
       lineinfile:
         dest: "/etc/kolla/{{ item }}/nova.conf"
-        line: "scheduler_default_filters = RetryFilter,AvailabilityZoneFilter,RamFilter,DiskFilter,ComputeFilter,ComputeCapabilitiesFilter,ImagePropertiesFilter,ServerGroupAntiAffinityFilter,ServerGroupAffinityFilter,SameHostFilter,DifferentHostFilter,NUMATopologyFilter,AggregateInstanceExtraSpecsFilter \nvcpu_pin_set= {{vcpu_pin}} "
+        line: "scheduler_default_filters = RetryFilter,AvailabilityZoneFilter,RamFilter,DiskFilter,ComputeFilter,ComputeCapabilitiesFilter,ImagePropertiesFilter,ServerGroupAntiAffinityFilter,ServerGroupAffinityFilter,SameHostFilter,DifferentHostFilter,NUMATopologyFilter,AggregateInstanceExtraSpecsFilter,PciPassthroughFilter\nscheduler_available_filters = nova.scheduler.filters.all_filters "
         insertafter: '^\[DEFAULT\]'
         state: present
       with_items:
         - nova-compute
+        - nova-scheduler
+        - nova-conductor
+        - nova-consoleauth
+        - nova-api
+        - nova-novncproxy
       ignore_errors: True
+      when: contents_should_have.stdout == ""
 
+    - name : Modify nova.conf file 
+      lineinfile:
+        dest: "/etc/kolla/{{ item }}/nova.conf"
+        line: "vcpu_pin_set= {{vcpu_pin}}"
+        insertafter: '^\[DEFAULT\]'
+      with_items:
+        - nova-compute
+        - nova-scheduler
+        - nova-conductor
+        - nova-consoleauth
+        - nova-api
+        - nova-novncproxy
+      ignore_errors: True
     - name: nova.conf changes
-      when: (check_file.stat.exists and not(memory == "")) and GIT_BRANCH == "stable/pike"
+      when: (check_file.stat.exists and not(memory == "")) and (GIT_BRANCH == "stable/queens")
       lineinfile:
         dest: "/etc/kolla/{{ item }}/nova.conf"
         line: "reserved_host_memory_mb={{memory}}  "
@@ -90,7 +85,26 @@
       with_items:
         - nova-compute
       ignore_errors: True
+    - name: check if whitelist exist in nova.conf
+      shell: "grep -nr 'passthrough_whitelist' /etc/kolla/{{ item }}/nova.conf"
+      register: contents_would_have
+      with_items:
+        - nova-compute
+    - debug:
+       var: contents_would_have
 
+    - name : Modify nova.conf file for SRIOV
+      lineinfile:
+        dest: "/etc/kolla/{{ item }}/nova.conf"
+        line: "passthrough_whitelist = {{ NOVA_STRING }}"
+        insertafter: '^\[pci\]'
+      when: enable_neutron_sriov == "yes" and contents_would_have.stdout == ""
+      with_items:
+       - nova-compute
+
+    - name : Modify /etc/kolla/neutron-sriov-agent/sriov_agent.ini file for SRIOV
+      shell: find /etc/kolla/neutron-sriov-agent/sriov_agent.ini -exec sed -i -e 's/physical_device_mappings = sriovnet1\(.*\)$/physical_device_mappings = {{ SRIOV_STRING }}/g' {} \;
+      when: enable_neutron_sriov == "yes"
 
     - name: check values for MTU parameters
       command: grep -inr global_physnet_mtu /etc/kolla
@@ -119,5 +133,14 @@
       args:
        executable: /bin/bash
       async: 900
+      poll: 5
+      register: out
+      delegate_to: "{{CONTROLLER_IP}}"
       ignore_errors: True
+    - debug: var=out.stdout_lines
+    - debug: var=out.stderr_lines
+
+    - name: Validating task [run init-runonce] returned 0
+      fail: msg="run init-runonce command failed"
+      when: out.rc != 0
       delegate_to: "{{CONTROLLER_IP}}"

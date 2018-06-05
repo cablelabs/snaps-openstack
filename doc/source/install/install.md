@@ -37,7 +37,7 @@ document.
 [1] OpenStack Installation guide:
 https://docs.openstack.org/kolla-ansible/latest/user/quickstart.html
 
-### 1.4 OpenStack services support under PIKE release
+### 1.4 OpenStack services support under QUEENS release
 Basic OpenStack Services 
 •	Nova
 •	Neutron
@@ -53,14 +53,15 @@ Additional services:
 •	Magnum
 •	Barbican
 •	Ceilometer
-• gnocchi
-• redis
+•    gnocchi
+•    redis
 •	Cinder
 •	Ceph
-•	dpdk
+�~@�    SRIOV
 
-### 1.5 OpenStack IPv6 support under PIKE release
- OpenStack Pike release supports IPV6 functionality for OpenStack(Current support is availbale only for VM to VM networking)
+
+### 1.5 OpenStack IPv6 support under QUEENS release
+ OpenStack Queens release supports IPV6 functionality for OpenStack(Current support is availbale only for VM to VM networking)
 
 
 ## 2 Environment Prerequisites
@@ -94,7 +95,7 @@ The current release of SNAPS-OpenStack is tested on the following platform.
 | Operating System | Ubuntu 16.04 |
 | Scripting |  Python 2.7 |
 | Framework | Ansible 2.3.0.0 |
-| OpenStack | Pike |
+| OpenStack | Queens |
 
 ## 2.3 Pre-requsites Requirements
 
@@ -130,7 +131,7 @@ this section are explained below.
 | Parameter | Optionality | Description |
 | --------- | ----------- | ----------- |
 | deployment_type | N | OpenStack deployment type, `Devstack` or `Kolla`. |
-| git_branch | N | OpenStack release to clone (In current release only Pike is supported so it will be `stable/pike`). |
+| git_branch | N | OpenStack release to clone (In current release only Queens is supported so it will be `stable/queens`). |
 | kolla_tag | Y | kolla package release to clone through kolla_tag value. |
 | kolla_ansible_tag | Y | kolla-ansible package release to clone through kolla_ansible_tag value. |
 
@@ -243,6 +244,12 @@ below.
     <td colspan="2">second_storage</td>
     <td>Y</td>
     <td>List of Mount point of secondary storage for ceph. Has to be present if the node_type is "storage"</td>
+  </tr>
+  <tr>
+    <td/>
+    <td colspan="2">sriov_interface</td>
+    <td>Y</td>
+    <td>List of SRIOV interfaces for SRIOV. Has to be present if SRIOV is enabled</td>
   </tr>
   <tr>
     <td/>
@@ -367,6 +374,8 @@ services:
   - cinder
   - tacker
   - ceph
+  - sriov
+  - dpdk
 ```
 
 #### kolla
@@ -614,13 +623,13 @@ sudo python <repo_dir>/iaas_launch.py -f <repo_dir>/conf/openstack/kolla/deploym
 In case previous deployment attempt has failed or new changes are required
 (enabling optional services), attempt following steps.
 
-First, clean up previous OpenStack deployment:
+First, Clean up previous OpenStack deployment:
 
 ```
 sudo python <repo_dir>/iaas_launch.py -f <repo_dir>/conf/openstack/kolla/deployment.yaml -c
 ```
 
-Or clean up previous deployment along with docker repository:
+Or Clean up previous deployment along with docker repository:
 
 ```
 sudo python <repo_dir>/iaas_launch.py -f <repo_dir>/conf/openstack/kolla/deployment.yaml -drc

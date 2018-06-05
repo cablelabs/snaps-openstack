@@ -12,27 +12,29 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 ---
-openstack:
+openstack: 
   deployment_type: Kolla
-  git_branch: stable/pike
-  hosts:
+  git_branch: stable/queens
+  kolla_tag: ""
+  kolla_ansible_tag: ""
+  hosts: 
     -
       host:
         hostname: controller
         interfaces:
           -
             gateway: "10.197.111.1"
-            ip: "10.197.111.12"
+            ip: ""
             name: eno1
             type: management
           -
             gateway: "10.197.112.1"
-            ip: "10.197.112.12"
+            ip: ""
             name: enp6s0f0
             type: tenant
           -
             gateway: "10.197.113.1"
-            ip: "10.197.113.12"
+            ip: ""
             name: enp6s0f1
             type: data
             dns: 8.8.8.8
@@ -41,26 +43,31 @@ openstack:
         node_type:
           - controller
           - network
-        password: cable123
+          - storage
+        second_storage:
+          - "/dev/sdb"
+          - "/dev/sdc"
+        sriov_interface:
+        password: 
         service_host: ""
-        user: root
+        user:
     -
       host:
         hostname: compute1
         interfaces:
           -
             gateway: "10.197.111.1"
-            ip: "10.197.111.13"
+            ip: ""
             name: eno1
             type: management
           -
             gateway: "10.197.112.1"
-            ip: "10.197.112.13"
+            ip: ""
             name: enp6s0f0
             type: tenant
           -
             gateway: "10.197.113.1"
-            ip: "10.197.113.13"
+            ip: ""
             name: enp6s0f1
             type: data
             dns: 8.8.8.8
@@ -68,28 +75,28 @@ openstack:
         reserved_host_memory_mb: "16384"
         node_type:
           - compute
-          - storage
-        second_storage: "/dev/sdb"
-        password: cable123
-        service_host: "10.197.111.12"
-        user: root
+        sriov_interface:
+          - enp4s0f0
+        password: 
+        service_host: ""
+        user: 
     -
       host:
         hostname: compute2
         interfaces:
           -
             gateway: "10.197.111.1"
-            ip: "10.197.111.14"
+            ip: ""
             name: eno1
             type: management
           -
             gateway: "10.197.112.1"
-            ip: "10.197.112.14"
+            ip: ""
             name: enp6s0f0
             type: tenant
           -
             gateway: "10.197.113.1"
-            ip: "10.197.113.14"
+            ip: ""
             name: enp6s0f1
             type: data
             dns: 8.8.8.8
@@ -97,28 +104,29 @@ openstack:
         reserved_host_memory_mb: "16384"
         node_type:
           - compute
-          - storage
-        second_storage: "/dev/sdb"
-        password: cable123
-        service_host: "10.197.111.12"
-        user: root
+        second_storage:
+        sriov_interface:
+          - enp4s0f0
+        password: 
+        service_host: ""
+        user: 
     -
       host:
         hostname: compute3
         interfaces:
           -
             gateway: "10.197.111.1"
-            ip: "10.197.111.15"
+            ip: ""
             name: eno1
             type: management
           -
             gateway: "10.197.112.1"
-            ip: "10.197.112.15"
+            ip: ""
             name: enp6s0f0
             type: tenant
           -
             gateway: "10.197.113.1"
-            ip: "10.197.113.15"
+            ip: ""
             name: enp6s0f1
             type: data
             dns: 8.8.8.8
@@ -127,27 +135,30 @@ openstack:
         node_type:
           - compute
           - storage
-        second_storage: "/dev/sdb"
-        password: cable123
-        service_host: "10.197.111.12"
-        user: root
+        second_storage:
+          - "/dev/sdb/"
+        sriov_interface:
+          - enp4s0f0
+        password: 
+        service_host: ""
+        user: 
     -
       host:
         hostname: compute4
         interfaces:
           -
             gateway: "10.197.111.1"
-            ip: "10.197.111.16"
+            ip: ""
             name: eno1
             type: management
           -
             gateway: "10.197.112.1"
-            ip: "10.197.112.16"
+            ip: ""
             name: enp6s0f0
             type: tenant
           -
             gateway: "10.197.113.1"
-            ip: "10.197.113.16"
+            ip: ""
             name: enp6s0f1
             type: data
             dns: 8.8.8.8
@@ -156,16 +167,19 @@ openstack:
         node_type:
           - compute
           - storage
-        second_storage: "/dev/sdb"
-        password: cable123
-        service_host: "10.197.111.12"
-        user: root
+        second_storage:
+          - "/dev/sdb/"
+        sriov_interface:
+          - enp4s0f0
+        password:
+        service_host: ""
+        user: 
   networks:
     external:
       gateway: "10.197.113.1"
       ip_pool:
-        start: "10.197.113.100"
-        end: "10.197.113.254"
+        start: ""
+        end: ""
       subnet: 10.197.113.0/24
     tenant:
       subnet:
@@ -178,7 +192,7 @@ openstack:
     http_proxy: ""
     https_proxy: ""
     no_proxy: ""
-  service_password: cable123
+  service_password: 
   services:
     - magnum
     - tempest
@@ -186,15 +200,17 @@ openstack:
     - ceph
     - cinder
     - tacker
+    - sriov
+    - dpdk
   kolla:
      base_distro: "ubuntu"
      install_type: "source"
      keepalived_virtual_router_id: "30"
-     internal_vip_address: "10.197.111.30"
+     internal_vip_address: ""
      internal_interface: "enp6s0f0"
-     kolla_registry: "10.197.111.12"
+     kolla_registry: ""
      kolla_registry_port: "4000"
-     external_vip_address: "10.197.113.30"
+     external_vip_address: ""
      external_interface: "enp6s0f1"
      pull_from_hub: "yes"
      docker_namespace: "snapsopenstack"

@@ -20,8 +20,18 @@ localhost       ansible_connection=local
 [network]
 localhost       ansible_connection=local
 
-[compute]
+# inner-compute is the groups of compute nodes which do not have
+# external reachability
+[inner-compute]
+
+# external-compute is the groups of compute nodes which can reach
+# outside
+[external-compute]
 localhost       ansible_connection=local
+
+[compute:children]
+inner-compute
+external-compute
 
 [storage]
 localhost       ansible_connection=local
@@ -35,7 +45,7 @@ localhost       ansible_connection=local
 # You can explicitly specify which hosts run each project by updating the
 # groups in the sections below. Common services are grouped together.
 [chrony-server:children]
-control
+haproxy
 
 [chrony:children]
 network
@@ -54,6 +64,7 @@ monitoring
 
 [etcd:children]
 control
+compute
 
 [karbor:children]
 control
@@ -74,10 +85,26 @@ control
 [haproxy:children]
 network
 
+[hyperv]
+#hyperv_host
+
+[hyperv:vars]
+#ansible_user=user
+#ansible_password=password
+#ansible_port=5986
+#ansible_connection=winrm
+#ansible_winrm_server_cert_validation=ignore
+
 [mariadb:children]
 control
 
 [rabbitmq:children]
+control
+
+[outward-rabbitmq:children]
+control
+
+[qdrouterd:children]
 control
 
 [mongodb:children]
@@ -99,6 +126,9 @@ network
 network
 compute
 manila-share
+
+[opendaylight:children]
+network
 
 [cinder:children]
 control
@@ -169,6 +199,9 @@ control
 [tacker:children]
 control
 
+[vitrage:children]
+control
+
 # Tempest
 [tempest:children]
 control
@@ -204,6 +237,15 @@ control
 deployment
 
 [zun:children]
+control
+
+[skydive:children]
+monitoring
+
+[redis:children]
+control
+
+[blazar:children]
 control
 
 # Additional control implemented here. These groups allow you to control which
@@ -268,6 +310,15 @@ neutron
 neutron
 
 # Ceph
+[ceph-mds:children]
+ceph
+
+[ceph-mgr:children]
+ceph
+
+[ceph-nfs:children]
+ceph
+
 [ceph-mon:children]
 ceph
 
@@ -305,7 +356,7 @@ freezer
 [iscsid:children]
 compute
 storage
-ironic-conductor
+ironic
 
 [tgtd:children]
 storage
@@ -461,16 +512,10 @@ sahara
 sahara
 
 # Ceilometer
-[ceilometer-api:children]
-ceilometer
-
 [ceilometer-central:children]
 ceilometer
 
 [ceilometer-notification:children]
-ceilometer
-
-[ceilometer-collector:children]
 ceilometer
 
 [ceilometer-compute:children]
@@ -534,8 +579,11 @@ designate
 [designate-central:children]
 designate
 
-[designate-mdns:children]
+[designate-producer:children]
 designate
+
+[designate-mdns:children]
+network
 
 [designate-worker:children]
 designate
@@ -556,3 +604,41 @@ zun
 
 [zun-compute:children]
 compute
+
+# Skydive
+[skydive-analyzer:children]
+skydive
+
+[skydive-agent:children]
+compute
+network
+
+# Tacker
+[tacker-server:children]
+tacker
+
+[tacker-conductor:children]
+tacker
+
+# Vitrage
+[vitrage-api:children]
+vitrage
+
+[vitrage-notifier:children]
+vitrage
+
+[vitrage-graph:children]
+vitrage
+
+[vitrage-collector:children]
+vitrage
+
+[vitrage-ml:children]
+vitrage
+
+# Blazar
+[blazar-api:children]
+blazar
+
+[blazar-manager:children]
+blazar

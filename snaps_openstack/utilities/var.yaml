@@ -22,17 +22,17 @@ TASKS:
       -
         interfaces:
           -
-            port_name: eno2
+            port_name: eno3
             size: 8000
-        ip: "172.16.141.42"
+        ip: "172.16.141.22"
         password: ChangeMe
         username: root
       -
         interfaces:
           -
-            port_name: eno2
+            port_name: eno3
             size: 8000
-        ip: "172.16.141.9"
+        ip: "172.16.141.41"
         password: ChangeMe
         username: root
   -
@@ -47,10 +47,10 @@ TASKS:
             port_name: eno1
             size: '2500'
           -
-            port_name: eno2
+            port_name: enp4s0f0
             size: '2500'
       -
-        ip: "172.16.141.21"
+        ip: "172.16.141.41"
         password: ChangeMe
         username: root
         interfaces:
@@ -58,5 +58,5 @@ TASKS:
             port_name: eno1
             size: '2500'
           -
-            port_name: eno2
+            port_name: enp4s0f0
             size: '2500'
