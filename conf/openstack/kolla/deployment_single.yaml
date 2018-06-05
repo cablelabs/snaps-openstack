@@ -13,66 +13,70 @@
 # limitations under the License.
 
 openstack:
-  deployment_type: Kolla
-  git_branch: stable/newton
+  deployement_type: Kolla
+  git_branch: stable/queens
+  kolla_tag: ""
+  kolla_ansible_tag: ""
+
   hosts:
     -
       host:
-        hostname: HOSTNAME
+        hostname: Controller22
         interfaces:
           -
             gateway: "172.16.141.1"
             ip: "172.16.141.22"
-#            mac: "18:66:da:a3:ac:63"
             name: eno1
             type: management
           -
             ip: ""
             gateway: "172.16.141.1"
-#           mac: "18:66:da:a3:ac:64"
             name: eno2
             type: data
         isolcpus: ""
         reserved_host_memory_mb: ""
         node_type:
-          - all
-        password: ChangeMe
+          - all   
+        second_storage:
+          - "/dev/sdb"
+          - "/dev/sdc"
+        password: ChangeMe 
         service_host: ""
         user: root
-
-
 
   networks:
     external:
       gateway: "172.16.141.1"
       ip_pool:
-        end: "172.16.141.57"
-        start: "172.16.141.80"
+        end: "172.16.141.160"
+        start: "172.16.141.147"
       subnet: 172.16.141.0/24
     tenant:
       subnet:
       subnet_size:
-   mtu_size:
+    mtu_size:
       default: 8000
       vxlan: 3000
   proxies:
     ftp_proxy: "ftp://gur44646:PasswordNotToday123@165.225.104.34:80"
     http_proxy: "http://gur44646:PasswordNotToday123@165.225.104.34:80"
     https_proxy: "https://gur44646:PasswordNotToday123@165.225.104.34:80"
-    no_proxy: "127.0.0.1,localhost,172.16.141.22,172.16.141.56"
+    no_proxy: "127.0.0.1,localhost,172.16.141.22,172.16.141.146"
   service_password: ChangeMe
   services:
     - magnum
     - tempest
-#    - cinder
-#    - ceph
+    - cinder
+    - ceph
+    - ceilometer
+    - tacker
   kolla:
      base_distro: "ubuntu"
      install_type: "source"
-     keepalived_virtual_router_id: "56"
-     internal_vip_address: "172.16.141.56"
+     keepalived_virtual_router_id: "40"
+     internal_vip_address: "172.16.141.146"
      kolla_registry: "172.16.141.22"
      kolla_registry_port: "4000"
-#     base_size: "573741824"
-#     count: "20"
-#     second_storage: "/dev/sdb"
+     pull_from_hub: "no"
+     base_size: "573741824"
+     count: "20"

@@ -1,8 +1,8 @@
 openstack: 
-  deployment_type: Kolla
-  git_branch: stable/pike
-  kolla_tag: "5.0.1"
-  kolla_ansible_tag: "5.0.1"
+  deployement_type: Kolla
+  git_branch: stable/queens
+  kolla_tag: ""
+  kolla_ansible_tag: ""
   hosts: 
     -
       host:
@@ -31,8 +31,10 @@ openstack:
           - controller
           - storage
         second_storage:
-          - "/dev/sdb/"
-        password: cable123
+          - "/dev/sdb"
+          - "/dev/sdc"
+        sriov_interface:
+        password: ChangeMe
         service_host: ""
         user: root
 
@@ -61,6 +63,8 @@ openstack:
         node_type:
           - compute
         second_storage:
+        sriov_interface:
+          - enp4s0f0
         password: cable123
         service_host: "10.197.101.22"
         user: root
@@ -88,7 +92,9 @@ openstack:
         reserved_host_memory_mb: "16384"
         node_type:
           - compute
-        second_storage: 
+        second_storage:
+        sriov_interface:
+          - enp4s0f0
         password: cable123
         service_host: "10.197.101.22"
         user: root
@@ -119,6 +125,8 @@ openstack:
           - storage
         second_storage:
           - "/dev/sdb/"
+        sriov_interface:
+          - enp4s0f0
         password: cable123
         service_host: "10.197.101.22"
         user: root
@@ -149,6 +157,8 @@ openstack:
           - storage
         second_storage:
           - "/dev/sdb/"
+        sriov_interface:
+          - enp4s0f0
         password: cable123
         service_host: "10.197.101.22"
         user: root
@@ -172,12 +182,14 @@ openstack:
     no_proxy: ""
   service_password: cable123
   services:
-    - dpdk
     - cinder
+    - ceph
     - magnum
     - tempest
     - ceilometer
     - tacker
+    - sriov
+    - dpdk
   kolla:
      base_distro: "ubuntu"
      install_type: "source"
@@ -188,9 +200,6 @@ openstack:
      kolla_registry_port: "4000"
      external_vip_address: "10.197.103.30"
      external_interface: "eno3"
-     pull_from_hub: "yes"
+     pull_from_hub: "no"
      base_size: "573741824"
      count: "20"
-
-                              
-

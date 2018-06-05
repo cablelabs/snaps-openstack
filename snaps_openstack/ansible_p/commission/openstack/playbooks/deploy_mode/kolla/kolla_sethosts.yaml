@@ -58,23 +58,17 @@
      lineinfile:
       destfile: /etc/hosts
       line: '127.0.0.1 localhost'
-
-
    - name: check HugePages
      shell: grep Huge /proc/meminfo | grep HugePages_Total | awk '{print $2}'
      register: pagesize
-
    - debug:
        var: pagesize
-
    - name: Validating HugePages
      fail: msg="kolla-ansible failed to set Hugepages"
      when: pagesize.stdout == "0" and enable_ovs_dpdk == "yes"
-
    - name: Check if nuetron external interface has ip
      shell:  ip a | grep "{{neutron_external_interface}}" | grep global |awk '{print $2}' 
      register: out
-
    - debug:
        var: out
    - name: Validating ip for nuetron external interface

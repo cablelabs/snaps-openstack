@@ -17,7 +17,7 @@ explained in below table.
 | Convention | Usage |
 | ---------- | ----- |
 | Host Machines | Machines to be used for Openstack deployment. Openstack node controller, compute, storage and network node will be deployed on these machines. |
-| Build Server | Machine running installation scripts, Ansible, Python, NTP etc. |
+| Configuration node | Machine running installation scripts, Ansible, Python, NTP etc. |
 
 ### 1.2 Acronyms
 
@@ -37,7 +37,7 @@ document.
 [1] OpenStack Installation guide:
 https://docs.openstack.org/kolla-ansible/latest/user/quickstart.html
 
-### 1.4 OpenStack services support under PIKE release
+### 1.4 OpenStack services support under QUEENS release
 Basic OpenStack Services 
 •	Nova
 •	Neutron
@@ -53,14 +53,15 @@ Additional services:
 •	Magnum
 •	Barbican
 •	Ceilometer
-• gnocchi
-• redis
+•    gnocchi
+•    redis
 •	Cinder
 •	Ceph
-•	dpdk
+�~@�    SRIOV
 
-### 1.5 OpenStack IPv6 support under PIKE release
- OpenStack Pike release supports IPV6 functionality for OpenStack(Current support is availbale only for VM to VM networking)
+
+### 1.5 OpenStack IPv6 support under QUEENS release
+ OpenStack Queens release supports IPV6 functionality for OpenStack(Current support is availbale only for VM to VM networking)
 
 
 ## 2 Environment Prerequisites
@@ -81,7 +82,7 @@ The current release of SNAPS-OpenStack is tested on the following platform.
 | ----------------- | ----------- | ------------- |
 | Server machine with 64bit Intel AMD architecture. | COTS servers. | 16GB RAM, 80+ GB Hard disk with 3 network cards. Server should be network boot Enabled and IPMI capable |
 
-**Build Server**
+**Configuration Node**
 
 | Hardware Required | Description | Configuration |
 | ----------------- | ----------- | ------------- |
@@ -94,7 +95,7 @@ The current release of SNAPS-OpenStack is tested on the following platform.
 | Operating System | Ubuntu 16.04 |
 | Scripting |  Python 2.7 |
 | Framework | Ansible 2.3.0.0 |
-| OpenStack | Pike |
+| OpenStack | Queens |
 
 ## 2.3 Pre-requsites Requirements
 
@@ -102,10 +103,10 @@ The current release of SNAPS-OpenStack is tested on the following platform.
   and should have internet access.
 - All host machines should have identical interface names and should have at
   least 2 interfaces (one for management and one for data).
-- All host machines are connected to Build Server (machine running
+- All host machines are connected to configuration node (machine running
   SNAPS-OpenStack) and have Internet access connectivity via data interface.
-- For dpdk data interface should be a dpdk enabled nic.
-> Note: Build Server should have http/https and ftp proxy if node is
+
+> Note: Configuration node should have http/https and ftp proxy if node is
 > behind corporate firewall. Set the http/https proxy for apt.
 
 
@@ -126,8 +127,8 @@ this section are explained below.
 
 | Parameter | Optionality | Description |
 | --------- | ----------- | ----------- |
-| deployment_type | N | OpenStack deployment type, `Devstack` or `Kolla`. |
-| git_branch | N | OpenStack release to clone (In current release only Pike is supported so it will be `stable/pike`). |
+| deployement_type | N | OpenStack deployment type, `Devstack` or `Kolla`. |
+| git_branch | N | OpenStack release to clone (In current release only Queens is supported so it will be `stable/queens`). |
 | kolla_tag | Y | kolla package release to clone through kolla_tag value. |
 | kolla_ansible_tag | Y | kolla-ansible package release to clone through kolla_ansible_tag value. |
 
@@ -240,6 +241,12 @@ below.
     <td colspan="2">second_storage</td>
     <td>Y</td>
     <td>List of Mount point of secondary storage for ceph. Has to be present if the node_type is "storage"</td>
+  </tr>
+  <tr>
+    <td/>
+    <td colspan="2">sriov_interface</td>
+    <td>Y</td>
+    <td>List of SRIOV interface for SRIOV. Has to be present if the SRIOV is enabled</td>
   </tr>
   <tr>
     <td/>
@@ -364,7 +371,7 @@ services:
   - cinder
   - tacker
   - ceph
-  - dpdk
+  - sriov
 ```
 
 #### kolla
@@ -537,8 +544,8 @@ below.
 
 #### Step 1
 
-Clone/FTP Openstack_Provisioning package on Build Server. All operations
-of Build Server expect the user should be explicitly switched (using
+Clone/FTP Openstack_Provisioning package on configuration node. All operations
+of configuration server expect the user should be explicitly switched (using
 `su root`) to the root user.
 
 #### Step 2
