@@ -171,35 +171,35 @@
        line: 'openstack flavor set m1.large --property hw:mem_page_size=large'
        insertbefore: 'cat << EOF'
       ignore_errors: True
-      when: enable_ovs_dpdk == "no"
+      when: enable_ovs_dpdk == "yes"
 
     - lineinfile:
        destfile: '/etc/OpenStack/kolla-ansible/tools/init-runonce'
        line: 'openstack flavor set m1.medium --property hw:mem_page_size=large'
        insertbefore: 'cat << EOF'
       ignore_errors: True
-      when: enable_ovs_dpdk == "no"
+      when: enable_ovs_dpdk == "yes"
 
     - lineinfile:
        destfile: '/etc/OpenStack/kolla-ansible/tools/init-runonce'
        line: 'openstack flavor set m1.small --property hw:mem_page_size=large'
        insertbefore: 'cat << EOF'
       ignore_errors: True
-      when: enable_ovs_dpdk == "no"
+      when: enable_ovs_dpdk == "yes"
 
     - lineinfile:
        destfile: '/etc/OpenStack/kolla-ansible/tools/init-runonce'
        line: 'openstack flavor set m1.tiny --property hw:mem_page_size=large'
        insertbefore: 'cat << EOF'
       ignore_errors: True
-      when: enable_ovs_dpdk == "no"
+      when: enable_ovs_dpdk == "yes"
 
     - lineinfile:
        destfile: '/etc/OpenStack/kolla-ansible/tools/init-runonce'
        line: 'openstack flavor set m1.xlarge --property hw:mem_page_size=large'
        insertbefore: 'cat << EOF'
       ignore_errors: True
-      when: enable_ovs_dpdk == "no"
+      when: enable_ovs_dpdk == "yes"
 
     - lineinfile:
        destfile: '/etc/OpenStack/kolla-ansible/tools/init-runonce'
