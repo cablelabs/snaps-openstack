@@ -268,7 +268,7 @@
         line: "gateway {{ external_gw }}"
         state: present
       ignore_errors: True
-      when: enable_ovs_dpdk == "yes"	
+      when: enable_ovs_dpdk == "yes"
     - name: Edit the file /etc/default/grub for SRIOV
       lineinfile:
          dest: "/etc/default/grub"
