@@ -324,12 +324,12 @@ def launch_provisioning_kolla(iplist, git_branch, kolla_tag, kolla_ansible_tag,
                          'PULL_HUB': pull_from_hub,
                          'SRIOV_INTERFACE': sriov_interface})
 
-                if ret != 0:
-                    print(ret)
-                    logger.info("FAILED IN COMPUTE QUEENS")
-                    exit(1)
-                else:
-                    logger.info(
+                   if ret != 0:
+                      print(ret)
+                      logger.info("FAILED IN COMPUTE QUEENS")
+                      exit(1)
+                   else:
+                      logger.info(
                         "***********PLAYBOOK EXECUTED SUCCESSFULLY***********")
         for controller_ip in list_controller:
             if len(list_storage) == 1:
