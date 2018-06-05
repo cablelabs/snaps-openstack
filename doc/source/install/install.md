@@ -58,6 +58,7 @@ Additional services:
 â€¢	Cinder
 â€¢	Ceph
 â~@â    SRIOV
+â~@â    dpdk
 
 
 ### 1.5 OpenStack IPv6 support under QUEENS release
@@ -105,6 +106,7 @@ The current release of SNAPS-OpenStack is tested on the following platform.
   least 2 interfaces (one for management and one for data).
 - All host machines are connected to configuration node (machine running
   SNAPS-OpenStack) and have Internet access connectivity via data interface.
+- For dpdk data interface should be a dpdk enabled nic.
 
 > Note: Configuration node should have http/https and ftp proxy if node is
 > behind corporate firewall. Set the http/https proxy for apt.
@@ -372,6 +374,7 @@ services:
   - tacker
   - ceph
   - sriov
+  - dpdk
 ```
 
 #### kolla
