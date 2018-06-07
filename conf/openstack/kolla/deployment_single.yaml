@@ -13,7 +13,7 @@
 # limitations under the License.
 
 openstack:
-  deployement_type: Kolla
+  deployment_type: Kolla
   git_branch: stable/queens
   kolla_tag: ""
   kolla_ansible_tag: ""
