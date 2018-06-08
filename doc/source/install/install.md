@@ -53,12 +53,12 @@ Additional services:
 •	Magnum
 •	Barbican
 •	Ceilometer
-•    gnocchi
-•    redis
+• gnocchi
+• redis
 •	Cinder
 •	Ceph
-�~@�    SRIOV
-�~@�    dpdk
+• SRIOV
+• dpdk
 
 
 ### 1.5 OpenStack IPv6 support under QUEENS release
