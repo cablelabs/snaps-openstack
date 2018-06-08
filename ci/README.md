@@ -46,6 +46,7 @@ https://docs.openstack.org/kolla-ansible/latest/user/quickstart.html
 1. Download and install snaps-oo.
 ```
 git clone https://gerrit.opnfv.org/gerrit/snaps
+sudo apt update
 sudo apt install python git python2.7-dev libssl-dev python-pip
 sudo pip install -e snaps/snaps
 ```
