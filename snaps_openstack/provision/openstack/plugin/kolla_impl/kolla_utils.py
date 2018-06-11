@@ -673,8 +673,6 @@ def __enable_key_ssh(config):
                    + consts.ANSIBLE_CONF
     subprocess.call(command_time, shell=True)
     hosts = config.get(consts.OPENSTACK).get(consts.HOSTS)
-
-    # TODO/FIXME - Why is 'i' controlling both inner and outer loops???
     for j in range(len(hosts)):
         user_name = hosts[j].get(consts.HOST).get(consts.USER)
         if user_name != 'root':
