@@ -330,37 +330,6 @@ def __create_global(config, git_branch, pull_from_hub):
         '#docker_registry_password: "correcthorsebatterystaple" \ncontainer_proxy: \n  http_proxy: "'
         + proxy_http + '"\n  https_proxy: "' + proxy_https
         + '"\n  no_proxy: "localhost,127.0.0.1,{{ kolla_internal_vip_address }},{{ api_interface_address }}"')
-    hosts = config.get(consts.OPENSTACK).get(consts.HOSTS)
-    gateway = ""
-    netmask = ""
-    # TODO/FIXME - Why is 'i' controlling both inner and outer loops???
-    for i in range(len(hosts)):
-        interfaces = hosts[i].get(consts.HOST).get(consts.INTERFACES)
-        node_type = hosts[i].get(consts.HOST).get(consts.NODE_TYPE)
-        if 'controller' in node_type or len(hosts) == 1:
-            for i in range(len(interfaces)):
-                name = interfaces[i].get(consts.NAME)
-                name = name.lower()
-                iface_type = interfaces[i].get(consts.TYPE)
-                iface_type = iface_type.lower()
-                if iface_type == "management":
-                    filedata = filedata.replace(
-                        '#network_interface: "eth0"',
-                        'network_interface: "' + name + '"')
-
-                elif iface_type == "data":
-                    filedata = filedata.replace(
-                        '#neutron_external_interface: "eth1"',
-                        'neutron_external_interface: "' + name + '"')
-                    gateway = interfaces[i].get("gateway")
-                   # netmask = interfaces[i].get("netmask")
-                elif iface_type == "tenant":
-                    filedata = filedata.replace(
-                        '#tunnel_interface: "{{ network_interface }}"',
-                        'tunnel_interface: "' + name + '"')
-                else:
-                    logger.error("Incorrect interface type")
-                    exit(1)
 
 
     if config.get(consts.OPENSTACK).get(consts.SERVICES) is not None:
@@ -448,6 +417,40 @@ def __create_global(config, git_branch, pull_from_hub):
                 external_interface = config.get(consts.OPENSTACK).get(consts.KOLLA).get(consts.EXTERNAL_INTERFACE)
                 filedata = filedata.replace('kolla_external_vip_interface: '+'"'+external_interface+'"',
                                             'kolla_external_vip_interface: "dpdk_bridge"')
+
+    hosts = config.get(consts.OPENSTACK).get(consts.HOSTS)
+    gateway = ""
+    netmask = ""
+    
+    for j in range(len(hosts)):
+        interfaces = hosts[j].get(consts.HOST).get(consts.INTERFACES)
+        node_type = hosts[j].get(consts.HOST).get(consts.NODE_TYPE)
+        if 'controller' in node_type or len(hosts) == 1:
+            for i in range(len(interfaces)):
+                name = interfaces[i].get(consts.NAME)
+                name = name.lower()
+                iface_type = interfaces[i].get(consts.TYPE)
+                iface_type = iface_type.lower()
+                if iface_type == "management":
+                    filedata = filedata.replace(
+                        '#network_interface: "eth0"',
+                        'network_interface: "' + name + '"')
+
+                elif iface_type == "data":
+                    filedata = filedata.replace(
+                        '#neutron_external_interface: "eth1"',
+                        'neutron_external_interface: "' + name + '"')
+                    gateway = interfaces[i].get("gateway")
+                   # netmask = interfaces[i].get("netmask")
+                elif iface_type == "tenant":
+                    filedata = filedata.replace(
+                        '#tunnel_interface: "{{ network_interface }}"',
+                        'tunnel_interface: "' + name + '"')
+                else:
+                    logger.error("Incorrect interface type")
+                    exit(1)
+
+
 
     f.close()
     shutil.copy2(basefile, newfile)
@@ -726,3 +729,4 @@ def _getservice_list(config):
     if config.get(consts.OPENSTACK).get(consts.SERVICES) is not None:
         service_str = config.get(consts.OPENSTACK).get(consts.SERVICES)
     return service_str
+
