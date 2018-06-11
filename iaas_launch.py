@@ -138,10 +138,10 @@ if __name__ == '__main__':
         help='When used, the openstack environment will be removed')
     parser_group.add_argument(
         '-drs', '--dreg', dest='dreg', nargs='?', default=ARG_NOT_SET,
-        help='When used, kolla registry is setup along with deployment')
+        help='When used, kolla registry is set up along with deployment')
     parser_group.add_argument(
         '-drc', '--dregc', dest='dregclean', nargs='?', default=ARG_NOT_SET,
-        help='When used, Openstack deployment is cleanup up along with the '
+        help='When used, Openstack deployment is clean up up along with the '
              'kolla registry')
     parser.add_argument(
         '-l', '--log-level', dest='log_level', default='INFO',
