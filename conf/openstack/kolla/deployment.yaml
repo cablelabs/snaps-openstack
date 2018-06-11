@@ -166,8 +166,8 @@ openstack:
     external:
       gateway: "10.197.103.1"
       ip_pool:
+        start: "10.197.103.222"      
         end: "10.197.103.236"
-        start: "10.197.103.222"
       subnet: 10.197.103.0/24
     tenant:
       subnet:
