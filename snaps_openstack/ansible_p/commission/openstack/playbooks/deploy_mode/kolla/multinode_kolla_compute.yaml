@@ -99,7 +99,7 @@
        src: "{{BASE_FILE_PATH}}docker-engine_17.05.0-ce-0-ubuntu-xenial_amd64.deb"
        dest: "{{ DOCKER_LIST_DEST }}"
 
-    - name: dpkgi -i docker-engine=17.05~xenial
+    - name: dpkg -i docker-engine=17.05~xenial
       command: dpkg -i "{{ DOCKER_LIST_DEST }}"
 
 
