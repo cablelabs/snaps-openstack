@@ -26,8 +26,7 @@
     https_proxy: "{{ https_proxy }}"
     ftp_proxy: "{{ ftp_proxy }}"
     no_proxy: "{{ no_proxy }}"
-  tasks:
-  
+  tasks: 
     - name: apt-get update
       apt:
         update_cache: yes 
@@ -90,7 +89,7 @@
        dest: "{{ DOCKER_LIST_DEST }}"
       when: GIT_BRANCH == "stable/queens"
 
-    - name: dpkgi -i docker-engine=17.05~xenial
+    - name: dpkg -i docker-engine=17.05~xenial
       command: dpkg -i "{{ DOCKER_LIST_DEST }}"
       when: GIT_BRANCH == "stable/queens"
 
