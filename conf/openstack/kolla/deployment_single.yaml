@@ -48,8 +48,8 @@ openstack:
     external:
       gateway: "172.16.141.1"
       ip_pool:
+        start: "172.16.141.147"      
         end: "172.16.141.160"
-        start: "172.16.141.147"
       subnet: 172.16.141.0/24
     tenant:
       subnet:
