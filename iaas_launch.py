@@ -51,7 +51,9 @@ def __installation_logs(level_value):
         print "Incorrect log level " + level_value + " received as input from user"
         exit()
 
-    logging.basicConfig(format='%(asctime)s %(levelname)s [%(filename)s:%(lineno)s - %(funcName)2s() ] %(message)s ',datefmt='%b %d %H:%M',filename=logFileName,filemode='w',level=log_level)
+    logging.basicConfig(format='%(asctime)s %(levelname)s [%(filename)s:%(lineno)s - \
+                        %(funcName)2s() ] %(message)s ',datefmt='%b %d %H:%M', \
+                        filename=logFileName,filemode='w',level=log_level)
     logging.getLogger().addHandler(logging.StreamHandler())
 
 def __manage_operation(config, operation):
