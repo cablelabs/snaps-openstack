@@ -611,19 +611,21 @@ sudo python <repo_dir>/iaas_launch.py -f <repo_dir>/conf/openstack/kolla/deploym
 In case previous deployment attempt has failed or new changes are required
 (enabling optional services), attempt following steps.
 
-First, Clean up previous OpenStack deployment:
+First, clean up previous OpenStack deployment:
 
 ```
 sudo python <repo_dir>/iaas_launch.py -f <repo_dir>/conf/openstack/kolla/deployment.yaml -c
 ```
 
-Or Clean up previous deployment along with docker repository:
+Or clean up previous deployment along with docker repository:
 
 ```
 sudo python <repo_dir>/iaas_launch.py -f <repo_dir>/conf/openstack/kolla/deployment.yaml -drc
 ```
 
-Then, re-install OpenStack. If docker repository exists:
+Next, run SNAPS-Boot with -s option to set static IP addresses (refer to SNAPS-Boot guide).
+
+Last, re-install OpenStack. If docker repository exists:
 
 ```
 sudo python <repo_dir>/iaas_launch.py -f <repo_dir>/conf/openstack/kolla/deployment.yaml -d
