@@ -23,19 +23,20 @@ openstack:
         hostname: controller
         interfaces:
           -
-            gateway: "10.197.111.1"
             ip: ""
+            mac: "c4:34:6b:b7:fc:30"
             name: eno1
             type: management
           -
-            gateway: "10.197.112.1"
             ip: ""
-            name: enp6s0f0
+            mac: "c4:34:6b:b7:fc:31"
+            name: eno2
             type: tenant
           -
-            gateway: "10.197.113.1"
+            gateway: ""
             ip: ""
-            name: enp6s0f1
+            mac: "c4:34:6b:b7:fc:32"
+            name: eno3
             type: data
             dns: 8.8.8.8
         isolcpus: ""
@@ -56,19 +57,20 @@ openstack:
         hostname: compute1
         interfaces:
           -
-            gateway: "10.197.111.1"
             ip: ""
+            mac: "38:63:bb:44:84:70"
             name: eno1
             type: management
           -
-            gateway: "10.197.112.1"
             ip: ""
-            name: enp6s0f0
+            mac: "38:63:bb:44:84:71"
+            name: eno2
             type: tenant
           -
-            gateway: "10.197.113.1"
+            gateway: ""
             ip: ""
-            name: enp6s0f1
+            mac: "38:63:bb:44:84:72"
+            name: eno3
             type: data
             dns: 8.8.8.8
         isolcpus: "0-15"
@@ -79,25 +81,26 @@ openstack:
           - enp4s0f0
         password: 
         service_host: ""
-        user: 
+        user: root
     -
       host:
         hostname: compute2
         interfaces:
           -
-            gateway: "10.197.111.1"
             ip: ""
+            mac: "38:63:bb:44:f4:cc"
             name: eno1
             type: management
           -
-            gateway: "10.197.112.1"
             ip: ""
-            name: enp6s0f0
+            mac: "38:63:bb:44:f4:cd"
+            name: eno2
             type: tenant
           -
-            gateway: "10.197.113.1"
+            gateway: ""
             ip: ""
-            name: enp6s0f1
+            mac: "38:63:bb:44:f4:ce"
+            name: eno3
             type: data
             dns: 8.8.8.8
         isolcpus: "0-15"
@@ -109,25 +112,26 @@ openstack:
           - enp4s0f0
         password: 
         service_host: ""
-        user: 
+        user: root
     -
       host:
         hostname: compute3
         interfaces:
           -
-            gateway: "10.197.111.1"
             ip: ""
+            mac: "c4:34:6b:b8:87:e4"
             name: eno1
             type: management
           -
-            gateway: "10.197.112.1"
             ip: ""
-            name: enp6s0f0
+            mac: "c4:34:6b:b8:87:e5"
+            name: eno2
             type: tenant
           -
-            gateway: "10.197.113.1"
+            gateway: ""
             ip: ""
-            name: enp6s0f1
+            mac: "c4:34:6b:b8:87:e6"
+            name: eno3
             type: data
             dns: 8.8.8.8
         isolcpus: "0-15"
@@ -141,25 +145,26 @@ openstack:
           - enp4s0f0
         password: 
         service_host: ""
-        user: 
+        user: root
     -
       host:
         hostname: compute4
         interfaces:
           -
-            gateway: "10.197.111.1"
             ip: ""
+            mac: "ec:b1:d7:8a:39:10"
             name: eno1
             type: management
           -
-            gateway: "10.197.112.1"
             ip: ""
-            name: enp6s0f0
+            mac: "ec:b1:d7:8a:39:11"
+            name: eno2
             type: tenant
           -
-            gateway: "10.197.113.1"
+            gateway: ""
             ip: ""
-            name: enp6s0f1
+            mac: "ec:b1:d7:8a:39:12"
+            name: eno3
             type: data
             dns: 8.8.8.8
         isolcpus: "0-15"
@@ -171,16 +176,16 @@ openstack:
           - "/dev/sdb/"
         sriov_interface:
           - enp4s0f0
-        password:
+        password: 
         service_host: ""
-        user: 
+        user: root
   networks:
     external:
-      gateway: "10.197.113.1"
+      gateway: ""
       ip_pool:
-        start: ""
+        start: ""      
         end: ""
-      subnet: 10.197.113.0/24
+      subnet: 
     tenant:
       subnet:
       subnet_size:
