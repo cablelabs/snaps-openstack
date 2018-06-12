@@ -9,18 +9,18 @@ openstack:
         hostname: CONTROLLER22
         interfaces:
           -
-            ip: "10.197.101.22"
+            ip: ""
             mac: "c4:34:6b:b7:fc:30"
             name: eno1
             type: management
           -
-            ip: "10.197.102.22"
+            ip: ""
             mac: "c4:34:6b:b7:fc:31"
             name: eno2
             type: tenant
           -
-            gateway: "10.197.103.1"
-            ip: "10.197.103.22"
+            gateway: ""
+            ip: ""
             mac: "c4:34:6b:b7:fc:32"
             name: eno3
             type: data
@@ -34,7 +34,7 @@ openstack:
           - "/dev/sdb"
           - "/dev/sdc"
         sriov_interface:
-        password: ChangeMe
+        password:
         service_host: ""
         user: root
 
@@ -43,18 +43,18 @@ openstack:
         hostname: COMPUTE23
         interfaces:
           -
-            ip: "10.197.101.23"
+            ip: ""
             mac: "38:63:bb:44:84:70"
             name: eno1
             type: management
           -
-            ip: "10.197.102.23"
+            ip: ""
             mac: "38:63:bb:44:84:71"
             name: eno2
             type: tenant
           -
-            gateway: "10.197.103.1"
-            ip: "10.197.103.23"
+            gateway: ""
+            ip: ""
             mac: "38:63:bb:44:84:72"
             name: eno3
             type: data
@@ -65,26 +65,26 @@ openstack:
         second_storage:
         sriov_interface:
           - enp4s0f0
-        password: cable123
-        service_host: "10.197.101.22"
+        password: 
+        service_host: ""
         user: root
     -
       host:
         hostname: COMPUTE24
         interfaces:
           -
-            ip: "10.197.101.24"
+            ip: ""
             mac: "38:63:bb:44:f4:cc"
             name: eno1
             type: management
           -
-            ip: "10.197.102.24"
+            ip: ""
             mac: "38:63:bb:44:f4:cd"
             name: eno2
             type: tenant
           -
-            gateway: "10.197.103.1"
-            ip: "10.197.103.24"
+            gateway: ""
+            ip: ""
             mac: "38:63:bb:44:f4:ce"
             name: eno3
             type: data
@@ -95,26 +95,26 @@ openstack:
         second_storage:
         sriov_interface:
           - enp4s0f0
-        password: cable123
-        service_host: "10.197.101.22"
+        password: 
+        service_host: ""
         user: root
     -
       host:
         hostname: COMPUTE25
         interfaces:
           -
-            ip: "10.197.101.25"
+            ip: ""
             mac: "c4:34:6b:b8:87:e4"
             name: eno1
             type: management
           -
-            ip: "10.197.102.25"
+            ip: ""
             mac: "c4:34:6b:b8:87:e5"
             name: eno2
             type: tenant
           -
-            gateway: "10.197.103.1"
-            ip: "10.197.103.25"
+            gateway: ""
+            ip: ""
             mac: "c4:34:6b:b8:87:e6"
             name: eno3
             type: data
@@ -127,26 +127,26 @@ openstack:
           - "/dev/sdb/"
         sriov_interface:
           - enp4s0f0
-        password: cable123
-        service_host: "10.197.101.22"
+        password: 
+        service_host: ""
         user: root
     -
       host:
         hostname: COMPUTE26
         interfaces:
           -
-            ip: "10.197.101.26"
+            ip: ""
             mac: "ec:b1:d7:8a:39:10"
             name: eno1
             type: management
           -
-            ip: "10.197.102.26"
+            ip: ""
             mac: "ec:b1:d7:8a:39:11"
             name: eno2
             type: tenant
           -
-            gateway: "10.197.103.1"
-            ip: "10.197.103.26"
+            gateway: ""
+            ip: ""
             mac: "ec:b1:d7:8a:39:12"
             name: eno3
             type: data
@@ -159,16 +159,16 @@ openstack:
           - "/dev/sdb/"
         sriov_interface:
           - enp4s0f0
-        password: cable123
-        service_host: "10.197.101.22"
+        password: 
+        service_host: ""
         user: root
   networks:
     external:
-      gateway: "10.197.103.1"
+      gateway: ""
       ip_pool:
-        start: "10.197.103.222"      
-        end: "10.197.103.236"
-      subnet: 10.197.103.0/24
+        start: ""      
+        end: ""
+      subnet: 
     tenant:
       subnet:
       subnet_size:
@@ -180,7 +180,7 @@ openstack:
     http_proxy: ""
     https_proxy: ""
     no_proxy: ""
-  service_password: cable123
+  service_password: 
   services:
     - cinder
     - ceph
@@ -194,11 +194,11 @@ openstack:
      base_distro: "ubuntu"
      install_type: "source"
      keepalived_virtual_router_id: "13"
-     internal_vip_address: "10.197.101.30"
+     internal_vip_address: ""
      internal_interface: "eno1"
-     kolla_registry: "10.197.101.22"
+     kolla_registry: ""
      kolla_registry_port: "4000"
-     external_vip_address: "10.197.103.30"
+     external_vip_address: ""
      external_interface: "eno3"
      pull_from_hub: "no"
      base_size: "573741824"
