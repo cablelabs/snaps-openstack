@@ -24,13 +24,13 @@ openstack:
         hostname: Controller22
         interfaces:
           -
-            gateway: "172.16.141.1"
-            ip: "172.16.141.22"
+            gateway: ""
+            ip: ""
             name: eno1
             type: management
           -
             ip: ""
-            gateway: "172.16.141.1"
+            gateway: ""
             name: eno2
             type: data
         isolcpus: ""
@@ -46,11 +46,11 @@ openstack:
 
   networks:
     external:
-      gateway: "172.16.141.1"
+      gateway: ""
       ip_pool:
-        start: "172.16.141.147"      
-        end: "172.16.141.160"
-      subnet: 172.16.141.0/24
+        start: ""      
+        end: ""
+      subnet: 
     tenant:
       subnet:
       subnet_size:
@@ -58,11 +58,11 @@ openstack:
       default: 8000
       vxlan: 3000
   proxies:
-    ftp_proxy: "ftp://gur44646:PasswordNotToday123@165.225.104.34:80"
-    http_proxy: "http://gur44646:PasswordNotToday123@165.225.104.34:80"
-    https_proxy: "https://gur44646:PasswordNotToday123@165.225.104.34:80"
-    no_proxy: "127.0.0.1,localhost,172.16.141.22,172.16.141.146"
-  service_password: ChangeMe
+    ftp_proxy: ""
+    http_proxy: ""
+    https_proxy: ""
+    no_proxy: ""
+  service_password: 
   services:
     - magnum
     - tempest
@@ -74,8 +74,8 @@ openstack:
      base_distro: "ubuntu"
      install_type: "source"
      keepalived_virtual_router_id: "40"
-     internal_vip_address: "172.16.141.146"
-     kolla_registry: "172.16.141.22"
+     internal_vip_address: ""
+     kolla_registry: ""
      kolla_registry_port: "4000"
      pull_from_hub: "no"
      base_size: "573741824"
