@@ -349,9 +349,8 @@ def launch_provisioning_kolla(iplist, git_branch, kolla_tag, kolla_ansible_tag,
                     
                      if sriov_interface is not None: 
                        for iface in sriov_interface:
-                         nova_str = nova_str +  "{\"devname\":\"" + iface +"\", \"physical_network\": \"physnet1\"},"
-                         sriov_str = sriov_str+"physnet1:"+iface+","
-
+                         nova_str = '{}{{"devname":"{}", "physical_network": "physnet1"}},'.format(nova_str,iface)
+                         sriov_str = '{}physnet1:{},'.format(sriov_str,iface) 
                        sriov_str = sriov_str.rstrip(",")
                        nova_str = "[" + nova_str.rstrip(",") + "]"
 
@@ -404,9 +403,8 @@ def launch_provisioning_kolla(iplist, git_branch, kolla_tag, kolla_ansible_tag,
                    sriov_str = ""
                    if sriov_interface is not None: 
                        for iface in sriov_interface:
-                         nova_str = nova_str +  "{\"devname\":\"" + iface +"\", \"physical_network\": \"physnet1\"},"
-                         sriov_str = sriov_str+"physnet1:"+iface+","
-
+                         nova_str = '{}{{"devname":"{}", "physical_network": "physnet1"}},'.format(nova_str,iface)
+                         sriov_str = '{}physnet1:{},'.format(sriov_str,iface)                         
                        sriov_str = sriov_str.rstrip(",")
                        nova_str = "[" + nova_str.rstrip(",") + "]"
 
