@@ -1,170 +1,136 @@
-`openstack:
+---
+openstack:
   deployment_type: Kolla
   git_branch: stable/pike
-  kolla_tag: "5.0.1"
-  kolla_ansible_tag: "5.0.1"
-  hosts: 
+  hosts:
     -
       host:
-        hostname: CONTROLLER22
+        hostname: controller
         interfaces:
           -
-            ip: "10.197.101.22"
-            mac: "c4:34:6b:b7:fc:30"
+            gateway: "10.197.131.1"
+            ip: "10.197.131.12"
             name: eno1
             type: management
           -
-            ip: "10.197.102.22"
-            mac: "c4:34:6b:b7:fc:31"
+            gateway: "10.197.132.1"
+            ip: "10.197.132.12"
             name: eno2
             type: tenant
           -
-            gateway: "10.197.103.1"
-            ip: "10.197.103.22"
-            mac: "c4:34:6b:b7:fc:32"
+            gateway: "10.197.133.1"
+            ip: "10.197.133.12"
             name: eno3
             type: data
+            dns: 8.8.8.8
         isolcpus: ""
         reserved_host_memory_mb: ""
         node_type:
-          - network
           - controller
-          - storage
-        second_storage:
-          - "/dev/sdb/"
+          - network
         password: cable123
         service_host: ""
         user: root
-
     -
       host:
-        hostname: COMPUTE23
+        hostname: compute1
         interfaces:
           -
-            ip: "10.197.101.23"
-            mac: "38:63:bb:44:84:70"
+            gateway: "10.197.131.1"
+            ip: "10.197.131.13"
             name: eno1
             type: management
           -
-            ip: "10.197.102.23"
-            mac: "38:63:bb:44:84:71"
+            gateway: "10.197.132.1"
+            ip: "10.197.132.13"
             name: eno2
             type: tenant
           -
-            gateway: "10.197.103.1"
-            ip: "10.197.103.23"
-            mac: "38:63:bb:44:84:72"
+            gateway: "10.197.133.1"
+            ip: "10.197.133.13"
             name: eno3
             type: data
-        isolcpus: "0-15"
-        reserved_host_memory_mb: "16384"
-        node_type:
-          - compute
-        second_storage:
-        password: cable123
-        service_host: "10.197.101.22"
-        user: root
-    -
-      host:
-        hostname: COMPUTE24
-        interfaces:
-          -
-            ip: "10.197.101.24"
-            mac: "38:63:bb:44:f4:cc"
-            name: eno1
-            type: management
-          -
-            ip: "10.197.102.24"
-            mac: "38:63:bb:44:f4:cd"
-            name: eno2
-            type: tenant
-          -
-            gateway: "10.197.103.1"
-            ip: "10.197.103.24"
-            mac: "38:63:bb:44:f4:ce"
-            name: eno3
-            type: data
-        isolcpus: "0-15"
-        reserved_host_memory_mb: "16384"
-        node_type:
-          - compute
-        second_storage: 
-        password: cable123
-        service_host: "10.197.101.22"
-        user: root
-    -
-      host:
-        hostname: COMPUTE25
-        interfaces:
-          -
-            ip: "10.197.101.25"
-            mac: "c4:34:6b:b8:87:e4"
-            name: eno1
-            type: management
-          -
-            ip: "10.197.102.25"
-            mac: "c4:34:6b:b8:87:e5"
-            name: eno2
-            type: tenant
-          -
-            gateway: "10.197.103.1"
-            ip: "10.197.103.25"
-            mac: "c4:34:6b:b8:87:e6"
-            name: eno3
-            type: data
-        isolcpus: "0-15"
+            dns: 8.8.8.8
+        isolcpus: ""
         reserved_host_memory_mb: "16384"
         node_type:
           - compute
           - storage
-        second_storage:
-          - "/dev/sdb/"
+        second_storage: "/dev/sdb"
         password: cable123
-        service_host: "10.197.101.22"
+        service_host: "10.197.131.12"
         user: root
     -
       host:
-        hostname: COMPUTE26
+        hostname: compute2
         interfaces:
           -
-            ip: "10.197.101.26"
-            mac: "ec:b1:d7:8a:39:10"
+            gateway: "10.197.131.1"
+            ip: "10.197.131.14"
             name: eno1
             type: management
           -
-            ip: "10.197.102.26"
-            mac: "ec:b1:d7:8a:39:11"
+            gateway: "10.197.132.1"
+            ip: "10.197.132.14"
             name: eno2
             type: tenant
           -
-            gateway: "10.197.103.1"
-            ip: "10.197.103.26"
-            mac: "ec:b1:d7:8a:39:12"
+            gateway: "10.197.133.1"
+            ip: "10.197.133.14"
             name: eno3
             type: data
-        isolcpus: "0-15"
+            dns: 8.8.8.8
+        isolcpus: ""
         reserved_host_memory_mb: "16384"
         node_type:
           - compute
           - storage
-        second_storage:
-          - "/dev/sdb/"
+        second_storage: "/dev/sdb"
         password: cable123
-        service_host: "10.197.101.22"
+        service_host: "10.197.131.12"
+        user: root
+    -
+      host:
+        hostname: compute3
+        interfaces:
+          -
+            gateway: "10.197.131.1"
+            ip: "10.197.131.15"
+            name: eno1
+            type: management
+          -
+            gateway: "10.197.132.1"
+            ip: "10.197.132.15"
+            name: eno2
+            type: tenant
+          -
+            gateway: "10.197.133.1"
+            ip: "10.197.133.15"
+            name: eno3
+            type: data
+            dns: 8.8.8.8
+        isolcpus: ""
+        reserved_host_memory_mb: "16384"
+        node_type:
+          - compute
+          - storage
+        second_storage: "/dev/sdb"
+        password: cable123
+        service_host: "10.197.131.12"
         user: root
   networks:
     external:
-      gateway: "10.197.103.1"
+      gateway: "10.197.133.1"
       ip_pool:
-        end: "10.197.103.236"
-        start: "10.197.103.222"
-      subnet: 10.197.103.0/24
+        start: "10.197.133.100"
+        end: "10.197.133.254"
+      subnet: 10.197.133.0/24
     tenant:
       subnet:
       subnet_size:
     mtu_size:
-      default: 8000
-      vxlan: 3000
+       default: 8000
+       vxlan: 1500
   proxies:
     ftp_proxy: ""
     http_proxy: ""
@@ -172,21 +138,21 @@
     no_proxy: ""
   service_password: cable123
   services:
-    - dpdk
-    - cinder
     - magnum
     - tempest
     - ceilometer
+    - ceph
+    - cinder
     - tacker
   kolla:
      base_distro: "ubuntu"
      install_type: "source"
-     keepalived_virtual_router_id: "13"
-     internal_vip_address: "10.197.101.30"
+     keepalived_virtual_router_id: "30"
+     internal_vip_address: "10.197.131.30"
      internal_interface: "eno1"
-     kolla_registry: "10.197.101.22"
+     kolla_registry: "10.197.131.12"
      kolla_registry_port: "4000"
-     external_vip_address: "10.197.103.30"
+     external_vip_address: "10.197.133.30"
      external_interface: "eno3"
      pull_from_hub: "yes"
      docker_namespace: "snapsopenstack"
