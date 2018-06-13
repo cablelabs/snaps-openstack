@@ -1,4 +1,4 @@
-openstack: 
+`openstack:
   deployment_type: Kolla
   git_branch: stable/pike
   kolla_tag: "5.0.1"
@@ -189,8 +189,6 @@ openstack:
      external_vip_address: "10.197.103.30"
      external_interface: "eno3"
      pull_from_hub: "yes"
+     docker_namespace: "snapsopenstack"
      base_size: "573741824"
      count: "20"
-
-                              
-
