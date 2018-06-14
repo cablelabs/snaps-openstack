@@ -105,6 +105,9 @@ The current release of SNAPS-OpenStack is tested on the following platform.
 - All host machines are connected to Build Server (machine running
   SNAPS-OpenStack) and have Internet access connectivity via data interface.
 - For dpdk data interface should be a dpdk enabled nic.
+- For creating a dpdk enabled VM, user is required to configure flavour 
+  property "mem_page_size" to large/any
+
 > Note: Build Server should have http/https and ftp proxy if node is
 > behind corporate firewall. Set the http/https proxy for apt.
 
