@@ -364,7 +364,6 @@ services:
   - cinder
   - tacker
   - ceph
-  - dpdk
 ```
 
 #### kolla
