@@ -364,7 +364,6 @@ services:
   - cinder
   - tacker
   - ceph
-  - dpdk
 ```
 
 #### kolla
@@ -384,6 +383,7 @@ This section is required only for Kolla based OpenStack deployment.
 | external_interface | N | Interface for the OpenStack external api end points. |
 | base_size | Y | Base size for the physical volume of the cinder. |
 | pull_from_hub | Y | Pull images from docker hub for deployment if set to yes (Values can be yes/no). |
+| docker_namespace | Y |  Should be `snapsopenstack` to install using the snapsopenstack DockerHub repository. |
 | count | Y | Total count for the physical volume created. |
 
 ### 3.2 var.yaml (VLAN Configuration)
