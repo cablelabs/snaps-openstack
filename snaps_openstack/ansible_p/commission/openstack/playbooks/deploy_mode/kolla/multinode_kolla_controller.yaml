@@ -172,28 +172,44 @@
        insertbefore: 'cat << EOF'
       ignore_errors: True
       when: enable_ovs_dpdk == "yes"
+<<<<<<< HEAD:snaps_openstack/ansible_p/commission/openstack/playbooks/deploy_mode/kolla/multinode_kolla_controller.yaml
 
+=======
+      
+>>>>>>> master:snaps_openstack/ansible_p/commission/openstack/playbooks/deploy_mode/kolla/multinode_kolla_controller_pike.yaml
     - lineinfile:
        destfile: '/etc/OpenStack/kolla-ansible/tools/init-runonce'
        line: 'openstack flavor set m1.medium --property hw:mem_page_size=large'
        insertbefore: 'cat << EOF'
       ignore_errors: True
       when: enable_ovs_dpdk == "yes"
+<<<<<<< HEAD:snaps_openstack/ansible_p/commission/openstack/playbooks/deploy_mode/kolla/multinode_kolla_controller.yaml
 
+=======
+      
+>>>>>>> master:snaps_openstack/ansible_p/commission/openstack/playbooks/deploy_mode/kolla/multinode_kolla_controller_pike.yaml
     - lineinfile:
        destfile: '/etc/OpenStack/kolla-ansible/tools/init-runonce'
        line: 'openstack flavor set m1.small --property hw:mem_page_size=large'
        insertbefore: 'cat << EOF'
       ignore_errors: True
       when: enable_ovs_dpdk == "yes"
+<<<<<<< HEAD:snaps_openstack/ansible_p/commission/openstack/playbooks/deploy_mode/kolla/multinode_kolla_controller.yaml
 
+=======
+      
+>>>>>>> master:snaps_openstack/ansible_p/commission/openstack/playbooks/deploy_mode/kolla/multinode_kolla_controller_pike.yaml
     - lineinfile:
        destfile: '/etc/OpenStack/kolla-ansible/tools/init-runonce'
        line: 'openstack flavor set m1.tiny --property hw:mem_page_size=large'
        insertbefore: 'cat << EOF'
       ignore_errors: True
       when: enable_ovs_dpdk == "yes"
+<<<<<<< HEAD:snaps_openstack/ansible_p/commission/openstack/playbooks/deploy_mode/kolla/multinode_kolla_controller.yaml
 
+=======
+      
+>>>>>>> master:snaps_openstack/ansible_p/commission/openstack/playbooks/deploy_mode/kolla/multinode_kolla_controller_pike.yaml
     - lineinfile:
        destfile: '/etc/OpenStack/kolla-ansible/tools/init-runonce'
        line: 'openstack flavor set m1.xlarge --property hw:mem_page_size=large'
