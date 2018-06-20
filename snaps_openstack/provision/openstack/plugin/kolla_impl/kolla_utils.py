@@ -336,13 +336,6 @@ def __create_global(config, git_branch, pull_from_hub):
                 '#docker_registry: "172.16.0.10:4000"',
                 'docker_registry: "' + docker_registry + ':' + str(
                     docker_port) + '"')
-        elif (config.get(consts.OPENSTACK).get(consts.KOLLA).get(consts.DOCKER_NAMESPACE) is not None):
-            docker_namespace = config.get(consts.OPENSTACK).get(consts.KOLLA).get(
-                consts.DOCKER_NAMESPACE)
-            logger.info("Using docker_namespace " + docker_namespace)
-            filedata = filedata.replace(
-                '#docker_namespace: "companyname"',
-                'docker_namespace: "' + docker_namespace +'"')
 
     proxy_http = config.get(consts.OPENSTACK).get('proxies').get('http_proxy')
     proxy_https = config.get(consts.OPENSTACK).get('proxies').get(
@@ -352,14 +345,9 @@ def __create_global(config, git_branch, pull_from_hub):
         '#docker_registry_password: "correcthorsebatterystaple" \ncontainer_proxy: \n  http_proxy: "'
         + proxy_http + '"\n  https_proxy: "' + proxy_https
         + '"\n  no_proxy: "localhost,127.0.0.1,{{ kolla_internal_vip_address }},{{ api_interface_address }}"')
-<<<<<<< HEAD
     hosts = config.get(consts.OPENSTACK).get(consts.HOSTS)
     gateway = ""
     netmask = ""
-=======
-
-
->>>>>>> master
     if config.get(consts.OPENSTACK).get(consts.SERVICES) is not None:
         service_str = config.get(consts.OPENSTACK).get(consts.SERVICES)
 
@@ -441,13 +429,6 @@ def __create_global(config, git_branch, pull_from_hub):
                    filedata = filedata.replace('kolla_external_vip_interface: '+'"'+external_interface+'"',
                                             'kolla_external_vip_interface: "dpdk_bridge"')
 
-<<<<<<< HEAD
-=======
-    hosts = config.get(consts.OPENSTACK).get(consts.HOSTS)
-    gateway = ""
-    netmask = ""
-    
->>>>>>> master
     for j in range(len(hosts)):
         interfaces = hosts[j].get(consts.HOST).get(consts.INTERFACES)
         node_type = hosts[j].get(consts.HOST).get(consts.NODE_TYPE)
@@ -467,10 +448,6 @@ def __create_global(config, git_branch, pull_from_hub):
                         '#neutron_external_interface: "eth1"',
                         'neutron_external_interface: "' + name + '"')
                     gateway = interfaces[i].get("gateway")
-<<<<<<< HEAD
-=======
-                   # netmask = interfaces[i].get("netmask")
->>>>>>> master
                 elif iface_type == "tenant":
                     filedata = filedata.replace(
                         '#tunnel_interface: "{{ network_interface }}"',
@@ -479,11 +456,6 @@ def __create_global(config, git_branch, pull_from_hub):
                     logger.error("Incorrect interface type")
                     exit(1)
 
-<<<<<<< HEAD
-=======
-
-
->>>>>>> master
     f.close()
     shutil.copy2(basefile, newfile)
 
@@ -776,4 +748,3 @@ def _getservice_list(config):
     if config.get(consts.OPENSTACK).get(consts.SERVICES) is not None:
         service_str = config.get(consts.OPENSTACK).get(consts.SERVICES)
     return service_str
-

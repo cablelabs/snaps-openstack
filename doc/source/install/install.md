@@ -107,13 +107,8 @@ The current release of SNAPS-OpenStack is tested on the following platform.
 - All host machines are connected to Build Server (machine running
   SNAPS-OpenStack) and have Internet access connectivity via data interface.
 - For dpdk data interface should be a dpdk enabled nic.
-<<<<<<< HEAD
 - For creating a dpdk enabled VM, user is required to configure flavour property
   "mem_page_size" to large/any
-=======
-- For creating a dpdk enabled VM, user is required to configure flavour 
-  property "mem_page_size" to large/any
->>>>>>> master
 
 > Note: Build Server should have http/https and ftp proxy if node is
 > behind corporate firewall. Set the http/https proxy for apt.
@@ -380,11 +375,8 @@ services:
   - cinder
   - tacker
   - ceph
-<<<<<<< HEAD
   - sriov
   - dpdk
-=======
->>>>>>> master
 ```
 
 #### kolla
@@ -404,7 +396,6 @@ This section is required only for Kolla based OpenStack deployment.
 | external_interface | N | Interface for the OpenStack external api end points. |
 | base_size | Y | Base size for the physical volume of the cinder. |
 | pull_from_hub | Y | Pull images from docker hub for deployment if set to yes (Values can be yes/no). |
-| docker_namespace | Y |  Should be `snapsopenstack` to install using the snapsopenstack DockerHub repository. |
 | count | Y | Total count for the physical volume created. |
 
 ### 3.2 var.yaml (VLAN Configuration)
@@ -632,21 +623,19 @@ sudo python <repo_dir>/iaas_launch.py -f <repo_dir>/conf/openstack/kolla/deploym
 In case previous deployment attempt has failed or new changes are required
 (enabling optional services), attempt following steps.
 
-First, clean up previous OpenStack deployment:
+First, Clean up previous OpenStack deployment:
 
 ```
 sudo python <repo_dir>/iaas_launch.py -f <repo_dir>/conf/openstack/kolla/deployment.yaml -c
 ```
 
-Or clean up previous deployment along with docker repository:
+Or Clean up previous deployment along with docker repository:
 
 ```
 sudo python <repo_dir>/iaas_launch.py -f <repo_dir>/conf/openstack/kolla/deployment.yaml -drc
 ```
 
-Next, run SNAPS-Boot with -s option to set static IP addresses (refer to SNAPS-Boot guide).
-
-Last, re-install OpenStack. If docker repository exists:
+Then, re-install OpenStack. If docker repository exists:
 
 ```
 sudo python <repo_dir>/iaas_launch.py -f <repo_dir>/conf/openstack/kolla/deployment.yaml -d
