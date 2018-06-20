@@ -625,9 +625,11 @@ Or clean up previous deployment along with docker repository:
 ```
 sudo python <repo_dir>/iaas_launch.py -f <repo_dir>/conf/openstack/kolla/deployment.yaml -drc
 ```
-
-Next, run SNAPS-Boot with -s option to set static IP addresses (refer to SNAPS-Boot guide).
-
+>Note: The cleanup options (-c and -drc) also removes the br-ex configuration from the  
+/etc/network/interfaces.d/ folder.  
+This step will reboot each target server when it is done.Wait a few minutes then ping 
+and/or ssh each management server to verify it is back up.
+ 
 Last, re-install OpenStack. If docker repository exists:
 
 ```
