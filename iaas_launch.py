@@ -152,21 +152,21 @@ if __name__ == '__main__':
 
     if (args.dreg is ARG_NOT_SET and args.dregclean is ARG_NOT_SET
             and args.deploy is ARG_NOT_SET and args.clean is ARG_NOT_SET):
-        print(
+        logger.info(
             'Must enter either -d for deploy IaaS or -c for cleaning up and '
             'environment or -drc to cleanup registry or -drs to setup '
             'registry')
         exit(1)
     if args.deploy is not ARG_NOT_SET and args.clean is not ARG_NOT_SET:
-        print('Cannot enter both options -d/--deploy and -c/--clean')
+        logger.info('Cannot enter both options -d/--deploy and -c/--clean')
         exit(1)
     if args.deploy is not ARG_NOT_SET and args.config is ARG_NOT_SET:
-        print(
+        logger.info(
             'Cannot start deploy operation without configuration. '
             'Choose the option -f/--file')
         exit(1)
     if args.deploy is ARG_NOT_SET and args.config is ARG_NOT_SET:
-        print(
+        logger.info(
             'Cannot start any deploy iaas operation without both -d/--deploy '
             'and -f/--file')
         exit(1)
