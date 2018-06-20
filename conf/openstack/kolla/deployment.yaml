@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 # Copyright 2017 ARICENT HOLDINGS LUXEMBOURG SARL. and
 # Cable Television Laboratories, Inc.
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,8 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 ---
-=======
->>>>>>> f049670b586792ee9b53af8e9435c137264a11b6
 openstack: 
   deployment_type: Kolla
   git_branch: stable/queens
