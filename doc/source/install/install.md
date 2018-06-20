@@ -396,7 +396,6 @@ This section is required only for Kolla based OpenStack deployment.
 | external_interface | N | Interface for the OpenStack external api end points. |
 | base_size | Y | Base size for the physical volume of the cinder. |
 | pull_from_hub | Y | Pull images from docker hub for deployment if set to yes (Values can be yes/no). |
-| docker_namespace | Y |  Should be `snapsopenstack` to install using the snapsopenstack DockerHub repository. |
 | count | Y | Total count for the physical volume created. |
 
 ### 3.2 var.yaml (VLAN Configuration)
@@ -636,9 +635,7 @@ Or Clean up previous deployment along with docker repository:
 sudo python <repo_dir>/iaas_launch.py -f <repo_dir>/conf/openstack/kolla/deployment.yaml -drc
 ```
 
-Next, run SNAPS-Boot with -s option to set static IP addresses (refer to SNAPS-Boot guide).
-
-Last, re-install OpenStack. If docker repository exists:
+Then, re-install OpenStack. If docker repository exists:
 
 ```
 sudo python <repo_dir>/iaas_launch.py -f <repo_dir>/conf/openstack/kolla/deployment.yaml -d
