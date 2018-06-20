@@ -236,39 +236,6 @@
       when: enable_cinder == "yes"
 
 
-    - name: Extract IP of the neutron_external_interface - {{ neutron_external_interface }}
-      shell: ip a show "{{ neutron_external_interface }}" | grep inet | grep global | awk '{ print$2}'
-      register: extip
-    - debug:
-        var: extip
-
-    - name: insert/update br-ex & default configuration in /etc/network/interfaces
-      lineinfile:
-        dest: /etc/network/interfaces
-        backup: yes
-        line: "auto br-ex\n
-           iface br-ex inet static\n
-               address {{ item }}\n
-               netmask 255.255.255.0\n"
-        state: present
-      with_items: "{{extip.stdout_lines.0}}"
-      ignore_errors: True
-      when : enable_ovs_dpdk == "no"
-    - name: insert route details for br-ex
-      lineinfile:
-        dest: /etc/network/interfaces
-        backup: yes
-        line:  "up route add default gw {{ external_gw }} dev br-ex\npost-up sleep 5; for i in $(ip -6 r | grep {{ neutron_external_interface }} | awk {'print $1'}); do ip -6 r d $i dev {{ neutron_external_interface }}; done\npost-up ip addr flush {{ neutron_external_interface }}"
-      ignore_errors: True
-      when : enable_ovs_dpdk == "no"
-    - name: insert/update dpdk_bridge & default configuration in /etc/network/interfaces
-      lineinfile:
-        dest: /etc/network/interfaces.d/dpdk_bridge.cfg
-        backup: yes
-        line: "gateway {{ external_gw }}"
-        state: present
-      ignore_errors: True
-      when: enable_ovs_dpdk == "yes"
     - name: Edit the file /etc/default/grub for SRIOV
       lineinfile:
          dest: "/etc/default/grub"
@@ -312,4 +279,47 @@
       with_items: "{{ SRIOV_INTERFACE }}"
       when: enable_neutron_sriov == "yes"
    
+    - name: Extract IP of the neutron_external_interface - {{ neutron_external_interface }}
+      shell: ip a show "{{ neutron_external_interface }}" | grep inet | grep global | awk '{ print$2}'
+      register: extip
+    - debug:
+        var: extip
+
+    - stat: path=/etc/network/interfaces.d/br-ex.cfg
+      register: interfaceFile
+
+    - name: create new interfaces file for br-ex
+      file: path=/etc/network/interfaces.d/br-ex.cfg state=touch
+      when: interfaceFile.stat.exists is defined and not interfaceFile.stat.exists and enable_ovs_dpdk == "no"
+
+    - fail:
+        msg: "br-ex.cfg exist"
+      when:  interfaceFile.stat.exists
+    - name: insert/update br-ex & default configuration in /etc/network/interfaces
+      lineinfile:
+        dest: /etc/network/interfaces.d/br-ex.cfg
+        backup: yes
+        line: "auto br-ex\n
+           iface br-ex inet static\n
+               address {{ item }}\n
+               netmask 255.255.255.0\n"
+        state: present
+      with_items: "{{extip.stdout_lines.0}}"
+      ignore_errors: True
+      when : enable_ovs_dpdk == "no"
+    - name: insert route details for br-ex
+      lineinfile:
+        dest: /etc/network/interfaces.d/br-ex.cfg
+        backup: yes
+        line:  "up route add default gw {{ external_gw }} dev br-ex\npost-up sleep 5; for i in $(ip -6 r | grep {{ neutron_external_interface }} | awk {'print $1'}); do ip -6 r d $i dev {{ neutron_external_interface }}; done\npost-up ip addr flush {{ neutron_external_interface }}"
+      ignore_errors: True
+      when : enable_ovs_dpdk == "no"
+    - name: insert/update dpdk_bridge & default configuration in /etc/network/interfaces
+      lineinfile:
+        dest: /etc/network/interfaces.d/dpdk_bridge.cfg
+        backup: yes
+        line: "gateway {{ external_gw }}"
+        state: present
+      ignore_errors: True
+      when: enable_ovs_dpdk == "yes"
 
