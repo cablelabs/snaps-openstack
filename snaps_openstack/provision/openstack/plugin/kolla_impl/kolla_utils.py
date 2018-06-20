@@ -336,6 +336,13 @@ def __create_global(config, git_branch, pull_from_hub):
                 '#docker_registry: "172.16.0.10:4000"',
                 'docker_registry: "' + docker_registry + ':' + str(
                     docker_port) + '"')
+        elif (config.get(consts.OPENSTACK).get(consts.KOLLA).get(consts.DOCKER_NAMESPACE) is not None):
+            docker_namespace = config.get(consts.OPENSTACK).get(consts.KOLLA).get(
+                consts.DOCKER_NAMESPACE)
+            logger.info("Using docker_namespace " + docker_namespace)
+            filedata = filedata.replace(
+                '#docker_namespace: "companyname"',
+                'docker_namespace: "' + docker_namespace +'"')
 
     proxy_http = config.get(consts.OPENSTACK).get('proxies').get('http_proxy')
     proxy_https = config.get(consts.OPENSTACK).get('proxies').get(
@@ -346,9 +353,7 @@ def __create_global(config, git_branch, pull_from_hub):
         + proxy_http + '"\n  https_proxy: "' + proxy_https
         + '"\n  no_proxy: "localhost,127.0.0.1,{{ kolla_internal_vip_address }},{{ api_interface_address }}"')
 
-    hosts = config.get(consts.OPENSTACK).get(consts.HOSTS)
-    gateway = ""
-    netmask = ""
+
     if config.get(consts.OPENSTACK).get(consts.SERVICES) is not None:
         service_str = config.get(consts.OPENSTACK).get(consts.SERVICES)
 
@@ -430,6 +435,10 @@ def __create_global(config, git_branch, pull_from_hub):
                    filedata = filedata.replace('kolla_external_vip_interface: '+'"'+external_interface+'"',
                                             'kolla_external_vip_interface: "dpdk_bridge"')
 
+    hosts = config.get(consts.OPENSTACK).get(consts.HOSTS)
+    gateway = ""
+    netmask = ""
+    
     for j in range(len(hosts)):
         interfaces = hosts[j].get(consts.HOST).get(consts.INTERFACES)
         node_type = hosts[j].get(consts.HOST).get(consts.NODE_TYPE)
