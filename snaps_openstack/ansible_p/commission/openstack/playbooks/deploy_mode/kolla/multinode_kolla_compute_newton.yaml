@@ -203,7 +203,7 @@
         msg: "br-ex.cfg exist"
       when: interfaceFile.stat.exists is defined and interfaceFile.stat.exists        
 
-    - name: insert/update br-ex & default configuration in /etc/network/interfaces
+    - name: insert/update br-ex & default configuration in network interfaces file
       blockinfile:
         path: /etc/network/interfaces.d/br-ex.cfg
         backup: yes
@@ -227,7 +227,7 @@
 
 
 
-#    - name: insert/update br-ex & default configuration in /etc/network/interfaces
+#    - name: insert/update br-ex & default configuration in network interfaces file
 #      blockinfile:
 #        path: /etc/network/interfaces
 #        backup: yes
