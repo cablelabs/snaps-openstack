@@ -258,7 +258,7 @@
       when: interfaceFile.stat.exists is defined and interfaceFile.stat.exists
 
 
-    - name: insert/update br-ex & default configuration in /etc/network/interfaces
+    - name: insert/update br-ex & default configuration in network interfaces file
       lineinfile:
         dest: /etc/network/interfaces.d/br-ex.cfg
         backup: yes
@@ -279,7 +279,7 @@
       ignore_errors: True
       when : enable_ovs_dpdk == "no"
 
-    - name: insert/update dpdk_bridge & default configuration in /etc/network/interfaces
+    - name: insert/update dpdk_bridge & default configuration in network interfaces file
       lineinfile:
         dest: /etc/network/interfaces.d/dpdk_bridge.cfg
         backup: yes
