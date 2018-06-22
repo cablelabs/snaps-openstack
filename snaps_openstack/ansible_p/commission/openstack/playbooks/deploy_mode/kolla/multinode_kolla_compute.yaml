@@ -295,7 +295,7 @@
     - fail:
         msg: "br-ex.cfg exist"
       when:  interfaceFile.stat.exists
-    - name: insert/update br-ex & default configuration in /etc/network/interfaces
+    - name: insert/update br-ex & default configuration in network interfaces file
       lineinfile:
         dest: /etc/network/interfaces.d/br-ex.cfg
         backup: yes
@@ -314,7 +314,7 @@
         line:  "up route add default gw {{ external_gw }} dev br-ex\npost-up sleep 5; for i in $(ip -6 r | grep {{ neutron_external_interface }} | awk {'print $1'}); do ip -6 r d $i dev {{ neutron_external_interface }}; done\npost-up ip addr flush {{ neutron_external_interface }}"
       ignore_errors: True
       when : enable_ovs_dpdk == "no"
-    - name: insert/update dpdk_bridge & default configuration in /etc/network/interfaces
+    - name: insert/update dpdk_bridge & default configuration in network interfaces file
       lineinfile:
         dest: /etc/network/interfaces.d/dpdk_bridge.cfg
         backup: yes
