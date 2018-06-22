@@ -533,7 +533,7 @@
       file: path=/etc/network/interfaces.d/br-ex.cfg state=touch
       when: interfaceFile.stat.exists is defined and not interfaceFile.stat.exists and enable_ovs_dpdk == "no"
 
-    - name: insert/update br-ex & default configuration in /etc/network/interfaces
+    - name: insert/update br-ex & default configuration in network interfaces file
       lineinfile:
         dest: /etc/network/interfaces.d/br-ex.cfg
         backup: yes
@@ -549,7 +549,7 @@
       shell: "route add default gw {{ external_gw }} dev dpdk_bridge"
       when: enable_ovs_dpdk == "yes"
 
-    - name: insert/update dpdk_bridge & default configuration in /etc/network/interfaces
+    - name: insert/update dpdk_bridge & default configuration in network interfaces file
       lineinfile:
         dest: /etc/network/interfaces.d/dpdk_bridge.cfg
         backup: yes
