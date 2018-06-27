@@ -473,6 +473,9 @@ ansible:
       src_copy_dir:
         type: string
         value: {{ src_copy_dir }}
+      local_snaps_openstack_dir:
+        type: string
+        value: {{ local_snaps_openstack_dir }}
       admin_ip_1:
         type: port
         vm_name: os-node-1-{{ build_id }}

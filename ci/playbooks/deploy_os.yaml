@@ -34,7 +34,7 @@
 
     - name: Copy this source tree to - {{ src_copy_dir }}/snaps-openstack
       synchronize:
-        src: ../../../
+        src: "{{ local_snaps_openstack_dir }}"
         dest: "{{ src_copy_dir }}/snaps-openstack"
         rsync_opts:
           - "--no-motd"
