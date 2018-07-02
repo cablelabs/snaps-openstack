@@ -26,12 +26,12 @@ openstack:
           -
             gateway: ""
             ip: ""
-            name: eno1
+            name: 
             type: management
           -
             ip: ""
             gateway: ""
-            name: eno2
+            name: 
             type: data
         isolcpus: ""
         reserved_host_memory_mb: ""
@@ -73,7 +73,7 @@ openstack:
   kolla:
      base_distro: "ubuntu"
      install_type: "source"
-     keepalived_virtual_router_id: "40"
+     keepalived_virtual_router_id: ""
      internal_vip_address: ""
      kolla_registry: ""
      kolla_registry_port: "4000"

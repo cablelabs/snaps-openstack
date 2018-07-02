@@ -24,19 +24,19 @@ openstack:
         interfaces:
           -
             ip: ""
-            mac: "c4:34:6b:b7:fc:30"
-            name: eno1
+            mac: ""
+            name: 
             type: management
           -
             ip: ""
-            mac: "c4:34:6b:b7:fc:31"
-            name: eno2
+            mac: ""
+            name: 
             type: tenant
           -
             gateway: ""
             ip: ""
-            mac: "c4:34:6b:b7:fc:32"
-            name: eno3
+            mac: ""
+            name: 
             type: data
         isolcpus: ""
         reserved_host_memory_mb: ""
@@ -58,19 +58,19 @@ openstack:
         interfaces:
           -
             ip: ""
-            mac: "38:63:bb:44:84:70"
-            name: eno1
+            mac: ""
+            name: 
             type: management
           -
             ip: ""
-            mac: "38:63:bb:44:84:71"
-            name: eno2
+            mac: ""
+            name: 
             type: tenant
           -
             gateway: ""
             ip: ""
-            mac: "38:63:bb:44:84:72"
-            name: eno3
+            mac: ""
+            name: 
             type: data
         isolcpus: "0-15"
         reserved_host_memory_mb: "16384"
@@ -78,7 +78,6 @@ openstack:
           - compute
         second_storage:
         sriov_interface:
-          - enp4s0f0
         password: 
         service_host: ""
         user: root
@@ -88,19 +87,19 @@ openstack:
         interfaces:
           -
             ip: ""
-            mac: "38:63:bb:44:f4:cc"
-            name: eno1
+            mac: ""
+            name: 
             type: management
           -
             ip: ""
-            mac: "38:63:bb:44:f4:cd"
-            name: eno2
+            mac: ""
+            name: 
             type: tenant
           -
             gateway: ""
             ip: ""
-            mac: "38:63:bb:44:f4:ce"
-            name: eno3
+            mac: ""
+            name: 
             type: data
         isolcpus: "0-15"
         reserved_host_memory_mb: "16384"
@@ -108,7 +107,6 @@ openstack:
           - compute
         second_storage:
         sriov_interface:
-          - enp4s0f0
         password: 
         service_host: ""
         user: root
@@ -118,19 +116,19 @@ openstack:
         interfaces:
           -
             ip: ""
-            mac: "c4:34:6b:b8:87:e4"
-            name: eno1
+            mac: ""
+            name: 
             type: management
           -
             ip: ""
-            mac: "c4:34:6b:b8:87:e5"
-            name: eno2
+            mac: ""
+            name: 
             type: tenant
           -
             gateway: ""
             ip: ""
-            mac: "c4:34:6b:b8:87:e6"
-            name: eno3
+            mac: ""
+            name: 
             type: data
         isolcpus: "0-15"
         reserved_host_memory_mb: "16384"
@@ -140,7 +138,6 @@ openstack:
         second_storage:
           - "/dev/sdb/"
         sriov_interface:
-          - enp4s0f0
         password: 
         service_host: ""
         user: root
@@ -150,19 +147,19 @@ openstack:
         interfaces:
           -
             ip: ""
-            mac: "ec:b1:d7:8a:39:10"
-            name: eno1
+            mac: ""
+            name: 
             type: management
           -
             ip: ""
-            mac: "ec:b1:d7:8a:39:11"
-            name: eno2
+            mac: ""
+            name: 
             type: tenant
           -
             gateway: ""
             ip: ""
-            mac: "ec:b1:d7:8a:39:12"
-            name: eno3
+            mac: ""
+            name: 
             type: data
         isolcpus: "0-15"
         reserved_host_memory_mb: "16384"
@@ -172,7 +169,6 @@ openstack:
         second_storage:
           - "/dev/sdb/"
         sriov_interface:
-          - enp4s0f0
         password: 
         service_host: ""
         user: root
@@ -207,13 +203,13 @@ openstack:
   kolla:
      base_distro: "ubuntu"
      install_type: "source"
-     keepalived_virtual_router_id: "30"
+     keepalived_virtual_router_id: ""
      internal_vip_address: ""
-     internal_interface: "enp6s0f0"
+     internal_interface: ""
      kolla_registry: ""
      kolla_registry_port: "4000"
      external_vip_address: ""
-     external_interface: "enp6s0f1"
+     external_interface: ""
      pull_from_hub: "yes"
      docker_namespace: "snapsopenstack"
      base_size: "573741824"

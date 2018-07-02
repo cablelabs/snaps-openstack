@@ -15,48 +15,48 @@
 TASKS:
   -
     name: TenantVLAN
-    physical_network: physnet2
-    min_vlan_id: 1001
-    max_vlan_id: 1002
+    physical_network: 
+    min_vlan_id: 
+    max_vlan_id: 
     HOSTS:
       -
         interfaces:
           -
-            port_name: eno3
-            size: 8000
-        ip: "172.16.141.22"
-        password: ChangeMe
-        username: root
+            port_name: 
+            size: 
+        ip: ""
+        password: 
+        username: 
       -
         interfaces:
           -
-            port_name: eno3
-            size: 8000
-        ip: "172.16.141.41"
-        password: ChangeMe
-        username: root
+            port_name: 
+            size: 
+        ip: ""
+        password: 
+        username: 
   -
     name: mtu
     HOSTS:
       -
-        ip: "172.16.141.22"
-        password: ChangeMe
-        username: root
+        ip: ""
+        password: 
+        username: 
         interfaces:
           -
-            port_name: eno1
-            size: '2500'
+            port_name: 
+            size: ''
           -
-            port_name: enp4s0f0
-            size: '2500'
+            port_name: 
+            size: ''
       -
-        ip: "172.16.141.41"
-        password: ChangeMe
-        username: root
+        ip: ""
+        password: 
+        username: 
         interfaces:
           -
-            port_name: eno1
-            size: '2500'
+            port_name: 
+            size: ''
           -
-            port_name: enp4s0f0
-            size: '2500'
+            port_name: 
+            size: ''

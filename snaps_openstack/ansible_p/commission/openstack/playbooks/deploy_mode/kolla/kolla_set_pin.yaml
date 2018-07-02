@@ -77,7 +77,7 @@
         - nova-novncproxy
       ignore_errors: True
     - name: nova.conf changes
-      when: (check_file.stat.exists and not(memory == "")) and (GIT_BRANCH == "stable/queens")
+      when: (check_file.stat.exists and not(memory == ""))
       lineinfile:
         dest: "/etc/kolla/{{ item }}/nova.conf"
         line: "reserved_host_memory_mb={{memory}}  "

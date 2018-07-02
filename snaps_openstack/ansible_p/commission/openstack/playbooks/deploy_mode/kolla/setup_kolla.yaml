@@ -68,35 +68,31 @@
       git:
         repo: https://git.openstack.org/openstack/kolla
         version: "{{ GIT_BRANCH }}"
-        dest: "{{ GIT_CLONE_PATH }}"
-      when: GIT_BRANCH == "stable/queens"
+        dest: "{{ GIT_CLONE_KOLLA }}"
 
-    - name: switch to queens branch
+    - name: switch to "{{ GIT_BRANCH }}" branch
       command: git checkout "{{ GIT_BRANCH }}"
       args:
-       chdir: "{{ GIT_CLONE_PATH }}"
-      when: (GIT_BRANCH == "stable/queens") and ((KOLLA_ANSIBLE_TAG is undefined) or (KOLLA_ANSIBLE_TAG is none) or (KOLLA_ANSIBLE_TAG | trim == ''))
+       chdir: "{{ GIT_CLONE_KOLLA }}"
+      when: ((KOLLA_ANSIBLE_TAG is undefined) or (KOLLA_ANSIBLE_TAG is none) or (KOLLA_ANSIBLE_TAG | trim == ''))
 
-    - name: switch to queens via tag
+    - name: switch to "{{ GIT_BRANCH }}" via tag
       command: "git checkout tags/{{ KOLLA_TAG }}"
       args:
-       chdir: "{{ GIT_CLONE_PATH }}"
-      when: (GIT_BRANCH == "stable/queens") and (not((KOLLA_ANSIBLE_TAG is undefined) or (KOLLA_ANSIBLE_TAG is none) or (KOLLA_ANSIBLE_TAG | trim == '')))
+       chdir: "{{ GIT_CLONE_KOLLA }}"
+      when: (not((KOLLA_ANSIBLE_TAG is undefined) or (KOLLA_ANSIBLE_TAG is none) or (KOLLA_ANSIBLE_TAG | trim == '')))
 
     - name: Copying Docker package file in /home/ubuntu
       copy:
        src: "{{BASE_FILE_PATH}}docker-engine_17.05.0-ce-0-ubuntu-xenial_amd64.deb"
        dest: "{{ DOCKER_LIST_DEST }}"
-      when: GIT_BRANCH == "stable/queens"
 
     - name: dpkg -i docker-engine=17.05~xenial
       command: dpkg -i "{{ DOCKER_LIST_DEST }}"
-      when: GIT_BRANCH == "stable/queens"
 
     - name: apt-get update again
       apt:
         update_cache: yes
-      when: GIT_BRANCH == "stable/queens"
 
     - name: Make directory docker.service.d
       file: 
@@ -115,7 +111,6 @@
         line: 'Environment="HTTP_PROXY={{ http_proxy }}"'
 
     - name: Copy kolla.conf in the docker.service.d directory
-      when: GIT_BRANCH == "stable/queens"
       copy:
        src: "{{BASE_FILE_PATH}}kolla.conf"
        dest: "{{ KOLLA_CONF_DEST }}"
@@ -124,7 +119,6 @@
       pip:
        name: ansible
        version: 2.2.2.0
-      when: GIT_BRANCH == "stable/queens"
    
     - name:  insert docker_opts in docker
       lineinfile:
@@ -179,12 +173,12 @@
 
     - name: replace data in template-override
       lineinfile:
-        dest: "{{ GIT_CLONE_PATH }}/contrib/template-override/ovs-dpdk.j2"
+        dest: "{{ GIT_CLONE_KOLLA }}/contrib/template-override/ovs-dpdk.j2"
         line: 'ENV RTE_DEVEL_BUILD="n"'
         insertafter: 'WORKDIR /dpdk'
         state: present
     - name : install kolla
-      command: pip install "{{ GIT_CLONE_PATH }}"
+      command: pip install "{{ GIT_CLONE_KOLLA }}"
 
     - name: install tox
       pip:
@@ -194,7 +188,7 @@
     - name : genconfig command
       command: tox -e genconfig
       args:
-         chdir: "{{ GIT_CLONE_PATH }}"
+         chdir: "{{ GIT_CLONE_KOLLA }}"
 
     - name: Changes in ceilometer Docker file
       blockinfile:

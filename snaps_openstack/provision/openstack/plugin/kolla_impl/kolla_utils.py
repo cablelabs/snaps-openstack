@@ -381,7 +381,6 @@ def __create_global(config, git_branch, pull_from_hub):
                                                 'enable_cinder: "yes"')
                     filedata = filedata.replace('enable_ceph: "no"',
                                                 'enable_ceph: "no"')
-##                    if git_branch.lower() == 'stable/queens':
                     filedata = filedata.replace(
                         '#enable_cinder_backend_iscsi: "no"',
                         'enable_cinder_backend_iscsi: "no"')
@@ -729,7 +728,6 @@ def clean_up(config, operation):
     list_ip, host_type = __hostip_list(config)
     docker_registry = config.get(consts.OPENSTACK).get(consts.KOLLA).get(
         consts.REGISTRY)
-    git_branch = config.get(consts.OPENSTACK).get(consts.GIT_BRANCH)
     pull_from_hub = config.get(consts.OPENSTACK).get(consts.KOLLA).get(
         consts.PULL_HUB)
     host_node_type_map= __create_host_nodetype_map(config)
@@ -748,7 +746,7 @@ def clean_up(config, operation):
         service_list = _getservice_list(config)
         logger.info(service_list)
         ret = ansible_configuration.clean_up_kolla(
-            list_ip, git_branch, docker_registry, service_list, operation,
+            list_ip, docker_registry, service_list, operation,
             pull_from_hub, host_storage_node_map,dpdk_enable)
         return ret
 

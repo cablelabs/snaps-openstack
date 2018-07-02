@@ -80,27 +80,27 @@
     - name: upgrade pyOpenSSL
       command: pip install --upgrade pyOpenSSL
 
-    - name: Delete existing {{ GIT_CLONE_PATH_QUEENS }}
+    - name: Delete existing {{ GIT_CLONE_KOLLA_ANSIBLE }}
       file:
         state: absent
-        dest: "{{ GIT_CLONE_PATH_QUEENS }}"
+        dest: "{{ GIT_CLONE_KOLLA_ANSIBLE }}"
 
     - name: Clone git
       git:
         repo: https://github.com/openstack/kolla-ansible.git
         version: "{{ GIT_BRANCH }}"
-        dest: "{{ GIT_CLONE_PATH_QUEENS }}"
+        dest: "{{ GIT_CLONE_KOLLA_ANSIBLE }}"
 
-    - name: switch to queens branch
+    - name: switch to "{{ GIT_BRANCH }}" branch
       command: git checkout "{{ GIT_BRANCH }}"
       args:
-       chdir: "{{ GIT_CLONE_PATH_QUEENS }}"
+       chdir: "{{ GIT_CLONE_KOLLA_ANSIBLE }}"
       when: (KOLLA_ANSIBLE_TAG is undefined) or (KOLLA_ANSIBLE_TAG is none) or (KOLLA_ANSIBLE_TAG | trim == '') 
 
-    - name: switch to queens via tag
+    - name: switch to "{{ GIT_BRANCH }}" via tag
       command: "git checkout tags/{{ KOLLA_ANSIBLE_TAG }}"
       args:
-       chdir: "{{ GIT_CLONE_PATH_QUEENS }}"
+       chdir: "{{ GIT_CLONE_KOLLA_ANSIBLE }}"
       when: not((KOLLA_ANSIBLE_TAG is undefined) or (KOLLA_ANSIBLE_TAG is none) or (KOLLA_ANSIBLE_TAG | trim == ''))
  
     - name: install requirements
@@ -109,20 +109,20 @@
 
     - name: replace data in ovsdpdk-db.json.j2
       lineinfile:
-        dest: "{{GIT_CLONE_PATH_QUEENS}}/ansible/roles/ovs-dpdk/templates/ovsdpdk-db.json.j2"
+        dest: "{{GIT_CLONE_KOLLA_ANSIBLE}}/ansible/roles/ovs-dpdk/templates/ovsdpdk-db.json.j2"
         regexp: '^(.*)    "command": "start-ovsdb-server(.*)$'
         line: '    "command": "start-ovsdb-server 127.0.0.1",'
         backrefs: yes
     - name: replace data in setup.cfg
       lineinfile:
-        dest: "{{ GIT_CLONE_PATH_QUEENS }}/setup.cfg"
+        dest: "{{ GIT_CLONE_KOLLA_ANSIBLE }}/setup.cfg"
         line: "    share/kolla-ansible/tools = tools/ovs-dpdkctl.sh"
         insertafter: '^\    share/kolla-ansible/tools = tools/stop-containers'
         state: present
     - name: run setup.py
       command: python setup.py install
       args:
-       chdir: "{{ GIT_CLONE_PATH_QUEENS }}"
+       chdir: "{{ GIT_CLONE_KOLLA_ANSIBLE }}"
 
     - name: apt-get update again
       apt:
@@ -242,7 +242,6 @@
         regexp: 'Environment="HTTP_PROXY="'
         line: 'Environment="HTTP_PROXY={{ http_proxy }}"'
     - name: Copy kolla.conf in the docker.service.d directory
-      when: GIT_BRANCH == "stable/queens"
       copy:
        src: "{{BASE_FILE_PATH}}kolla.conf"
        dest: "{{ KOLLA_CONF_DEST }}"
@@ -339,7 +338,6 @@
        state: directory
     - name: cleanup-dangling images
       shell: ./cleanup-images --dangling
-      when: GIT_BRANCH == "stable/queens"
       args:
        chdir: /etc/OpenStack/kolla-ansible/tools
        executable: /bin/bash
