@@ -1,4 +1,4 @@
-Rebuild PR enabled, abort cleanup added.
+Rebuild PR enabled.
 
 # SNAPS-OpenStack
 
