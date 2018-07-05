@@ -65,7 +65,7 @@ openstack:
   images:
     - image:
         os_creds_name: admin-creds
-        name: snaps-os-image-{{ build_id }}
+        name: ubuntu-16-04
         format: qcow2
         public: True
         image_user: ubuntu
@@ -199,7 +199,7 @@ openstack:
           project_name: os-deploy-proj-{{ build_id }}
         name: build-os-vm-{{ build_id }}
         flavor: os-build-flavor-{{ build_id }}
-        imageName: snaps-os-image-{{ build_id }}
+        imageName: ubuntu-16-04
         keypair_name: os-deploy-build-kp-{{ build_id }}
         security_group_names: [os-deploy-build-sg-{{ build_id }}]
         cloud_init_timeout: 1000
@@ -262,7 +262,7 @@ openstack:
           project_name: os-deploy-proj-{{ build_id }}
         name: os-node-1-{{ build_id }}
         flavor: os-control-flavor-{{ build_id }}
-        imageName: snaps-os-image-{{ build_id }}
+        imageName: ubuntu-16-04
         security_group_names: [os-deploy-build-sg-{{ build_id }}]
         cloud_init_timeout: 1000
         volume_names:
@@ -342,7 +342,7 @@ openstack:
           project_name: os-deploy-proj-{{ build_id }}
         name: os-node-2-{{ build_id }}
         flavor: os-compute-flavor-{{ build_id }}
-        imageName: snaps-os-image-{{ build_id }}
+        imageName: ubuntu-16-04
         security_group_names: [os-deploy-build-sg-{{ build_id }}]
         cloud_init_timeout: 1000
         volume_names:
@@ -406,7 +406,7 @@ openstack:
           project_name: os-deploy-proj-{{ build_id }}
         name: os-node-3-{{ build_id }}
         flavor: os-compute-flavor-{{ build_id }}
-        imageName: snaps-os-image-{{ build_id }}
+        imageName: ubuntu-16-04
         security_group_names: [os-deploy-build-sg-{{ build_id }}]
         cloud_init_timeout: 1000
         volume_names:
