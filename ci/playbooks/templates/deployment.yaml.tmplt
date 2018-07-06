@@ -132,4 +132,4 @@ openstack:
      base_size: "573741824"
      count: "20"
      pull_from_hub: "yes"
-     docker_namespace: "snapsopenstack"
+     docker_namespace: ""
