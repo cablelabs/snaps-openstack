@@ -32,10 +32,10 @@
         state: absent
         dest: "{{ src_copy_dir }}/snaps-openstack"
 
-    - name: Copy this source tree to - {{ src_copy_dir }}/snaps-openstack
+    - name: Copy this source tree to - {{ src_copy_dir }}
       synchronize:
         src: "{{ local_snaps_openstack_dir }}"
-        dest: "{{ src_copy_dir }}/snaps-openstack"
+        dest: "{{ src_copy_dir }}"
         rsync_opts:
           - "--no-motd"
           - "--exclude=.git"
