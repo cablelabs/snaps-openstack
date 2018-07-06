@@ -211,6 +211,6 @@ openstack:
      external_vip_address: ""
      external_interface: ""
      pull_from_hub: "yes"
-     docker_namespace: "snapsopenstack"
+     docker_namespace: ""
      base_size: "573741824"
      count: "20"
