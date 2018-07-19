@@ -337,12 +337,13 @@ def __create_global(config, git_branch, pull_from_hub):
                 'docker_registry: "' + docker_registry + ':' + str(
                     docker_port) + '"')
         elif (config.get(consts.OPENSTACK).get(consts.KOLLA).get(consts.DOCKER_NAMESPACE) is not None):
-            docker_namespace = config.get(consts.OPENSTACK).get(consts.KOLLA).get(
-                consts.DOCKER_NAMESPACE)
-            logger.info("Using docker_namespace " + docker_namespace)
-            filedata = filedata.replace(
-                '#docker_namespace: "companyname"',
-                'docker_namespace: "' + docker_namespace +'"')
+            if config.get(consts.OPENSTACK).get(consts.KOLLA).get(consts.DOCKER_NAMESPACE) is not '':
+                docker_namespace = config.get(consts.OPENSTACK).get(consts.KOLLA).get(
+                    consts.DOCKER_NAMESPACE)
+                logger.info("Using docker_namespace " + docker_namespace)
+                filedata = filedata.replace(
+                    '#docker_namespace: "companyname"',
+                    'docker_namespace: "' + docker_namespace +'"')
 
     proxy_http = config.get(consts.OPENSTACK).get('proxies').get('http_proxy')
     proxy_https = config.get(consts.OPENSTACK).get('proxies').get(
