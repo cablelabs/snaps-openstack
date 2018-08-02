@@ -92,11 +92,15 @@ pub_iface: ens5
 build_kp_pub_path: /tmp/build-kp-lab3.pub
 build_kp_priv_path: /tmp/build-kp-lab3
 
-deployment_yaml_target_path: /tmp/deployment.yaml
-
 node_host_password: Pa$$w0rd
 
 local_snaps_openstack_dir: /home/ubuntu/snaps-openstack
+
+# Optional - When the flavors created require special metadata
+#flavor_metadata:
+#  hw:cpu_policy: dedicated
+#  hw:cpu_thread_policy: isolate
+
 ```
 4. Launch the test
 This is best to do in a screen session and redirect the output.

@@ -50,22 +50,40 @@ openstack:
         ram: 8192
         disk: 100
         vcpus: 4
+{% if flavor_metadata is defined %}
+        metadata:
+        {% for key, value in flavor_metadata.iteritems() %}
+          {{ key }}: {{ value }}
+        {% endfor %}
+{% endif %}
     - flavor:
         os_creds_name: admin-creds
         name: os-control-flavor-{{ build_id }}
         ram: 24576
         disk: 300
         vcpus: 8
+{% if flavor_metadata is defined %}
+        metadata:
+        {% for key, value in flavor_metadata.iteritems() %}
+          {{ key }}: {{ value }}
+        {% endfor %}
+{% endif %}
     - flavor:
         os_creds_name: admin-creds
         name: os-compute-flavor-{{ build_id }}
         ram: 16384
         disk: 300
         vcpus: 8
+{% if flavor_metadata is defined %}
+        metadata:
+        {% for key, value in flavor_metadata.iteritems() %}
+          {{ key }}: {{ value }}
+        {% endfor %}
+{% endif %}
   images:
     - image:
         os_creds_name: admin-creds
-        name: snaps-os-image-{{ build_id }}
+        name: ubuntu-16-04
         format: qcow2
         public: True
         image_user: ubuntu
@@ -77,6 +95,7 @@ openstack:
           project_name: os-deploy-proj-{{ build_id }}
         name: os-ctrl-net-{{ build_id }}
         project_name: os-deploy-proj-{{ build_id }}
+        mtu: 1450
         subnets:
           - subnet:
               name: os-ctrl-subnet-{{ build_id }}
@@ -89,6 +108,7 @@ openstack:
           project_name: os-deploy-proj-{{ build_id }}
         name: os-admin-net-{{ build_id }}
         project_name: os-deploy-proj-{{ build_id }}
+        mtu: 1450
         subnets:
           - subnet:
               name: os-admin-subnet-{{ build_id }}
@@ -104,6 +124,7 @@ openstack:
           project_name: os-deploy-proj-{{ build_id }}
         name: os-priv-net-{{ build_id }}
         project_name: os-deploy-proj-{{ build_id }}
+        mtu: 1450
         subnets:
           - subnet:
               name: os-priv-subnet-{{ build_id }}
@@ -120,6 +141,7 @@ openstack:
           project_name: os-deploy-proj-{{ build_id }}
         name: os-public-net-{{ build_id }}
         project_name: os-deploy-proj-{{ build_id }}
+        mtu: 1450
         subnets:
           - subnet:
               name: os-public-subnet-{{ build_id }}
@@ -199,7 +221,7 @@ openstack:
           project_name: os-deploy-proj-{{ build_id }}
         name: build-os-vm-{{ build_id }}
         flavor: os-build-flavor-{{ build_id }}
-        imageName: snaps-os-image-{{ build_id }}
+        imageName: ubuntu-16-04
         keypair_name: os-deploy-build-kp-{{ build_id }}
         security_group_names: [os-deploy-build-sg-{{ build_id }}]
         cloud_init_timeout: 1000
@@ -215,17 +237,17 @@ openstack:
             - [sh, -c, "echo '  iface ens4 inet static' >> /etc/network/interfaces.d/ens4.cfg"]
             - [sh, -c, "echo '  address {{ admin_ip_prfx }}.10' >> /etc/network/interfaces.d/ens4.cfg"]
             - [sh, -c, "echo '  netmask 255.255.255.0' >> /etc/network/interfaces.d/ens4.cfg"]
-            - [sh, -c, "echo '  mtu 1400' >> /etc/network/interfaces.d/ens4.cfg"]
+            - [sh, -c, "echo '  mtu 1450' >> /etc/network/interfaces.d/ens4.cfg"]
             - [sh, -c, "echo 'auto ens5' > /etc/network/interfaces.d/ens5.cfg"]
             - [sh, -c, "echo '  iface ens5 inet static' >> /etc/network/interfaces.d/ens5.cfg"]
             - [sh, -c, "echo '  address {{ priv_ip_prfx }}.10' >> /etc/network/interfaces.d/ens5.cfg"]
             - [sh, -c, "echo '  netmask 255.255.255.0' >> /etc/network/interfaces.d/ens5.cfg"]
-            - [sh, -c, "echo '  mtu 1400' >> /etc/network/interfaces.d/ens5.cfg"]
+            - [sh, -c, "echo '  mtu 1450' >> /etc/network/interfaces.d/ens5.cfg"]
             - [sh, -c, "echo 'auto ens6' > /etc/network/interfaces.d/ens6.cfg"]
             - [sh, -c, "echo '  iface ens6 inet static' >> /etc/network/interfaces.d/ens6.cfg"]
             - [sh, -c, "echo '  address {{ pub_ip_prfx }}.10' >> /etc/network/interfaces.d/ens6.cfg"]
             - [sh, -c, "echo '  netmask 255.255.255.0' >> /etc/network/interfaces.d/ens6.cfg"]
-            - [sh, -c, "echo '  mtu 1400' >> /etc/network/interfaces.d/ens6.cfg"]
+            - [sh, -c, "echo '  mtu 1450' >> /etc/network/interfaces.d/ens6.cfg"]
             - [sh, -c, "echo '  gateway {{ pub_ip_prfx }}.1' >> /etc/network/interfaces.d/ens6.cfg"]
             - [sh, -c, "echo '  dns-nameservers 8.8.8.8' >> /etc/network/interfaces.d/ens6.cfg"]
             - [sh, -c, "sudo systemctl restart networking"]
@@ -262,7 +284,7 @@ openstack:
           project_name: os-deploy-proj-{{ build_id }}
         name: os-node-1-{{ build_id }}
         flavor: os-control-flavor-{{ build_id }}
-        imageName: snaps-os-image-{{ build_id }}
+        imageName: ubuntu-16-04
         security_group_names: [os-deploy-build-sg-{{ build_id }}]
         cloud_init_timeout: 1000
         volume_names:
@@ -284,19 +306,19 @@ openstack:
             - [sh, -c, "echo '  iface {{ admin_iface }} inet static' >> /etc/network/interfaces"]
             - [sh, -c, "echo '  address {{ admin_ip_prfx }}.11' >> /etc/network/interfaces"]
             - [sh, -c, "echo '  netmask 255.255.255.0' >> /etc/network/interfaces"]
-            - [sh, -c, "echo '  mtu 1400' >> /etc/network/interfaces"]
+            - [sh, -c, "echo '  mtu 1450' >> /etc/network/interfaces"]
             - [sh, -c, "echo 'auto {{ priv_iface }}' >> /etc/network/interfaces"]
             - [sh, -c, "echo '  iface {{ priv_iface }} inet static' >> /etc/network/interfaces"]
             - [sh, -c, "echo '  address {{ priv_ip_prfx }}.11' >> /etc/network/interfaces"]
             - [sh, -c, "echo '  netmask 255.255.255.0' >> /etc/network/interfaces"]
-            - [sh, -c, "echo '  mtu 1400' >> /etc/network/interfaces >> /etc/network/interfaces"]
+            - [sh, -c, "echo '  mtu 1450' >> /etc/network/interfaces >> /etc/network/interfaces"]
             - [sh, -c, "echo 'auto {{ pub_iface }}' >> /etc/network/interfaces"]
             - [sh, -c, "echo '  iface {{ pub_iface }} inet static' >> /etc/network/interfaces"]
             - [sh, -c, "echo '  address {{ pub_ip_prfx }}.11' >> /etc/network/interfaces"]
             - [sh, -c, "echo '  netmask 255.255.255.0' >> /etc/network/interfaces"]
             - [sh, -c, "echo '  gateway {{ pub_ip_prfx }}.1' >> /etc/network/interfaces"]
             - [sh, -c, "echo '  dns-nameservers 8.8.8.8' >> /etc/network/interfaces"]
-            - [sh, -c, "echo '  mtu 1400' >> /etc/network/interfaces"]
+            - [sh, -c, "echo '  mtu 1450' >> /etc/network/interfaces"]
             - [sh, -c, "echo 'network: {config: disabled}' > /etc/cloud/cloud.cfg.d/99-disable-network-config.cfg"]
             - ip addr flush {{ admin_iface }}
             - systemctl restart networking
@@ -342,7 +364,7 @@ openstack:
           project_name: os-deploy-proj-{{ build_id }}
         name: os-node-2-{{ build_id }}
         flavor: os-compute-flavor-{{ build_id }}
-        imageName: snaps-os-image-{{ build_id }}
+        imageName: ubuntu-16-04
         security_group_names: [os-deploy-build-sg-{{ build_id }}]
         cloud_init_timeout: 1000
         volume_names:
@@ -363,19 +385,19 @@ openstack:
             - [sh, -c, "echo '  iface {{ admin_iface }} inet static' >> /etc/network/interfaces"]
             - [sh, -c, "echo '  address {{ admin_ip_prfx }}.12' >> /etc/network/interfaces"]
             - [sh, -c, "echo '  netmask 255.255.255.0' >> /etc/network/interfaces"]
-            - [sh, -c, "echo '  mtu 1400' >> /etc/network/interfaces"]
+            - [sh, -c, "echo '  mtu 1450' >> /etc/network/interfaces"]
             - [sh, -c, "echo 'auto {{ priv_iface }}' >> /etc/network/interfaces"]
             - [sh, -c, "echo '  iface {{ priv_iface }} inet static' >> /etc/network/interfaces"]
             - [sh, -c, "echo '  address {{ priv_ip_prfx }}.12' >> /etc/network/interfaces"]
             - [sh, -c, "echo '  netmask 255.255.255.0' >> /etc/network/interfaces"]
-            - [sh, -c, "echo '  mut 1400' >> /etc/network/interfaces"]
+            - [sh, -c, "echo '  mtu 1450' >> /etc/network/interfaces"]
             - [sh, -c, "echo 'auto {{ pub_iface }}' >> /etc/network/interfaces"]
             - [sh, -c, "echo '  iface {{ pub_iface }} inet static' >> /etc/network/interfaces"]
             - [sh, -c, "echo '  address {{ pub_ip_prfx }}.12' >> /etc/network/interfaces"]
             - [sh, -c, "echo '  netmask 255.255.255.0' >> /etc/network/interfaces"]
             - [sh, -c, "echo '  gateway {{ pub_ip_prfx }}.1' >> /etc/network/interfaces"]
             - [sh, -c, "echo '  dns-nameservers 8.8.8.8' >> /etc/network/interfaces"]
-            - [sh, -c, "echo '  mtu 1400' >> /etc/network/interfaces"]
+            - [sh, -c, "echo '  mtu 1450' >> /etc/network/interfaces"]
             - ip addr flush {{ admin_iface }}
             - systemctl restart networking
             - apt install -y python
@@ -406,7 +428,7 @@ openstack:
           project_name: os-deploy-proj-{{ build_id }}
         name: os-node-3-{{ build_id }}
         flavor: os-compute-flavor-{{ build_id }}
-        imageName: snaps-os-image-{{ build_id }}
+        imageName: ubuntu-16-04
         security_group_names: [os-deploy-build-sg-{{ build_id }}]
         cloud_init_timeout: 1000
         volume_names:
@@ -427,19 +449,19 @@ openstack:
             - [sh, -c, "echo '  iface {{ admin_iface }} inet static' >> /etc/network/interfaces"]
             - [sh, -c, "echo '  address {{ admin_ip_prfx }}.13' >> /etc/network/interfaces"]
             - [sh, -c, "echo '  netmask 255.255.255.0' >> /etc/network/interfaces"]
-            - [sh, -c, "echo '  mtu 1400' >> /etc/network/interfaces"]
+            - [sh, -c, "echo '  mtu 1450' >> /etc/network/interfaces"]
             - [sh, -c, "echo 'auto {{ priv_iface }}' >> /etc/network/interfaces"]
             - [sh, -c, "echo '  iface {{ priv_iface }} inet static' >> /etc/network/interfaces"]
             - [sh, -c, "echo '  address {{ priv_ip_prfx }}.13' >> /etc/network/interfaces"]
             - [sh, -c, "echo '  netmask 255.255.255.0' >> /etc/network/interfaces"]
-            - [sh, -c, "echo '  mut 1400' >> /etc/network/interfaces"]
+            - [sh, -c, "echo '  mtu 1450' >> /etc/network/interfaces"]
             - [sh, -c, "echo 'auto {{ pub_iface }}' >> /etc/network/interfaces"]
             - [sh, -c, "echo '  iface {{ pub_iface }} inet static' >> /etc/network/interfaces"]
             - [sh, -c, "echo '  address {{ pub_ip_prfx }}.13' >> /etc/network/interfaces"]
             - [sh, -c, "echo '  netmask 255.255.255.0' >> /etc/network/interfaces"]
             - [sh, -c, "echo '  gateway {{ pub_ip_prfx }}.1' >> /etc/network/interfaces"]
             - [sh, -c, "echo '  dns-nameservers 8.8.8.8' >> /etc/network/interfaces"]
-            - [sh, -c, "echo '  mtu 1400' >> /etc/network/interfaces"]
+            - [sh, -c, "echo '  mtu 1450' >> /etc/network/interfaces"]
             - ip addr flush {{ admin_iface }}
             - systemctl restart networking
             - apt install -y python
@@ -473,6 +495,9 @@ ansible:
       src_copy_dir:
         type: string
         value: {{ src_copy_dir }}
+      local_snaps_openstack_dir:
+        type: string
+        value: {{ local_snaps_openstack_dir }}
       admin_ip_1:
         type: port
         vm_name: os-node-1-{{ build_id }}
@@ -594,9 +619,6 @@ ansible:
       pub_iface:
         type: string
         value: {{ pub_iface }}
-      deployment_yaml_path:
-        type: string
-        value: {{ deployment_yaml_target_path }}
       node_host_pass:
         type: string
         value: {{ node_host_password }}
