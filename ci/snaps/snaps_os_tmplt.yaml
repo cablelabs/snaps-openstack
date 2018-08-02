@@ -50,18 +50,36 @@ openstack:
         ram: 8192
         disk: 100
         vcpus: 4
+{% if flavor_metadata is defined %}
+        metadata:
+        {% for key, value in flavor_metadata.iteritems() %}
+          {{ key }}: {{ value }}
+        {% endfor %}
+{% endif %}
     - flavor:
         os_creds_name: admin-creds
         name: os-control-flavor-{{ build_id }}
         ram: 24576
         disk: 300
         vcpus: 8
+{% if flavor_metadata is defined %}
+        metadata:
+        {% for key, value in flavor_metadata.iteritems() %}
+          {{ key }}: {{ value }}
+        {% endfor %}
+{% endif %}
     - flavor:
         os_creds_name: admin-creds
         name: os-compute-flavor-{{ build_id }}
         ram: 16384
         disk: 300
         vcpus: 8
+{% if flavor_metadata is defined %}
+        metadata:
+        {% for key, value in flavor_metadata.iteritems() %}
+          {{ key }}: {{ value }}
+        {% endfor %}
+{% endif %}
   images:
     - image:
         os_creds_name: admin-creds
@@ -601,9 +619,6 @@ ansible:
       pub_iface:
         type: string
         value: {{ pub_iface }}
-      deployment_yaml_path:
-        type: string
-        value: {{ deployment_yaml_target_path }}
       node_host_pass:
         type: string
         value: {{ node_host_password }}
