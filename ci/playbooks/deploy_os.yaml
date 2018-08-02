@@ -101,11 +101,11 @@
     - name: Restart Node 3 sys-kernel-config.mount
       command: "ssh root@{{ admin_ip_3 }} 'systemctl restart sys-kernel-config.mount'"
 
-    - name: Apply template and copy deployment.yaml.tmplt to {{ deployment_yaml_path }}
-      action: template src=templates/deployment.yaml.tmplt dest={{ deployment_yaml_path }}
+    - name: Apply template and copy deployment.yaml.tmplt to {{ src_copy_dir }}/deployment.yaml
+      action: template src=templates/deployment.yaml.tmplt dest={{ src_copy_dir }}/deployment.yaml
 
     - name: Deploy - iaas_launch.py -d *** This will run for around an hour without output
-      command: "python {{ src_copy_dir }}/snaps-openstack/iaas_launch.py -f {{ deployment_yaml_path }} -d"
+      command: "python {{ src_copy_dir }}/snaps-openstack/iaas_launch.py -f {{ src_copy_dir }}/deployment.yaml -d"
       register: out
       ignore_errors: True
     - debug: var=out.stdout_lines
