@@ -462,9 +462,20 @@
       ignore_errors: True
       when: enable_ovs_dpdk == "no"
 
-    - name: insert/update br-ex & default configuration in /etc/network/interfaces
+    - stat: path=/etc/network/interfaces.d/br-ex.cfg
+      register: interfaceFile
+
+    - name: create new interfaces file for br-ex
+      file: path=/etc/network/interfaces.d/br-ex.cfg state=touch
+      when: interfaceFile.stat.exists is defined and not interfaceFile.stat.exists and enable_ovs_dpdk == "no"
+
+#    - fail:
+#        msg: "br-ex.cfg exist"
+#      when: p.stat.exists is defined and p.stat.exists
+
+    - name: insert/update br-ex & default configuration in network interfaces file
       lineinfile:
-        dest: /etc/network/interfaces
+        dest: /etc/network/interfaces.d/br-ex.cfg
         backup: yes
         line: "auto br-ex\n
            iface br-ex inet static\n
@@ -473,12 +484,12 @@
         state: present
       with_items: "{{extip.stdout_lines.0}}"
       ignore_errors: True
-      when: enable_ovs_dpdk == "no"
+      when: enable_ovs_dpdk == "no" and not interfaceFile.stat.exists
     - name: add default route
       shell: "route add default gw {{ external_gw }} dev dpdk_bridge"
       when: enable_ovs_dpdk == "yes"
 
-    - name: insert/update dpdk_bridge & default configuration in /etc/network/interfaces
+    - name: insert/update dpdk_bridge & default configuration in network interfaces file
       lineinfile:
         dest: /etc/network/interfaces.d/dpdk_bridge.cfg
         backup: yes
@@ -487,15 +498,14 @@
       ignore_errors: True
       when: enable_ovs_dpdk == "yes"
 
-
     - name: insert route details for br-ex
       lineinfile:
-        dest: /etc/network/interfaces
+        dest: /etc/network/interfaces.d/br-ex.cfg
         backup: yes
         state: present
         line: "post-up ip addr add {{ extip.stdout_lines.1 }} dev br-ex\nup route add default gw {{ external_gw }} dev br-ex\npost-up sleep 5; for i in $(ip -6 r | grep {{ neutron_external_interface }} | awk {'print $1'}); do ip -6 r d $i dev {{ neutron_external_interface }}; done\npost-up ip addr flush {{ neutron_external_interface }}"
       ignore_errors: True
-      when: enable_ovs_dpdk == "no"
+      when: enable_ovs_dpdk == "no" and not interfaceFile.stat.exists
 
     - name: Changing perm of "/etc/kolla/admin-openrc.sh", adding "+x"
       file: dest=/etc/kolla/admin-openrc.sh mode=a+x

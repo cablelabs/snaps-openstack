@@ -192,10 +192,20 @@
       register: extip
     - debug:
         var: extip
-        
-    - name: insert/update br-ex & default configuration in /etc/network/interfaces
+
+    - stat: path=/etc/network/interfaces.d/br-ex.cfg
+      register: interfaceFile
+    - name: create new interfaces file for br-ex
+      file: path=/etc/network/interfaces.d/br-ex.cfg state=touch
+      when: interfaceFile.stat.exists is defined and not interfaceFile.stat.exists and enable_ovs_dpdk == "no"
+
+    - fail:
+        msg: "br-ex.cfg exist"
+      when: interfaceFile.stat.exists is defined and interfaceFile.stat.exists        
+
+    - name: insert/update br-ex & default configuration in network interfaces file
       blockinfile:
-        path: /etc/network/interfaces
+        path: /etc/network/interfaces.d/br-ex.cfg
         backup: yes
         block: |
            auto br-ex
@@ -217,7 +227,7 @@
 
 
 
-#    - name: insert/update br-ex & default configuration in /etc/network/interfaces
+#    - name: insert/update br-ex & default configuration in network interfaces file
 #      blockinfile:
 #        path: /etc/network/interfaces
 #        backup: yes

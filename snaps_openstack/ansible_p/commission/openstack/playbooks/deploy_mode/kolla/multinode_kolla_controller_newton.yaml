@@ -303,9 +303,16 @@
       command: ip route add default via "{{ external_gw }}" dev br-ex
       ignore_errors: True
 
-    - name: insert/update br-ex & default configuration in /etc/network/interfaces
+    - stat: path=/etc/network/interfaces.d/br-ex.cfg
+      register: interfaceFile
+
+    - name: create new interfaces file for br-ex
+      file: path=/etc/network/interfaces.d/br-ex.cfg state=touch
+      when: interfaceFile.stat.exists is defined and not interfaceFile.stat.exists 
+
+    - name: insert/update br-ex & default configuration in network interfaces file
       blockinfile:
-        path: /etc/network/interfaces
+        path: /etc/network/interfaces.d/br-ex.cfg
         backup: yes
         block: |
            auto br-ex
