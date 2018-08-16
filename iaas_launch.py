@@ -29,6 +29,32 @@ logger = logging.getLogger('launch_provisioning')
 
 ARG_NOT_SET = "argument not set"
 
+def __installation_logs(level_value):
+    """
+     This will set the logging levels for the openstack installation based on
+     inputes received from the CLI
+    """
+    from snaps_openstack.common.consts import consts
+    log_level = logging.INFO
+    logFileName = consts.OPENSTACK_INSTALLATION_LOGS
+    if level_value.upper() == 'INFO':
+        log_level = logging.INFO
+    elif level_value.upper() == 'ERROR':
+        log_level = logging.ERROR
+    elif level_value.upper() == 'DEBUG':
+        log_level = logging.DEBUG
+    elif level_value.upper() == 'WARNING':
+        log_level = logging.WARNING
+    elif level_value.upper() == 'CRITICAL':
+        log_level = logging.CRITICAL
+    else:
+        print "Incorrect log level " + level_value + " received as input from user"
+        exit()
+
+    logging.basicConfig(format='%(asctime)s %(levelname)s [%(filename)s:%(lineno)s - \
+                        %(funcName)2s() ] %(message)s ',datefmt='%b %d %H:%M', \
+                        filename=logFileName,filemode='w',level=log_level)
+    logging.getLogger().addHandler(logging.StreamHandler())
 
 def __manage_operation(config, operation):
     """
@@ -49,7 +75,7 @@ def __manage_operation(config, operation):
             logger.info(config)
             logger.info(
                 "############################################################")
-            logger.info("Read & Validate functionality for Devstack")
+            logger.info("Read & Validate functionality for Kolla OpenStack")
             deploy_infra(config, operation)
         else:
             logger.error("Configuration Error ")
@@ -66,32 +92,27 @@ def main(arguments):
      :return: To the OS
     """
 
-    log_level = logging.INFO
-    if arguments.log_level != 'INFO':
-        log_level = logging.DEBUG
-    logging.basicConfig(level=log_level)
-
-    logger.info('Launching Operation Starts ........')
+    __installation_logs(arguments.log_level);
 
     dir_path = os.path.dirname(os.path.realpath(__file__))
     export_path = dir_path + "/"
     os.environ['CWD_IAAS'] = export_path
-    print("==================Current Exported Relevant Path==================")
-    logger.info(export_path)
 
+    # Functions to read yml for IaaS Openstack environment
     config = file_utils.read_yaml(arguments.config)
     logger.info('Read configuration file - ' + arguments.config)
 
     if arguments.deploy is not ARG_NOT_SET:
         __manage_operation(config, "deploy")
+
     if arguments.dreg is not ARG_NOT_SET:
         __manage_operation(config, "deployregistry")
+
     if arguments.dregclean is not ARG_NOT_SET:
         logger.info("Cleaning up along with registry")
         logger.info(arguments.dregclean)
-
         __manage_operation(config, "cleanregistry")
-        # Functions to read yml for IaaS Openstack environment
+
     if arguments.clean is not ARG_NOT_SET:
         __manage_operation(config, "clean")
 
@@ -104,26 +125,29 @@ if __name__ == '__main__':
     os.chdir(os.path.dirname(os.path.realpath(__file__)))
 
     parser = argparse.ArgumentParser()
-    parser.add_argument(
-        '-d', '--deploy', dest='deploy', nargs='?', default=ARG_NOT_SET,
-        help='When used, deployment and provisioning of openstack will be '
-             'started')
-    parser.add_argument(
-        '-c', '--clean', dest='clean', nargs='?', default=ARG_NOT_SET,
-        help='When used, the openstack environment will be removed')
+    parser_group = parser.add_mutually_exclusive_group()
+
     parser.add_argument(
         '-f', '--file', dest='config', required=True,
         help='The configuration file in YAML format - REQUIRED',
         metavar="FILE")
+    parser_group.add_argument(
+        '-d', '--deploy', dest='deploy', nargs='?', default=ARG_NOT_SET,
+        help='When used, deployment and provisioning of openstack will be '
+             'started')
+    parser_group.add_argument(
+        '-c', '--clean', dest='clean', nargs='?', default=ARG_NOT_SET,
+        help='When used, the openstack environment will be removed')
+    parser_group.add_argument(
+        '-drs', '--dreg', dest='dreg', nargs='?', default=ARG_NOT_SET,
+        help='When used, kolla registry is set up along with deployment')
+    parser_group.add_argument(
+        '-drc', '--dregc', dest='dregclean', nargs='?', default=ARG_NOT_SET,
+        help='When used, Openstack deployment is clean up up along with the '
+             'kolla registry')
     parser.add_argument(
         '-l', '--log-level', dest='log_level', default='INFO',
-        help='Logging Level (INFO|DEBUG)')
-    parser.add_argument(
-        '-drs', '--dreg', dest='dreg', nargs='?', default=ARG_NOT_SET,
-        help='When used, to set up kolla registry along with deployment')
-    parser.add_argument(
-        '-drc', '--dregc', dest='dregclean', nargs='?', default=ARG_NOT_SET,
-        help='When used, to cleanup up kolla registry')
+        help='Logging Level ( DEBUG | INFO | WARNING | ERROR | CRITICAL)')
     args = parser.parse_args()
 
     if (args.dreg is ARG_NOT_SET and args.dregclean is ARG_NOT_SET

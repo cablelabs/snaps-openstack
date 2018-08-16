@@ -1,6 +1,6 @@
 openstack:
   deployment_type: Kolla
-  git_branch: stable/pike
+  git_branch: stable/queens
   hosts:
     -
       host:

@@ -27,7 +27,7 @@
     - name: cleanup-storage node
       command: pvremove -f -f -y /dev/loop2
       ignore_errors: True
-    - name: lose setup-coomand
+    - name: lose setup-command
       command: losetup -d /dev/loop2
       ignore_errors: True
     - name: remove partition data

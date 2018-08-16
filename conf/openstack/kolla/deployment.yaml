@@ -12,191 +12,205 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 ---
-openstack:
+openstack: 
   deployment_type: Kolla
-  git_branch: stable/pike
-  hosts:
+  git_branch: stable/queens
+  kolla_tag: ""
+  kolla_ansible_tag: ""
+  hosts: 
     -
       host:
-        hostname: controller
+        hostname: CONTROLLER22
         interfaces:
           -
-            gateway: "10.197.111.1"
-            ip: "10.197.111.12"
-            name: eno1
+            ip: ""
+            mac: ""
+            name: 
             type: management
           -
-            gateway: "10.197.112.1"
-            ip: "10.197.112.12"
-            name: enp6s0f0
+            ip: ""
+            mac: ""
+            name: 
             type: tenant
           -
-            gateway: "10.197.113.1"
-            ip: "10.197.113.12"
-            name: enp6s0f1
+            gateway: ""
+            ip: ""
+            mac: ""
+            name: 
             type: data
-            dns: 8.8.8.8
         isolcpus: ""
         reserved_host_memory_mb: ""
         node_type:
-          - controller
           - network
-        password: cable123
+          - controller
+          - storage
+        second_storage:
+          - "/dev/sdb"
+          - "/dev/sdc"
+        sriov_interface:
+        password:
+        service_host: ""
+        user: root
+
+    -
+      host:
+        hostname: COMPUTE23
+        interfaces:
+          -
+            ip: ""
+            mac: ""
+            name: 
+            type: management
+          -
+            ip: ""
+            mac: ""
+            name: 
+            type: tenant
+          -
+            gateway: ""
+            ip: ""
+            mac: ""
+            name: 
+            type: data
+        isolcpus: "0-15"
+        reserved_host_memory_mb: "16384"
+        node_type:
+          - compute
+        second_storage:
+        sriov_interface:
+        password: 
         service_host: ""
         user: root
     -
       host:
-        hostname: compute1
+        hostname: COMPUTE24
         interfaces:
           -
-            gateway: "10.197.111.1"
-            ip: "10.197.111.13"
-            name: eno1
+            ip: ""
+            mac: ""
+            name: 
             type: management
           -
-            gateway: "10.197.112.1"
-            ip: "10.197.112.13"
-            name: enp6s0f0
+            ip: ""
+            mac: ""
+            name: 
             type: tenant
           -
-            gateway: "10.197.113.1"
-            ip: "10.197.113.13"
-            name: enp6s0f1
+            gateway: ""
+            ip: ""
+            mac: ""
+            name: 
             type: data
-            dns: 8.8.8.8
         isolcpus: "0-15"
         reserved_host_memory_mb: "16384"
         node_type:
           - compute
-          - storage
-        second_storage: "/dev/sdb"
-        password: cable123
-        service_host: "10.197.111.12"
+        second_storage:
+        sriov_interface:
+        password: 
+        service_host: ""
         user: root
     -
       host:
-        hostname: compute2
+        hostname: COMPUTE25
         interfaces:
           -
-            gateway: "10.197.111.1"
-            ip: "10.197.111.14"
-            name: eno1
+            ip: ""
+            mac: ""
+            name: 
             type: management
           -
-            gateway: "10.197.112.1"
-            ip: "10.197.112.14"
-            name: enp6s0f0
+            ip: ""
+            mac: ""
+            name: 
             type: tenant
           -
-            gateway: "10.197.113.1"
-            ip: "10.197.113.14"
-            name: enp6s0f1
+            gateway: ""
+            ip: ""
+            mac: ""
+            name: 
             type: data
-            dns: 8.8.8.8
         isolcpus: "0-15"
         reserved_host_memory_mb: "16384"
         node_type:
           - compute
           - storage
-        second_storage: "/dev/sdb"
-        password: cable123
-        service_host: "10.197.111.12"
+        second_storage:
+          - "/dev/sdb/"
+        sriov_interface:
+        password: 
+        service_host: ""
         user: root
     -
       host:
-        hostname: compute3
+        hostname: COMPUTE26
         interfaces:
           -
-            gateway: "10.197.111.1"
-            ip: "10.197.111.15"
-            name: eno1
+            ip: ""
+            mac: ""
+            name: 
             type: management
           -
-            gateway: "10.197.112.1"
-            ip: "10.197.112.15"
-            name: enp6s0f0
+            ip: ""
+            mac: ""
+            name: 
             type: tenant
           -
-            gateway: "10.197.113.1"
-            ip: "10.197.113.15"
-            name: enp6s0f1
+            gateway: ""
+            ip: ""
+            mac: ""
+            name: 
             type: data
-            dns: 8.8.8.8
         isolcpus: "0-15"
         reserved_host_memory_mb: "16384"
         node_type:
           - compute
           - storage
-        second_storage: "/dev/sdb"
-        password: cable123
-        service_host: "10.197.111.12"
-        user: root
-    -
-      host:
-        hostname: compute4
-        interfaces:
-          -
-            gateway: "10.197.111.1"
-            ip: "10.197.111.16"
-            name: eno1
-            type: management
-          -
-            gateway: "10.197.112.1"
-            ip: "10.197.112.16"
-            name: enp6s0f0
-            type: tenant
-          -
-            gateway: "10.197.113.1"
-            ip: "10.197.113.16"
-            name: enp6s0f1
-            type: data
-            dns: 8.8.8.8
-        isolcpus: "0-15"
-        reserved_host_memory_mb: "16384"
-        node_type:
-          - compute
-          - storage
-        second_storage: "/dev/sdb"
-        password: cable123
-        service_host: "10.197.111.12"
+        second_storage:
+          - "/dev/sdb/"
+        sriov_interface:
+        password: 
+        service_host: ""
         user: root
   networks:
     external:
-      gateway: "10.197.113.1"
+      gateway: ""
       ip_pool:
-        start: "10.197.113.100"
-        end: "10.197.113.254"
-      subnet: 10.197.113.0/24
+        start: ""      
+        end: ""
+      subnet: 
     tenant:
       subnet:
       subnet_size:
     mtu_size:
-       default: 8000
-       vxlan: 1450
+      default: 8000
+      vxlan: 3000
   proxies:
     ftp_proxy: ""
     http_proxy: ""
     https_proxy: ""
     no_proxy: ""
-  service_password: cable123
+  service_password: 
   services:
+    - cinder
+    - ceph
     - magnum
     - tempest
     - ceilometer
-    - ceph
-    - cinder
     - tacker
+    - sriov
+    - dpdk
   kolla:
      base_distro: "ubuntu"
      install_type: "source"
-     keepalived_virtual_router_id: "30"
-     internal_vip_address: "10.197.111.30"
-     internal_interface: "enp6s0f0"
-     kolla_registry: "10.197.111.12"
+     keepalived_virtual_router_id: ""
+     internal_vip_address: ""
+     internal_interface: ""
+     kolla_registry: ""
      kolla_registry_port: "4000"
-     external_vip_address: "10.197.113.30"
-     external_interface: "enp6s0f1"
+     external_vip_address: ""
+     external_interface: ""
      pull_from_hub: "yes"
-     docker_namespace: "snapsopenstack"
+     docker_namespace: ""
      base_size: "573741824"
      count: "20"

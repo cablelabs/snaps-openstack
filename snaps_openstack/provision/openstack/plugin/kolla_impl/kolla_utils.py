@@ -75,6 +75,9 @@ def main(config, operation):
         host_node_type_map = __create_host_nodetype_map(config)
         host_storage_node_map = __create_host_storage_node_map(config, host_node_type_map)
         logger.info(host_storage_node_map)
+        host_sriov_interface_node_map = __create_host_sriov_interface_node_map(config)
+        logger.info(host_sriov_interface_node_map)
+
         logger.info("**************MULTINODE INVENTORY FILE******************")
         __create_inventory_multinode(host_node_type_map)
         logger.info("**************DOCKER DAEMON JSON ***********************")
@@ -134,8 +137,8 @@ def main(config, operation):
             host_node_type_map, docker_registry, docker_port, kolla_base,
             kolla_install, ext_sub, ext_gw, ip_pool_start, ip_pool_end,
             operation, host_cpu_map, reserve_memory, base_size,
-            count, default, vxlan, pull_from_hub, host_storage_node_map,
-            dpdk_enable)
+            count, default, vxlan, pull_from_hub, host_storage_node_map, host_sriov_interface_node_map,
+			dpdk_enable)
         base_file_path = consts.KOLLA_SOURCE_PATH
         files = {"globals.yml", "daemon.json", "netvars.yml",
                  "inventory/multinode"}
@@ -149,8 +152,6 @@ def main(config, operation):
     else:
         logger.info("Cannot read configuration")
 
-
-
 def __create_host_storage_node_map(config, host_node_type_map):
  if config:
   host_storage_node_map={}
@@ -158,18 +159,34 @@ def __create_host_storage_node_map(config, host_node_type_map):
   host_ip=""
 
   for key,value in host_node_type_map.iteritems():
-    if('storage' in value):
+    if('storage' in value or 'all' in value):
       host_ip=key;
-    for i in range(len(hosts)):
-      interfaces=hosts[i].get(consts.HOST).get(consts.INTERFACES)
-      node_type=hosts[i].get(consts.HOST).get(consts.NODE_TYPE)
-      second_storage=hosts[i].get(consts.HOST).get(consts.SECOND_STORAGE)
-      for i in range(len(interfaces)):
-        ip=interfaces[i].get(consts.IP)
-        if ip is host_ip:
-          host_storage_node_map[host_ip]=second_storage
+      for j in range(len(hosts)):
+        interfaces=hosts[j].get(consts.HOST).get(consts.INTERFACES)
+        node_type=hosts[j].get(consts.HOST).get(consts.NODE_TYPE)
+        second_storage=hosts[j].get(consts.HOST).get(consts.SECOND_STORAGE)
+        for i in range(len(interfaces)):
+          ip=interfaces[i].get(consts.IP)
+          if ip is host_ip:
+            host_storage_node_map[host_ip]=second_storage
 
  return host_storage_node_map 
+
+def __create_host_sriov_interface_node_map(config):
+ if config:
+  host_sriov_interface_node_map={}
+  hosts=config.get(consts.OPENSTACK).get(consts.HOSTS)
+  for j in range(len(hosts)):
+    interfaces=hosts[j].get(consts.HOST).get(consts.INTERFACES)
+    sriov_interface=hosts[j].get(consts.HOST).get(consts.SRIOV_INTERFACE)
+    logger.info(sriov_interface)
+    for i in range(len(interfaces)):
+      ip=interfaces[i].get(consts.IP)
+      iface_type = interfaces[i].get(consts.TYPE)
+      if(iface_type=="management") and ip :
+        host_sriov_interface_node_map[ip]=sriov_interface
+ 
+ return host_sriov_interface_node_map
 
 def __get_credentials(config):
     credential_dic = {}
@@ -207,11 +224,10 @@ def __hostip_list(config):
     out_list = []
     host_node_map = {}
 
-    # TODO/FIXME - Why is 'i' controlling both inner and outer loops???
-    for i in range(len(hosts)):
-        interfaces = hosts[i].get(consts.HOST).get(consts.INTERFACES)
-        node_type = hosts[i].get(consts.HOST).get(consts.NODE_TYPE)
-        hostname = hosts[i].get(consts.HOST).get(consts.HOSTNAME)
+    for j in range(len(hosts)):
+        interfaces = hosts[j].get(consts.HOST).get(consts.INTERFACES)
+        node_type = hosts[j].get(consts.HOST).get(consts.NODE_TYPE)
+        hostname = hosts[j].get(consts.HOST).get(consts.HOSTNAME)
         host_node_map[hostname] = node_type
         for i in range(len(interfaces)):
             ip = interfaces[i].get(consts.IP)
@@ -228,10 +244,9 @@ def __get_hostname_map(config):
         hostname_map = {}
         hosts = config.get(consts.OPENSTACK).get(consts.HOSTS)
 
-        # TODO/FIXME - Why is 'i' controlling both inner and outer loops???
-        for i in range(len(hosts)):
-            interfaces = hosts[i].get(consts.HOST).get(consts.INTERFACES)
-            hostname = hosts[i].get(consts.HOST).get('hostname')
+        for j in range(len(hosts)):
+            interfaces = hosts[j].get(consts.HOST).get(consts.INTERFACES)
+            hostname = hosts[j].get(consts.HOST).get('hostname')
             host_ip = ""
             for i in range(len(interfaces)):
                 ip = interfaces[i].get(consts.IP)
@@ -322,12 +337,13 @@ def __create_global(config, git_branch, pull_from_hub):
                 'docker_registry: "' + docker_registry + ':' + str(
                     docker_port) + '"')
         elif (config.get(consts.OPENSTACK).get(consts.KOLLA).get(consts.DOCKER_NAMESPACE) is not None):
-            docker_namespace = config.get(consts.OPENSTACK).get(consts.KOLLA).get(
-                consts.DOCKER_NAMESPACE)
-            logger.info("Using docker_namespace " + docker_namespace)
-            filedata = filedata.replace(
-                '#docker_namespace: "companyname"',
-                'docker_namespace: "' + docker_namespace +'"')
+            if config.get(consts.OPENSTACK).get(consts.KOLLA).get(consts.DOCKER_NAMESPACE) is not '':
+                docker_namespace = config.get(consts.OPENSTACK).get(consts.KOLLA).get(
+                    consts.DOCKER_NAMESPACE)
+                logger.info("Using docker_namespace " + docker_namespace)
+                filedata = filedata.replace(
+                    '#docker_namespace: "companyname"',
+                    'docker_namespace: "' + docker_namespace +'"')
 
     proxy_http = config.get(consts.OPENSTACK).get('proxies').get('http_proxy')
     proxy_https = config.get(consts.OPENSTACK).get('proxies').get(
@@ -366,14 +382,10 @@ def __create_global(config, git_branch, pull_from_hub):
                                                 'enable_cinder: "yes"')
                     filedata = filedata.replace('enable_ceph: "no"',
                                                 'enable_ceph: "no"')
-                    if git_branch.lower() == 'stable/newton':
-                        filedata = filedata.replace(
-                            '#enable_cinder_backend_iscsi: "no"',
-                            'enable_cinder_backend_iscsi: "yes"')
-                    elif git_branch.lower() == 'stable/pike':
-                        filedata = filedata.replace(
-                            '#enable_cinder_backend_iscsi: "no"',
-                            'enable_cinder_backend_iscsi: "no"')
+                    filedata = filedata.replace(
+                        '#enable_cinder_backend_iscsi: "no"',
+                        'enable_cinder_backend_iscsi: "no"')
+
                     filedata = filedata.replace(
                         '#enable_cinder_backend_lvm: "no"',
                         'enable_cinder_backend_lvm: "yes"')
@@ -386,18 +398,11 @@ def __create_global(config, git_branch, pull_from_hub):
             if services == 'magnum':
                 filedata = filedata.replace('enable_magnum: "no"',
                                             'enable_magnum: "yes"')
-                if git_branch.lower() == 'stable/newton':
-                    filedata = filedata.replace('#enable_barbican: "no"',
-                                                'enable_barbican: "yes"')
             if services == 'ceilometer':
                 filedata = filedata.replace('#enable_ceilometer: "no"',
                                             'enable_ceilometer: "yes"')
-                if git_branch.lower() == 'stable/newton':
-                    filedata = filedata.replace('#enable_mongodb: "no"',
-                                                'enable_mongodb: "yes"')
-                else:
-                    filedata = filedata.replace('#enable_gnocchi: "no"',
-                                                'enable_gnocchi: "yes"')
+                filedata = filedata.replace('#enable_gnocchi: "no"',
+                                            'enable_gnocchi: "yes"')
             if services == 'tempest':
                 filedata = filedata.replace('#enable_tempest: "no"',
                                             'enable_tempest: "yes"')
@@ -410,6 +415,10 @@ def __create_global(config, git_branch, pull_from_hub):
                                             'enable_redis: "yes"')
                 filedata = filedata.replace('#enable_barbican: "no"',
                                             'enable_barbican: "yes"')
+            
+            if services == 'sriov':
+                filedata = filedata.replace('enable_neutron_sriov: "no"',
+                                             'enable_neutron_sriov: "yes"')
             if services == 'dpdk':
                 filedata = filedata.replace('#ovs_datapath: "netdev"',
                                             'ovs_datapath: "netdev"')
@@ -421,8 +430,9 @@ def __create_global(config, git_branch, pull_from_hub):
                                             'tunnel_interface: "dpdk_bridge"')
                 filedata = filedata.replace('#neutron_bridge_name: "dpdk_bridge"',
                                             'neutron_bridge_name: "dpdk_bridge"')
-                external_interface = config.get(consts.OPENSTACK).get(consts.KOLLA).get(consts.EXTERNAL_INTERFACE)
-                filedata = filedata.replace('kolla_external_vip_interface: '+'"'+external_interface+'"',
+                if (config.get(consts.OPENSTACK).get(consts.KOLLA).get(consts.EXTERNAL_INTERFACE) is not None):
+                   external_interface = config.get(consts.OPENSTACK).get(consts.KOLLA).get(consts.EXTERNAL_INTERFACE)
+                   filedata = filedata.replace('kolla_external_vip_interface: '+'"'+external_interface+'"',
                                             'kolla_external_vip_interface: "dpdk_bridge"')
 
     hosts = config.get(consts.OPENSTACK).get(consts.HOSTS)
@@ -448,7 +458,6 @@ def __create_global(config, git_branch, pull_from_hub):
                         '#neutron_external_interface: "eth1"',
                         'neutron_external_interface: "' + name + '"')
                     gateway = interfaces[i].get("gateway")
-                   # netmask = interfaces[i].get("netmask")
                 elif iface_type == "tenant":
                     filedata = filedata.replace(
                         '#tunnel_interface: "{{ network_interface }}"',
@@ -456,8 +465,6 @@ def __create_global(config, git_branch, pull_from_hub):
                 else:
                     logger.error("Incorrect interface type")
                     exit(1)
-
-
 
     f.close()
     shutil.copy2(basefile, newfile)
@@ -478,10 +485,9 @@ def __create_host_nodetype_map(config):
         hostnode_map = {}
         hosts = config.get(consts.OPENSTACK).get(consts.HOSTS)
 
-        # TODO/FIXME - Why is 'i' controlling both inner and outer loops???
-        for i in range(len(hosts)):
-            interfaces = hosts[i].get(consts.HOST).get(consts.INTERFACES)
-            node_type = hosts[i].get(consts.HOST).get(consts.NODE_TYPE)
+        for j in range(len(hosts)):
+            interfaces = hosts[j].get(consts.HOST).get(consts.INTERFACES)
+            node_type = hosts[j].get(consts.HOST).get(consts.NODE_TYPE)
 
             host_ip = ""
             for i in range(len(interfaces)):
@@ -507,7 +513,8 @@ def __create_inventory_multinode(host_node_type_map):
         if 'controller' in value:
             filedata = filedata.replace('[control]', '[control] \n' + key)
         if 'compute' in value:
-            filedata = filedata.replace('[compute]', '[compute] \n' + key)
+#            filedata = filedata.replace('[compute]', '[compute] \n' + key)
+            filedata = filedata.replace('[external-compute]', '[external-compute] \n' + key)
         if 'monitoring' in value:
             filedata = filedata.replace(
                 '[monitoring]', '[monitoring] \n' + key)
@@ -527,6 +534,7 @@ def __validate_configuration(config):
     valid = True
     #variable to check storage node config in complete hosts list
     second_storage_config_present = False
+    sriov_interface_present = False
     config_dict = config.get(consts.OPENSTACK)
     logger.debug("Starting validation")
     ip_list = []
@@ -546,9 +554,12 @@ def __validate_configuration(config):
         logger.debug("**********HOST INFORMATION************")
         logger.debug(host)
         host_dict = host.get(consts.HOST)
+        logger.info(host_dict)
         #variable to check the storage node config per host
         is_storage_present       = False
-        is_storage_list_present  = False  
+        is_compute_present       = False
+        is_storage_list_present  = False 
+        logger.info(host_dict.items()) 
         for key, value in host_dict.items():
             if key == "interfaces":
                 if len(value) < 2:
@@ -588,29 +599,43 @@ def __validate_configuration(config):
                     valid = False
             elif key == "node_type":
               logger.info(value)
-              if('storage' in value):
+              if(('storage' in value) or ('all' in value)):
                 is_storage_present = True
+              if(('compute' in value) or ('all' in value)):
+                is_compute_present = True
+
             elif key=="second_storage":
-              if ((value==None) and ("ceph" in config.get(consts.OPENSTACK ).get(consts.SERVICES))):
+              if ((value==None) and ("ceph" in config.get(consts.OPENSTACK ).get(consts.SERVICES)) and (is_storage_present==True)):
+                  logger.info(value)
                   logger.info("SECOND STORAGE IS NOT DEFINED WHILE USING CEPH")
                   valid=False
               else:
                 logger.info(value)
                 is_storage_list_present = True
             #check if storage node configuration is present for this host, mark the variable as true
+            elif key == "sriov_interface":
+              if ((value==None) and ("sriov" in config.get(consts.OPENSTACK ).get(consts.SERVICES)) and (is_compute_present==True)):
+                  valid = False
+              else:
+                logger.info(value)
+                sriov_interface_present = True 
             if((is_storage_list_present == True) and (is_storage_present == True)):
               second_storage_config_present = True
-        if(("ceph" in config.get(consts.OPENSTACK ).get(consts.SERVICES))):
+        service = config.get(consts.OPENSTACK ).get(consts.SERVICES)
+        if((config.get(consts.OPENSTACK ).get(consts.SERVICES) is not None) and  ("ceph" in config.get(consts.OPENSTACK ).get(consts.SERVICES)) and (is_storage_present==True)):
           if(((is_storage_present == False) and (is_storage_list_present == True)) or
              ((is_storage_present == True) and (is_storage_list_present == False))):
             logger.info("Error: When ceph is enabled Storage node_type(" '%s' ") and second_storage(" '%s' ") both should be present", is_storage_present, is_storage_list_present)
             valid=False
             exit(1)
-    if((second_storage_config_present == False) and ("ceph" in 
-config.get(consts.OPENSTACK ).get(consts.SERVICES))): 
+    if((second_storage_config_present == False) and ("ceph" in config.get(consts.OPENSTACK ).get(consts.SERVICES))): 
        logger.info("Error: When ceph is enabled storage node_type and second_storage shall be present in one of the host")
        valid = False
        exit(1)
+    
+    if((sriov_interface_present == False) and ("sriov" in config.get(consts.OPENSTACK ).get(consts.SERVICES))):
+       logger.error("When SRIOV is enabled, sriov_interface must be defined")
+       valid = False
     
     if config_dict.get(consts.KOLLA).get(consts.BASE_DISTRIBUTION) is None:
         logger.info("KOLLA_BASE_DISTRO CANNOT BE NULL")
@@ -658,15 +683,13 @@ def __enable_key_ssh(config):
                    + consts.ANSIBLE_CONF
     subprocess.call(command_time, shell=True)
     hosts = config.get(consts.OPENSTACK).get(consts.HOSTS)
-
-    # TODO/FIXME - Why is 'i' controlling both inner and outer loops???
-    for i in range(len(hosts)):
-        user_name = hosts[i].get(consts.HOST).get(consts.USER)
+    for j in range(len(hosts)):
+        user_name = hosts[j].get(consts.HOST).get(consts.USER)
         if user_name != 'root':
             logger.info('USER MUST BE ROOT')
             exit(0)
-        password = hosts[i].get(consts.HOST).get(consts.PASSWORD)
-        interfaces = hosts[i].get(consts.HOST).get(consts.INTERFACES)
+        password = hosts[j].get(consts.HOST).get(consts.PASSWORD)
+        interfaces = hosts[j].get(consts.HOST).get(consts.INTERFACES)
         check_dir = os.path.isdir(consts.SSH_PATH)
         if not check_dir:
             os.makedirs(consts.SSH_PATH)
@@ -706,7 +729,6 @@ def clean_up(config, operation):
     list_ip, host_type = __hostip_list(config)
     docker_registry = config.get(consts.OPENSTACK).get(consts.KOLLA).get(
         consts.REGISTRY)
-    git_branch = config.get(consts.OPENSTACK).get(consts.GIT_BRANCH)
     pull_from_hub = config.get(consts.OPENSTACK).get(consts.KOLLA).get(
         consts.PULL_HUB)
     host_node_type_map= __create_host_nodetype_map(config)
@@ -715,7 +737,6 @@ def clean_up(config, operation):
     service_list = config.get(consts.OPENSTACK).get(consts.SERVICES)
     if 'dpdk' in service_list:
       dpdk_enable="yes"
-
     if list_ip is None:
         logger.info("Not valid configurations")
         exit(1)
@@ -726,7 +747,7 @@ def clean_up(config, operation):
         service_list = _getservice_list(config)
         logger.info(service_list)
         ret = ansible_configuration.clean_up_kolla(
-            list_ip, git_branch, docker_registry, service_list, operation,
+            list_ip, docker_registry, service_list, operation,
             pull_from_hub, host_storage_node_map,dpdk_enable)
         return ret
 
@@ -736,4 +757,3 @@ def _getservice_list(config):
     if config.get(consts.OPENSTACK).get(consts.SERVICES) is not None:
         service_str = config.get(consts.OPENSTACK).get(consts.SERVICES)
     return service_str
-

@@ -21,35 +21,28 @@
     - "{{ VARIABLE_FILE }}"
     - "{{BASE_FILE_PATH}}globals.yml"
     - "{{BASE_FILE_PATH}}netvars.yml"
-
   environment:
     http_proxy: "{{ http_proxy }}"
     https_proxy: "{{ https_proxy }}"
     ftp_proxy: "{{ ftp_proxy }}"
     no_proxy: "{{ no_proxy }}"
-  tasks:
-
+  tasks: 
     - name: apt-get update
       apt:
         update_cache: yes 
-
     - name: apt-get install network-manager
       apt:
         name: network-manager
     - name: apt-get install crudini
       apt:
         name: crudini
-    
     - name: Install python-pip
       apt:
         name: python-pip
         state: latest
     - name: upgrade pip
       command: pip install --upgrade pip
-    - name: Install OpenSSL
-      command: pip install pyOpenSSL
-      when: GIT_BRANCH == "stable/newton"
-          
+    
     - name: Install dependencies
       apt:
         name: "{{ item }}"
@@ -71,80 +64,35 @@
         update_cache: yes
         state: latest
 
-    - name: Copy kolla
-      copy:
-         src: "{{BASE_FILE_PATH}}kolla.tar.gz"
-         dest: /etc/OpenStack/
-      when: GIT_BRANCH == "stable/newton"
-    - name: untar kolla
-      command: tar -xvzf /etc/OpenStack/kolla.tar.gz -C /etc/OpenStack/
-      when: GIT_BRANCH == "stable/newton"
-
     - name: Clone git
       git:
         repo: https://git.openstack.org/openstack/kolla
         version: "{{ GIT_BRANCH }}"
-        dest: "{{ GIT_CLONE_PATH }}"
-      when: GIT_BRANCH == "stable/pike"
+        dest: "{{ GIT_CLONE_KOLLA }}"
 
-
-    - name: switch to pike branch
+    - name: switch to "{{ GIT_BRANCH }}" branch
       command: git checkout "{{ GIT_BRANCH }}"
       args:
-       chdir: "{{ GIT_CLONE_PATH }}"
-      when: (GIT_BRANCH == "stable/pike") and ((KOLLA_ANSIBLE_TAG is undefined) or (KOLLA_ANSIBLE_TAG is none) or (KOLLA_ANSIBLE_TAG | trim == ''))
+       chdir: "{{ GIT_CLONE_KOLLA }}"
+      when: ((KOLLA_ANSIBLE_TAG is undefined) or (KOLLA_ANSIBLE_TAG is none) or (KOLLA_ANSIBLE_TAG | trim == ''))
 
-    - name: switch to pike via tag
+    - name: switch to "{{ GIT_BRANCH }}" via tag
       command: "git checkout tags/{{ KOLLA_TAG }}"
       args:
-       chdir: "{{ GIT_CLONE_PATH }}"
-      when: (GIT_BRANCH == "stable/pike") and (not((KOLLA_ANSIBLE_TAG is undefined) or (KOLLA_ANSIBLE_TAG is none) or (KOLLA_ANSIBLE_TAG | trim == '')))
-
-
-    - name: Replace /etc/OpenStack/kolla/kolla/image/build.py
-      copy:
-         src: "{{BASE_FILE_PATH}}build.py"
-         dest: /etc/OpenStack/kolla/kolla/image/
-         backup: yes
-
-    - name: Replace /etc/OpenStack/kolla/kolla/test/test_build.py
-      copy:
-         src: "{{BASE_FILE_PATH}}test_build.py"
-         dest: /etc/OpenStack/kolla/kolla/tests/
-         backup: yes
-
-
-    - name: Copying Docker package file in /home/ubuntu
-      copy:
-       src: "{{BASE_FILE_PATH}}docker-engine_1.12.0-0-xenial_amd64.deb"
-       dest: "{{ DOCKER_LIST_DEST }}"
-      when: GIT_BRANCH == "stable/newton"
+       chdir: "{{ GIT_CLONE_KOLLA }}"
+      when: (not((KOLLA_ANSIBLE_TAG is undefined) or (KOLLA_ANSIBLE_TAG is none) or (KOLLA_ANSIBLE_TAG | trim == '')))
 
     - name: Copying Docker package file in /home/ubuntu
       copy:
        src: "{{BASE_FILE_PATH}}docker-engine_17.05.0-ce-0-ubuntu-xenial_amd64.deb"
-       dest: "{{ DOCKER_LIST_DEST_PIKE }}"
-      when: GIT_BRANCH == "stable/pike"
-
-
-    - name: install additional packages
-      command: apt-get -y install apt-transport-https ca-certificates
-      when: GIT_BRANCH == "stable/newton"
-
-
-    - name: dpkg -i docker-engine=1.12.0-0~xenial
-      command: dpkg -i "{{ DOCKER_LIST_DEST }}"
-      when: GIT_BRANCH == "stable/newton"
+       dest: "{{ DOCKER_LIST_DEST }}"
 
     - name: dpkg -i docker-engine=17.05~xenial
-      command: dpkg -i "{{ DOCKER_LIST_DEST_PIKE }}"
-      when: GIT_BRANCH == "stable/pike"
-
+      command: dpkg -i "{{ DOCKER_LIST_DEST }}"
 
     - name: apt-get update again
       apt:
         update_cache: yes
-      when: GIT_BRANCH == "stable/pike"
 
     - name: Make directory docker.service.d
       file: 
@@ -156,46 +104,22 @@
        src: "{{BASE_FILE_PATH}}http-proxy_bak.conf"
        dest: "{{ HTTP_PROXY_DEST }}"
 
-
-
     - name: replace data in http-proxy.conf
       lineinfile:
         dest: "{{ HTTP_PROXY_DEST }}"
         regexp: 'Environment="HTTP_PROXY="'
         line: 'Environment="HTTP_PROXY={{ http_proxy }}"'
 
-
     - name: Copy kolla.conf in the docker.service.d directory
-      when: GIT_BRANCH == "stable/newton"
       copy:
        src: "{{BASE_FILE_PATH}}kolla.conf"
-       dest: "{{ KOLLA_CONF_DEST }}" 
-
-
-    - name: Copy kolla.conf in the docker.service.d directory
-      when: GIT_BRANCH == "stable/pike"
-      copy:
-       src: "{{BASE_FILE_PATH}}kolla_pike.conf"
-       dest: "{{ KOLLA_CONF_DEST_PIKE }}"
-
-    - name: Install ansible
-      pip:
-       name: ansible
-       version: 2.0.0.2
-      when: GIT_BRANCH == "stable/newton"
+       dest: "{{ KOLLA_CONF_DEST }}"
 
     - name: Install ansible
       pip:
        name: ansible
        version: 2.2.2.0
-      when: GIT_BRANCH == "stable/pike"
    
-    - name: Install docker-py
-      pip:
-       name: docker-py
-       version: 1.7.2
-      when: GIT_BRANCH == "stable/newton"
-
     - name:  insert docker_opts in docker
       lineinfile:
         dest: "{{ DEFAULT_DOCKER_FILE }}"
@@ -249,13 +173,12 @@
 
     - name: replace data in template-override
       lineinfile:
-        dest: "{{ GIT_CLONE_PATH }}/contrib/template-override/ovs-dpdk.j2"
+        dest: "{{ GIT_CLONE_KOLLA }}/contrib/template-override/ovs-dpdk.j2"
         line: 'ENV RTE_DEVEL_BUILD="n"'
         insertafter: 'WORKDIR /dpdk'
         state: present
-
     - name : install kolla
-      command: pip install "{{ GIT_CLONE_PATH }}"
+      command: pip install "{{ GIT_CLONE_KOLLA }}"
 
     - name: install tox
       pip:
@@ -265,19 +188,18 @@
     - name : genconfig command
       command: tox -e genconfig
       args:
-         chdir: "{{ GIT_CLONE_PATH }}"
+         chdir: "{{ GIT_CLONE_KOLLA }}"
 
+    - name: Changes in ceilometer Docker file
+      blockinfile:
+       dest: "{{ CEILOMETER_FILE_PATH }}"
+       insertafter: "^(.*)as macros with context(.*)$"
+       block: |
+         RUN apt-get update
+         RUN apt-get install -y apache2
 
     - name: add kolla-build.conf
       copy:
          src: "{{BASE_FILE_PATH}}kolla-build.conf"
          dest: /etc/kolla/
          backup: yes
-
-
-#    - name: run start-registry command
-#      command: docker run -d -p 4000:5000 --restart=always --name registry  registry:2
-#
-#    - name: Push docker images into the registry
-#      ignore_errors: True
-#      command: kolla-build --base "{{ kolla_base }}" --type "{{ kolla_install }}" --registry "{{ DOCKER_REGISTRY_IP }}"  --push

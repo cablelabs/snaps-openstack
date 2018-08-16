@@ -40,14 +40,12 @@
       ignore_errors: True
     - name: cleanup-containers script
       shell: ./cleanup-containers
-      when: GIT_BRANCH == "stable/pike"      
       args:
        chdir: /etc/OpenStack/kolla-ansible/tools
        executable: /bin/bash
       ignore_errors: True
     - name: cleanup-hosts script
       shell: ./cleanup-host
-      when: GIT_BRANCH == "stable/pike"      
       args:
         chdir: /etc/OpenStack/kolla-ansible/tools
         executable: /bin/bash
@@ -60,6 +58,15 @@
     - lineinfile:
        destfile: /etc/default/docker
        line: '#DOCKER_OPTS="--dns 8.8.8.8 --dns 8.8.4.4"'
+    - find:
+        paths: "/etc/network/interfaces.d"
+        patterns: "br-ex.cfg*"
+      register: result
+    
+    - file:
+        path: "{{item.path}}"
+        state: absent
+      with_items: "{{ result.files }}"
 
     - name: remove the cloned folder
       file:
@@ -70,6 +77,11 @@
        state: absent
        regexp:  'configfs'
 
+    - name: remove the config folder
+      file:
+        state: absent
+        path: /etc/kolla/config
+      ignore_errors: True
     - lineinfile:
        destfile: /etc/modules
        state: absent
@@ -80,8 +92,14 @@
        state: absent
        regexp:  'uio_pci_generic'
 
+    - name: "Reboot if required"
+      shell: sleep 1 && shutdown -r now 'Reboot required'
+      become: true
+      async: 1
+      poll: 0
+      ignore_errors: true
 
-    - lineinfile:
-       destfile: /usr/local/share/kolla-ansible/ansible/group_vars/all.yml
-       state: absent
-       regexp:  'container_proxy: {}' 
+    - name: "Wait for reboot"
+      local_action: wait_for host={{ ansible_default_ipv4.address }} port=22 delay=10 state=started
+      become: false
+

@@ -61,7 +61,7 @@ def provision_preparation(proxy_dict, user_dict):
         return ret
 
 
-def clean_up_kolla(list_ip, git_branch, docker_registry, service_list,
+def clean_up_kolla(list_ip, docker_registry, service_list,
                    operation, pull_from_hub, host_storage_node_map,dpdk_enable):
     """
     This method is responsible for the cleanup of openstack services
@@ -73,7 +73,7 @@ def clean_up_kolla(list_ip, git_branch, docker_registry, service_list,
             list_ip, cleanup_hosts_pb, {
                 'PROXY_DATA_FILE': proxy_data_file,
                 'VARIABLE_FILE': variable_file,
-                'GIT_BRANCH': git_branch,'DPDK_ENABLE':dpdk_enable})
+                'DPDK_ENABLE':dpdk_enable})
         if ret != 0:
             logger.info('FAILED IN CLEANUP')
             exit(1)
@@ -133,8 +133,8 @@ def launch_provisioning_kolla(iplist, git_branch, kolla_tag, kolla_ansible_tag,
                               kolla_install, ext_sub, ext_gw, ip_pool_start,
                               ip_pool_end, operation,
                               host_cpu_map, reserve_memory, base_size, count,
-                              default, vxlan, pull_from_hub, host_storage_node_map,
-                              dpdk_enable):
+                              default, vxlan, pull_from_hub, host_storage_node_map, host_sriov_interface_node_map,
+							  dpdk_enable):
     if pull_from_hub != "yes":
         docker_opts = "--insecure-registry  " + docker_registry + ":" + str(
             docker_port)
@@ -298,59 +298,38 @@ def launch_provisioning_kolla(iplist, git_branch, kolla_tag, kolla_ansible_tag,
                   if ret_storage != 0:
                     logger.info("FAILED IN SETTING STORAGE")
                     exit(1)
+        
+        for node_ip in list_node:
+          for key,value in host_sriov_interface_node_map.iteritems():
+            if key is node_ip:
+               sriov_interface=value
+               multi_node_pb = pkg_resources.resource_filename(
+                   consts.KOLLA_PB_PKG,
+                   consts.MULTI_NODE_KOLLA_COMPUTE_YAML)
+               ret = apbl.launch_ansible_playbook(
+                 iplist, multi_node_pb, {
+                     'DOCKER_OPTS': docker_opts,
+                     'DOCKER_REGISTRY_IP': docker_registry_ip,
+                     'target': node_ip,
+                     'PROXY_DATA_FILE': proxy_data_file,
+                     'VARIABLE_FILE': variable_file,
+                     'BASE_FILE_PATH': consts.KOLLA_SOURCE_PATH,
+                     'SECOND_STORAGE': second_storage,
+                     'BASE_SIZE': base_size,
+                     'COUNT': count, 'GIT_BRANCH': git_branch,
+                     'KOLLA_TAG': kolla_tag,
+                     'KOLLA_ANSIBLE_TAG': kolla_ansible_tag,
+                     'DEFAULT': default, 'VXLAN': vxlan,
+                     'PULL_HUB': pull_from_hub,
+                     'SRIOV_INTERFACE': sriov_interface})
 
-        if git_branch.lower() == 'stable/newton':
-            for node_ip in list_node:
-                multi_node_pb = pkg_resources.resource_filename(
-                    consts.KOLLA_PB_PKG, consts.MULTI_NODE_KOLLA_COMPUTE_YAML)
-                ret = apbl.launch_ansible_playbook(
-                    iplist, multi_node_pb, {
-                        'DOCKER_OPTS': docker_opts,
-                        'DOCKER_REGISTRY_IP': docker_registry_ip,
-                        'target': node_ip,
-                        'PROXY_DATA_FILE': proxy_data_file,
-                        'VARIABLE_FILE': variable_file,
-                        'BASE_FILE_PATH': consts.KOLLA_SOURCE_PATH,
-                        'SECOND_STORAGE': second_storage,
-                        'BASE_SIZE': base_size, 'COUNT': count,
-                        'GIT_BRANCH': git_branch, 'KOLLA_TAG': kolla_tag,
-                        'KOLLA_ANSIBLE_TAG': kolla_ansible_tag,
-                        'DEFAULT': default, 'VXLAN': vxlan,
-                        'PULL_HUB': pull_from_hub})
-                if ret != 0:
-                    logger.info("FAILED IN COMPUTE")
-                    exit(1)
-                else:
-                    logger.info(
-                        "***********PLAYBOOK EXECUTED SUCCESSFULLY***********")
-        else:
-            for node_ip in list_node:
-                multi_node_pike_pb = pkg_resources.resource_filename(
-                    consts.KOLLA_PB_PKG,
-                    consts.MULTI_NODE_KOLLA_COMPUTE_YAML_PIKE)
-                ret = apbl.launch_ansible_playbook(
-                    iplist, multi_node_pike_pb, {
-                        'DOCKER_OPTS': docker_opts,
-                        'DOCKER_REGISTRY_IP': docker_registry_ip,
-                        'target': node_ip,
-                        'PROXY_DATA_FILE': proxy_data_file,
-                        'VARIABLE_FILE': variable_file,
-                        'BASE_FILE_PATH': consts.KOLLA_SOURCE_PATH,
-                        'SECOND_STORAGE': second_storage,
-                        'BASE_SIZE': base_size,
-                        'COUNT': count, 'GIT_BRANCH': git_branch,
-                        'KOLLA_TAG': kolla_tag,
-                        'KOLLA_ANSIBLE_TAG': kolla_ansible_tag,
-                        'DEFAULT': default, 'VXLAN': vxlan,
-                        'PULL_HUB': pull_from_hub})
-
-                if ret != 0:
-                    print(ret)
-                    logger.info("FAILED IN COMPUTE PIKE")
-                    exit(1)
-                else:
-                    logger.info(
-                        "***********PLAYBOOK EXECUTED SUCCESSFULLY***********")
+               if ret != 0:
+                  print(ret)
+                  logger.info("FAILED IN COMPUTE")
+                  exit(1)
+               else:
+                 logger.info(
+                   "***********PLAYBOOK EXECUTED SUCCESSFULLY***********")
 
         for controller_ip in list_controller:
             if len(list_storage) == 1:
@@ -361,52 +340,43 @@ def launch_provisioning_kolla(iplist, git_branch, kolla_tag, kolla_ansible_tag,
                         'target': controller_ip,
                         'VARIABLE_FILE': variable_file,
                         'BASE_FILE_PATH': consts.KOLLA_SOURCE_PATH})
-            if git_branch.lower() == 'stable/newton':
-                multi_node_pb = pkg_resources.resource_filename(
-                    consts.KOLLA_PB_PKG,
-                    consts.MULTI_NODE_KOLLA_CONTROLLER_YAML)
-                ret_controller = apbl.launch_ansible_playbook(
-                    iplist, multi_node_pb, {
-                        'target': controller_ip, 'DOCKER_OPTS': docker_opts,
-                        'DOCKER_REGISTRY_IP': docker_registry_ip,
-                        'kolla_base': kolla_base,
-                        'kolla_install': kolla_install,
-                        'PROXY_DATA_FILE': proxy_data_file,
-                        'VARIABLE_FILE': variable_file,
-                        'BASE_FILE_PATH': consts.KOLLA_SOURCE_PATH,
-                        'EXT_SUB': ext_sub, 'EXT_GW': ext_gw,
-                        'START_IP': ip_pool_start, 'END_IP': ip_pool_end,
-                        'DEFAULT': default, 'VXLAN': vxlan,
-                        'GIT_BRANCH': git_branch, 'KOLLA_TAG': kolla_tag,
-                        'KOLLA_ANSIBLE_TAG': kolla_ansible_tag,
-                        'PULL_HUB': pull_from_hub})
-                if ret_controller != 0:
-                    logger.info("FAILED IN CONROLLER")
-                    exit(1)
-            else:
-                multi_node_pike_pb = pkg_resources.resource_filename(
-                    consts.KOLLA_PB_PKG,
-                    consts.MULTI_NODE_KOLLA_CONTROLLER_YAML_PIKE)
-                ret_controller = apbl.launch_ansible_playbook(
-                    iplist, multi_node_pike_pb,
-                    {'target': controller_ip, 'DOCKER_OPTS': docker_opts,
-                     'DOCKER_REGISTRY_IP': docker_registry_ip,
-                     'kolla_base': kolla_base, 'kolla_install': kolla_install,
-                     'PROXY_DATA_FILE': proxy_data_file,
-                     'VARIABLE_FILE': variable_file,
-                     'BASE_FILE_PATH': consts.KOLLA_SOURCE_PATH,
-                     'EXT_SUB': ext_sub, 'EXT_GW': ext_gw,
-                     'START_IP': ip_pool_start, 'END_IP': ip_pool_end,
-                     'DEFAULT': default, 'VXLAN': vxlan,
-                     'GIT_BRANCH': git_branch, 'KOLLA_TAG': kolla_tag,
-                     'KOLLA_ANSIBLE_TAG': kolla_ansible_tag,
-                     'CHECK_VAR': check_var, 'PULL_HUB': pull_from_hub,
-                     'GET_TAG': get_tag})
+            for key,value in host_sriov_interface_node_map.iteritems():
+              if key is node_ip:
+                 sriov_interface=value
+                 nova_str = ""
+                 sriov_str = ""
+                    
+                 if sriov_interface is not None: 
+                   for iface in sriov_interface:
+                     nova_str = '{}{{"devname":"{}", "physical_network": "physnet1"}},'.format(nova_str,iface)
+                     sriov_str = '{}physnet1:{},'.format(sriov_str,iface) 
+                   sriov_str = sriov_str.rstrip(",")
+                   nova_str = "[" + nova_str.rstrip(",") + "]"
 
-                if ret_controller != 0:
-                    logger.info("FAILED IN CONROLLER PIKE")
-                    print(ret_controller)
-                    exit(1)
+            multi_node_pb = pkg_resources.resource_filename(
+                consts.KOLLA_PB_PKG,
+                consts.MULTI_NODE_KOLLA_CONTROLLER_YAML)
+            ret_controller = apbl.launch_ansible_playbook(
+                iplist, multi_node_pb,
+                {'target': controller_ip, 'DOCKER_OPTS': docker_opts,
+                 'DOCKER_REGISTRY_IP': docker_registry_ip,
+                 'kolla_base': kolla_base, 'kolla_install': kolla_install,
+                 'PROXY_DATA_FILE': proxy_data_file,
+                 'VARIABLE_FILE': variable_file,
+                 'BASE_FILE_PATH': consts.KOLLA_SOURCE_PATH,
+                 'EXT_SUB': ext_sub, 'EXT_GW': ext_gw,
+                 'START_IP': ip_pool_start, 'END_IP': ip_pool_end,
+                 'DEFAULT': default, 'VXLAN': vxlan,
+                 'GIT_BRANCH': git_branch, 'KOLLA_TAG': kolla_tag,
+                 'KOLLA_ANSIBLE_TAG': kolla_ansible_tag,
+                 'CHECK_VAR': check_var, 'PULL_HUB': pull_from_hub,
+                 'GET_TAG': get_tag, 'SRIOV_INTERFACE': sriov_interface,
+                 'SRIOV_STRING': sriov_str,'NOVA_STRING': nova_str})
+            if ret_controller != 0:
+                logger.info("FAILED IN CONTROLLER" )
+                print(ret_controller)
+                exit(1)
+
         for node_ip in list_node:
            if dpdk_enable!="yes":
               multi_node_pb = pkg_resources.resource_filename(
@@ -426,6 +396,18 @@ def launch_provisioning_kolla(iplist, git_branch, kolla_tag, kolla_ansible_tag,
                       "*********ISO NWK PLAYBOOK EXECUTED SUCCESSFULLY*********")
 
         for node_ip in list_compute:
+            for key,value in host_sriov_interface_node_map.iteritems():
+                if key is node_ip:
+                   sriov_interface=value
+                   nova_str = ""
+                   sriov_str = ""
+                   if sriov_interface is not None: 
+                       for iface in sriov_interface:
+                         nova_str = '{}{{"devname":"{}", "physical_network": "physnet1"}},'.format(nova_str,iface)
+                         sriov_str = '{}physnet1:{},'.format(sriov_str,iface)                         
+                       sriov_str = sriov_str.rstrip(",")
+                       nova_str = "[" + nova_str.rstrip(",") + "]"
+
             vcpu_pin = host_cpu_map.get(node_ip)
             memory = reserve_memory.get(node_ip)
             set_pin_pb = pkg_resources.resource_filename(
@@ -438,8 +420,9 @@ def launch_provisioning_kolla(iplist, git_branch, kolla_tag, kolla_ansible_tag,
                     'BASE_FILE_PATH': consts.KOLLA_SOURCE_PATH,
                     'vcpu_pin': vcpu_pin, 'memory': memory,
                     'DEFAULT': default, 'VXLAN': vxlan,
-                    'GIT_BRANCH': git_branch, 'KOLLA_TAG': kolla_tag,
+                    'KOLLA_TAG': kolla_tag,
                     'KOLLA_ANSIBLE_TAG': kolla_ansible_tag,
+                    'SRIOV_STRING': sriov_str,'NOVA_STRING': nova_str,
                     'CONTROLLER_IP': ip_control})
             if ret != 0:
                 logger.error(" FAILED IN COMPUTE")
@@ -457,53 +440,29 @@ def launch_provisioning_kolla(iplist, git_branch, kolla_tag, kolla_ansible_tag,
           logger.info("Failed in creating storage map")
           exit(1)
 
-        if git_branch.lower() == 'stable/newton':
-            single_node_pb = pkg_resources.resource_filename(
-                consts.KOLLA_PB_PKG, consts.SINGLE_NODE_KOLLA_YAML)
-            ret_all = apbl.launch_ansible_playbook(
-                list_all, single_node_pb, {
-                    'DOCKER_OPTS': docker_opts,
-                    'DOCKER_REGISTRY_IP': docker_registry_ip,
-                    'kolla_base': kolla_base, 'kolla_install': kolla_install,
-                    'PROXY_DATA_FILE': proxy_data_file,
-                    'VARIABLE_FILE': variable_file,
-                    'BASE_FILE_PATH': consts.KOLLA_SOURCE_PATH,
-                    'EXT_SUB': ext_sub, 'EXT_GW': ext_gw,
-                    'START_IP': ip_pool_start, 'END_IP': ip_pool_end,
-                    'SECOND_STORAGE': second_storage, 'BASE_SIZE': base_size,
-                    'COUNT': count, 'DEFAULT': default, 'VXLAN': vxlan,
-                    'GIT_BRANCH': git_branch, 'KOLLA_TAG': kolla_tag,
-                    'KOLLA_ANSIBLE_TAG': kolla_ansible_tag,
-                    'PULL_HUB': pull_from_hub})
-            if ret_all != 0:
-                logger.info("FAILED IN DEPLOYMENT")
-                exit(1)
-            else:
-                logger.info("SINGLE NODE COMPLETED")
+        single_node_pb = pkg_resources.resource_filename(
+            consts.KOLLA_PB_PKG, consts.SINGLE_NODE_KOLLA_YAML)
+        ret_all = apbl.launch_ansible_playbook(
+            list_all, single_node_pb, {
+                'DOCKER_OPTS': docker_opts,
+                'DOCKER_REGISTRY_IP': docker_registry_ip,
+                'kolla_base': kolla_base, 'kolla_install': kolla_install,
+                'PROXY_DATA_FILE': proxy_data_file,
+                'VARIABLE_FILE': variable_file,
+                'BASE_FILE_PATH': consts.KOLLA_SOURCE_PATH,
+                'EXT_SUB': ext_sub, 'EXT_GW': ext_gw,
+                'START_IP': ip_pool_start, 'END_IP': ip_pool_end,
+                'SECOND_STORAGE': second_storage, 'BASE_SIZE': base_size,
+                'COUNT': count, 'DEFAULT': default,
+                'VXLAN': vxlan, 'GIT_BRANCH': git_branch,
+                'KOLLA_TAG': kolla_tag,
+                'KOLLA_ANSIBLE_TAG': kolla_ansible_tag,
+                'PULL_HUB': pull_from_hub})
+        if ret_all != 0:
+            logger.info("FAILED IN DEPLOYMENT")
+            print(ret_all)
+            exit(1)
         else:
-            single_node_pike_pb = pkg_resources.resource_filename(
-                consts.KOLLA_PB_PKG, consts.SINGLE_NODE_KOLLA_YAML_PIKE)
-            ret_all = apbl.launch_ansible_playbook(
-                list_all, single_node_pike_pb, {
-                    'DOCKER_OPTS': docker_opts,
-                    'DOCKER_REGISTRY_IP': docker_registry_ip,
-                    'kolla_base': kolla_base, 'kolla_install': kolla_install,
-                    'PROXY_DATA_FILE': proxy_data_file,
-                    'VARIABLE_FILE': variable_file,
-                    'BASE_FILE_PATH': consts.KOLLA_SOURCE_PATH,
-                    'EXT_SUB': ext_sub, 'EXT_GW': ext_gw,
-                    'START_IP': ip_pool_start, 'END_IP': ip_pool_end,
-                    'SECOND_STORAGE': second_storage, 'BASE_SIZE': base_size,
-                    'COUNT': count, 'DEFAULT': default,
-                    'VXLAN': vxlan, 'GIT_BRANCH': git_branch,
-                    'KOLLA_TAG': kolla_tag,
-                    'KOLLA_ANSIBLE_TAG': kolla_ansible_tag,
-                    'PULL_HUB': pull_from_hub})
-            if ret_all != 0:
-                logger.info("FAILED IN DEPLOYMENT PIKE")
-                print(ret_all)
-                exit(1)
-            else:
-                logger.info("SINGLE NODE COMPLETED PIKE")
+            logger.info("SINGLE NODE COMPLETED")
 
     logger.info("PROCESS COMPLETE")
