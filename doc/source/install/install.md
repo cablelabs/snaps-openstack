@@ -62,7 +62,7 @@ Additional services:
 
 
 ### 1.5 OpenStack IPv6 support under QUEENS release
- OpenStack Queens release supports IPV6 functionality for OpenStack(Current support is availbale only for VM to VM networking)
+ OpenStack Queens release supports IPV6 functionality for OpenStack(Current support is available only for VM to VM networking)
 
 
 ## 2 Environment Prerequisites
@@ -96,7 +96,7 @@ The current release of SNAPS-OpenStack is tested on the following platform.
 | Operating System | Ubuntu 16.04 |
 | Scripting |  Python 2.7 |
 | Framework | Ansible 2.3.0.0 |
-| OpenStack | Queens |
+| OpenStack | Pike or Queens |
 
 ## 2.3 Pre-requsites Requirements
 
@@ -107,8 +107,8 @@ The current release of SNAPS-OpenStack is tested on the following platform.
 - All host machines are connected to Build Server (machine running
   SNAPS-OpenStack) and have Internet access connectivity via data interface.
 - For dpdk data interface should be a dpdk enabled nic.
-- For creating a dpdk enabled VM, user is required to configure flavour property
-  "mem_page_size" to large/any
+- For creating a dpdk enabled VM, user is required to configure flavor property
+  "hw:mem_page_size" to large
 
 > Note: Build Server should have http/https and ftp proxy if node is
 > behind corporate firewall. Set the http/https proxy for apt.
@@ -125,6 +125,9 @@ storage nodes.
 
 #### OpenStack:
 
+The trunk is currently Queens release. If you want to deploy Pike release, please
+checkout stable/pike branch of SNAPS-OpenStack.
+
 Parameters defined in this section allow user to specify deployment type for
 OpenStack services and OpenStack version. Configuration parameters defined in
 this section are explained below.
@@ -132,7 +135,7 @@ this section are explained below.
 | Parameter | Optionality | Description |
 | --------- | ----------- | ----------- |
 | deployment_type | N | OpenStack deployment type `Kolla`. |
-| git_branch | N | OpenStack release to clone (In current release only Queens is supported so it will be `stable/queens`). |
+| git_branch | N | OpenStack release to clone (Use `stable/queens` for trunk, or `stable/pike` for stable/pike branch). |
 | kolla_tag | Y | kolla package release to clone through kolla_tag value. |
 | kolla_ansible_tag | Y | kolla-ansible package release to clone through kolla_ansible_tag value. |
 
