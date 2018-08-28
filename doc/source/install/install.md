@@ -58,11 +58,11 @@ Additional services:
 •	Cinder
 •	Ceph
 • SRIOV
-• dpdk
+• DPDK
 
 
 ### 1.5 OpenStack IPv6 support under QUEENS release
- OpenStack Queens release supports IPV6 functionality for OpenStack(Current support is availbale only for VM to VM networking)
+ OpenStack Queens release supports IPV6 functionality for OpenStack(Current support is available only for VM to VM networking)
 
 
 ## 2 Environment Prerequisites
@@ -96,7 +96,7 @@ The current release of SNAPS-OpenStack is tested on the following platform.
 | Operating System | Ubuntu 16.04 |
 | Scripting |  Python 2.7 |
 | Framework | Ansible 2.3.0.0 |
-| OpenStack | Queens |
+| OpenStack | Pike or Queens |
 
 ## 2.3 Pre-requsites Requirements
 
@@ -106,9 +106,9 @@ The current release of SNAPS-OpenStack is tested on the following platform.
   least 2 interfaces (one for management and one for data).
 - All host machines are connected to Build Server (machine running
   SNAPS-OpenStack) and have Internet access connectivity via data interface.
-- For dpdk data interface should be a dpdk enabled nic.
-- For creating a dpdk enabled VM, user is required to configure flavour property
-  "mem_page_size" to large/any
+- For DPDK data interface should be a DPDK capable NIC.
+- For creating a DPDK enabled VM, user is required to configure flavor property
+  "hw:mem_page_size" to "large"
 
 > Note: Build Server should have http/https and ftp proxy if node is
 > behind corporate firewall. Set the http/https proxy for apt.
@@ -125,6 +125,9 @@ storage nodes.
 
 #### OpenStack:
 
+The trunk is currently Queens release. If you want to deploy Pike release, please
+checkout stable/pike branch of SNAPS-OpenStack.
+
 Parameters defined in this section allow user to specify deployment type for
 OpenStack services and OpenStack version. Configuration parameters defined in
 this section are explained below.
@@ -132,7 +135,7 @@ this section are explained below.
 | Parameter | Optionality | Description |
 | --------- | ----------- | ----------- |
 | deployment_type | N | OpenStack deployment type `Kolla`. |
-| git_branch | N | OpenStack release to clone (In current release only Queens is supported so it will be `stable/queens`). |
+| git_branch | N | OpenStack release to clone (Use `stable/queens` for trunk, or `stable/pike` for stable/pike branch). |
 | kolla_tag | Y | kolla package release to clone through kolla_tag value. |
 | kolla_ansible_tag | Y | kolla-ansible package release to clone through kolla_ansible_tag value. |
 
@@ -232,7 +235,7 @@ below.
     <td/>
     <td>type</td>
     <td>Y</td>
-    <td>Traffic type (<code>tennant</code>).</td>
+    <td>Traffic type (<code>tenant</code>).</td>
   </tr>
   <tr>
     <td/>
@@ -244,7 +247,7 @@ below.
     <td/>
     <td colspan="2">second_storage</td>
     <td>Y</td>
-    <td>List of Mount point of secondary storage for ceph. Has to be present if the node_type is "storage"</td>
+    <td>List of mount point of secondary storage for ceph. Has to be present if the node_type is "storage"</td>
   </tr>
   <tr>
     <td/>
@@ -342,7 +345,7 @@ this section are explained below.
 | default | N | Default MTU size to be used on provider networks.|
 | vxlan | N | MTU size to be used on overlay networks.|
 
-> Note: Default mtu size value should be at least 50 greater than vxlan mtu size.
+> Note: Default mtu size value should be greater than or equal to vxlan mtu size.
 
 #### proxies
 
@@ -387,7 +390,7 @@ This section is required only for Kolla based OpenStack deployment.
 | --------- | ----------- | ----------- |
 | base_distro | N | Should be `ubuntu`. |
 | install_type | N | Should be `source`. |
-| keepalived_virtual_router_id | N | Should be kept as `10`. |
+| keepalived_virtual_router_id | N | Should be a unique number for each deployment within a network domain. |
 | internal_vip_address | N | Any unused IP address in the management network. |
 | kolla_registry | N | IP of node where docker registry has to be created. In current version it should be controller node IP. |
 | kolla_registry_port | N | Port to be used for docker registry. |
@@ -571,7 +574,8 @@ sudo python <repo_dir>/iaas_launch.py -f <repo_dir>/conf/openstack/kolla/deploym
 ```
 
 This will install Kolla OpenStack service on host machines. Your OpenStack
-installation will start and will get completed in ~40 minutes.
+installation will start and will get completed in about an hour.
+>Note: Since the deployment takes long, you probably want to run it within a screen session.
 
 ### 4.2 VLAN Tenant Network Configuration
 
@@ -635,10 +639,10 @@ Or Clean up previous deployment along with docker repository:
 ```
 sudo python <repo_dir>/iaas_launch.py -f <repo_dir>/conf/openstack/kolla/deployment.yaml -drc
 ```
->Note: The cleanup options (-c and -drc) also remove the br-ex configuration from the  
-/etc/network/interfaces.d/ folder.  
-This step will reboot each target server when it is done. Wait a few minutes then ping 
-and/or ssh each target server to verify it is back up.
+>Note: This step will reboot each target server when it is done. Wait a few minutes then ping 
+and/or ssh each target server to verify it is back up. In addition, log into each target server
+to verify that docker processes and images are cleaned up. If not, clean up the docker processes
+and images manually to prevent them from causing re-deployment failures.
  
 Last, re-install OpenStack. If docker repository exists:
 
