@@ -59,6 +59,7 @@ Additional services:
 •	Ceph
 • SRIOV
 • DPDK
+• Designate
 
 
 ### 1.5 OpenStack IPv6 support under QUEENS release
@@ -380,6 +381,7 @@ services:
   - ceph
   - sriov
   - dpdk
+  - Designate
 ```
 
 #### kolla
