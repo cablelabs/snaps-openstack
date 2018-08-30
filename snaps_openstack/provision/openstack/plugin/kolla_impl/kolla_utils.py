@@ -398,6 +398,12 @@ def __create_global(config, git_branch, pull_from_hub):
             if services == 'magnum':
                 filedata = filedata.replace('enable_magnum: "no"',
                                             'enable_magnum: "yes"')
+            if services == 'designate':
+                filedata = filedata.replace('#enable_designate: "no"',
+                                            'enable_designate: "yes"')
+                filedata = filedata.replace('#enable_horizon_designate: "{{ enable_designate | bool }}"',
+                                            'enable_horizon_designate: "{{ enable_designate | bool }}"')
+
             if services == 'ceilometer':
                 filedata = filedata.replace('#enable_ceilometer: "no"',
                                             'enable_ceilometer: "yes"')
