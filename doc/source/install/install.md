@@ -547,6 +547,57 @@ below.
   </tr>
 </table>
 
+### 3.4 var.yaml (Single NIC settings)
+
+Configuration file used by SNAPS-OpenStack for single NIC deployemnt.
+
+#### TASKS
+
+Parameters defined in this section allows user to specify pre and post deployment tasks
+(Single NIC). Configuration parameters defined in this section are explained
+below.
+
+<table>
+  <tr>
+    <th colspan="3">Parameter</th>
+    <th>Optionality</th>
+    <th>Description</th>
+  </tr>
+  <tr>
+    <td colspan="3">name</td>
+    <td>N</td>
+    <td>Should be <code>pre-post</code>.</td>
+  </tr>
+  <tr>
+    <td colspan="4">host</td>
+    <td>Define this set of parameters for each host machine (A separate host section should be defined for each host machine).</td>
+  </tr>
+  <tr>
+    <td/>
+    <td colspan="2">ip</td>
+    <td>Y</td>
+    <td>IP of Management network.</td>
+  </tr>
+  <tr>
+    <td/>
+    <td colspan="2">node_type</td>
+    <td>N</td>
+    <td>User can choose node type controller/compute.</td>
+  </tr>
+  <tr>
+    <td/>
+    <td colspan="2">primary_interface</td>
+    <td>N</td>
+    <td>Name of primary interfaces.</td>
+  </tr>
+  <tr>
+    <td/>
+    <td colspan="2">target_interface</td>
+    <td>N</td>
+    <td>Name of the veth pairs to be created.</td>
+  </tr>
+</table>
+
 ## 4 Installation Steps
 
 ### 4.1 Fresh OpenStack Installation
@@ -610,6 +661,34 @@ Run `network_config.py` as shown below:
 
 ```
 sudo python <repo_dir>/network_config.py -f <repo_dir>/snaps_openstack/utilities/var.yaml -mtu
+```
+
+### 4.4 Settings for Single NIC deployment
+
+#### Step 1
+
+Go to `<repo_dir>/snaps_openstack/utilities/` directory.
+
+Define Single NIC configurations for all hosts in `var.yaml` file under pre-post task.
+
+#### Step 2
+
+Run `network_config.py` as shown below:
+
+```
+sudo python <repo_dir>/network_config.py -f <repo_dir>/snaps_openstack/utilities/var.yaml -preNic
+```
+
+#### Step 3
+
+Install fresh openstack using physical interface and veth0 as management and data interfaces respectively. (Please Refer 4.1)
+
+#### Step 2
+
+Run `network_config.py` as shown below:
+
+```
+sudo python <repo_dir>/network_config.py -f <repo_dir>/snaps_openstack/utilities/var.yaml -postNic
 ```
 
 ## 5 Cleanup and Troubleshooting
@@ -715,4 +794,13 @@ exit
 Exit from mariadb container interactive mode:
 ```
 exit
+```
+#### 5.3.2 Single NIC Cleanup
+
+Before cleaning the opesntack setup user needs to clean the single NIC configurations.
+
+Run `network_config.py` as shown below:
+
+```
+sudo python <repo_dir>/network_config.py -f <repo_dir>/snaps_openstack/utilities/var.yaml -cleanNic
 ```
