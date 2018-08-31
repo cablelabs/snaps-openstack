@@ -381,7 +381,7 @@ services:
   - ceph
   - sriov
   - dpdk
-  - Designate
+  - designate
 ```
 
 #### kolla
