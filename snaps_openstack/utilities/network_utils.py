@@ -205,7 +205,7 @@ def postNic(task):
         ansible_command = "ansible-playbook " + post_pb \
                               + " --extra-vars=\'{\"target\": \"" \
                               + ip + "\",\"node_type\":\"" + node_type \
-                              +"\",\"interface\": \"" + primary_interface \
+                              + "\",\"interface\": \"" + primary_interface \
                               + "\"}\'"
         logger.info(ansible_command)
         ret = os.system(ansible_command)
@@ -222,7 +222,7 @@ def cleanNic(task):
                 'viface_clean_play.yaml')
         ansible_command = "ansible-playbook " + clean_pb \
                               + " --extra-vars=\'{\"target\": \"" \
-                              + ip +"\",\"node_type\":\"" + node_type \
+                              + ip + "\",\"node_type\":\"" + node_type \
                               +"\",\"interface\": \"" + primary_interface \
                               + "\"}\'"
         logger.info(ansible_command)
