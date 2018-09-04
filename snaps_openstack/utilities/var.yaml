@@ -70,6 +70,6 @@ TASKS:
        target_interface: "veth1"
      - 
        ip: ""
+       node_type: "compute"
        primary_interface: ""
        target_interface: "veth1"
-       node_type: "compute"
