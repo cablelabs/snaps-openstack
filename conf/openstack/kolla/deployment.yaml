@@ -200,6 +200,7 @@ openstack:
     - tacker
     - sriov
     - dpdk
+    - designate
   kolla:
      base_distro: "ubuntu"
      install_type: "source"
