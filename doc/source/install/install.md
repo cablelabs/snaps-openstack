@@ -549,7 +549,7 @@ below.
 
 ### 3.4 var.yaml (Single NIC settings)
 
-Configuration file used by SNAPS-OpenStack for single NIC deployemnt.
+Configuration file used by SNAPS-OpenStack for single NIC deployment.
 
 #### TASKS
 
@@ -681,7 +681,7 @@ sudo python <repo_dir>/network_config.py -f <repo_dir>/snaps_openstack/utilities
 
 #### Step 3
 
-Install fresh openstack using physical interface and veth0 as management and data interfaces respectively. (Please Refer 4.1)
+Install fresh openstack using physical interface and veth0 as management and data interfaces respectively. (Please refer to 4.1)
 
 #### Step 2
 
@@ -797,7 +797,7 @@ exit
 ```
 #### 5.3.2 Single NIC Cleanup
 
-Before cleaning the opesntack setup user needs to clean the single NIC configurations.
+Before cleaning the opesntack setup user needs to clean up the single NIC configurations.
 
 Run `network_config.py` as shown below:
 
