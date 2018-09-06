@@ -442,6 +442,20 @@
          scheduler_available_filters = nova.scheduler.filters.all_filters
       when: enable_neutron_sriov == "yes" and CHECK_VAR == "absent"
 
+- hosts: "{{ active_controller }}"
+  become: true
+  vars_files:
+    - "{{ PROXY_DATA_FILE }}"
+    - "{{ VARIABLE_FILE }}"
+    - "{{BASE_FILE_PATH}}globals.yml"
+    - "{{BASE_FILE_PATH}}netvars.yml"
+
+  environment:
+    http_proxy: "{{ http_proxy }}"
+    https_proxy: "{{ https_proxy }}"
+    no_proxy: "{{ no_proxy }}"
+
+  tasks:
     - name: kolla generate passwords
       command: kolla-genpwd
 

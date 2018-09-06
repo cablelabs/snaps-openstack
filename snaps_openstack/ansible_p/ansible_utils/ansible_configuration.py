@@ -260,20 +260,22 @@ def launch_provisioning_kolla(iplist, git_branch, kolla_tag, kolla_ansible_tag,
         if ret != 0:
             logger.info('FAILED IN SETTING DOCKER REGISTRY')
             exit(1)
-
-    copy_key_pb = pkg_resources.resource_filename(
-        consts.KOLLA_PB_PKG, consts.KOLLA_COPY_KEY)
-    apbl.launch_ansible_playbook(
-        iplist, copy_key_pb, {
-            'target': ip_control, 'PROXY_DATA_FILE': proxy_data_file,
-            'VARIABLE_FILE': variable_file})
-    for key_ip in iplist:
-        push_key_pb = pkg_resources.resource_filename(
-            consts.KOLLA_PB_PKG, consts.KOLLA_PUSH_KEY)
+    for controller in list_controller:
+        print "copy key from raman"
+        print controller
+        copy_key_pb = pkg_resources.resource_filename(
+            consts.KOLLA_PB_PKG, consts.KOLLA_COPY_KEY)
         apbl.launch_ansible_playbook(
-            iplist, push_key_pb, {
-                'target': key_ip, 'PROXY_DATA_FILE': proxy_data_file,
+            iplist, copy_key_pb, {
+                'target': controller, 'PROXY_DATA_FILE': proxy_data_file,
                 'VARIABLE_FILE': variable_file})
+        for key_ip in iplist:
+            push_key_pb = pkg_resources.resource_filename(
+                consts.KOLLA_PB_PKG, consts.KOLLA_PUSH_KEY)
+            apbl.launch_ansible_playbook(
+                iplist, push_key_pb, {
+                    'target': key_ip, 'PROXY_DATA_FILE': proxy_data_file,
+                    'VARIABLE_FILE': variable_file})
 
     if not list_all:
         logger.info(
@@ -330,52 +332,51 @@ def launch_provisioning_kolla(iplist, git_branch, kolla_tag, kolla_ansible_tag,
                else:
                  logger.info(
                    "***********PLAYBOOK EXECUTED SUCCESSFULLY***********")
-
-        for controller_ip in list_controller:
-            if len(list_storage) == 1:
-                ceph_pb = pkg_resources.resource_filename(
-                    consts.KOLLA_PB_PKG, consts.KOLLA_CEPH_SETUP)
-                apbl.launch_ansible_playbook(
-                    iplist, ceph_pb, {
-                        'target': controller_ip,
-                        'VARIABLE_FILE': variable_file,
-                        'BASE_FILE_PATH': consts.KOLLA_SOURCE_PATH})
-            for key,value in host_sriov_interface_node_map.iteritems():
-              if key is node_ip:
-                 sriov_interface=value
-                 nova_str = ""
-                 sriov_str = ""
-                    
-                 if sriov_interface is not None: 
-                   for iface in sriov_interface:
-                     nova_str = '{}{{"devname":"{}", "physical_network": "physnet1"}},'.format(nova_str,iface)
-                     sriov_str = '{}physnet1:{},'.format(sriov_str,iface) 
-                   sriov_str = sriov_str.rstrip(",")
-                   nova_str = "[" + nova_str.rstrip(",") + "]"
-
-            multi_node_pb = pkg_resources.resource_filename(
-                consts.KOLLA_PB_PKG,
-                consts.MULTI_NODE_KOLLA_CONTROLLER_YAML)
-            ret_controller = apbl.launch_ansible_playbook(
-                iplist, multi_node_pb,
-                {'target': controller_ip, 'DOCKER_OPTS': docker_opts,
-                 'DOCKER_REGISTRY_IP': docker_registry_ip,
-                 'kolla_base': kolla_base, 'kolla_install': kolla_install,
-                 'PROXY_DATA_FILE': proxy_data_file,
-                 'VARIABLE_FILE': variable_file,
-                 'BASE_FILE_PATH': consts.KOLLA_SOURCE_PATH,
-                 'EXT_SUB': ext_sub, 'EXT_GW': ext_gw,
-                 'START_IP': ip_pool_start, 'END_IP': ip_pool_end,
-                 'DEFAULT': default, 'VXLAN': vxlan,
-                 'GIT_BRANCH': git_branch, 'KOLLA_TAG': kolla_tag,
-                 'KOLLA_ANSIBLE_TAG': kolla_ansible_tag,
-                 'CHECK_VAR': check_var, 'PULL_HUB': pull_from_hub,
-                 'GET_TAG': get_tag, 'SRIOV_INTERFACE': sriov_interface,
-                 'SRIOV_STRING': sriov_str,'NOVA_STRING': nova_str})
-            if ret_controller != 0:
-                logger.info("FAILED IN CONTROLLER" )
-                print(ret_controller)
-                exit(1)
+#        for controller_ip in list_controller:
+        if len(list_storage) == 1:
+            ceph_pb = pkg_resources.resource_filename(
+                consts.KOLLA_PB_PKG, consts.KOLLA_CEPH_SETUP)
+            apbl.launch_ansible_playbook(
+                iplist, ceph_pb, {
+                    'target': controller_ip,
+                    'VARIABLE_FILE': variable_file,
+                    'BASE_FILE_PATH': consts.KOLLA_SOURCE_PATH})
+        for key,value in host_sriov_interface_node_map.iteritems():
+          if key is node_ip:
+             sriov_interface=value
+             nova_str = ""
+             sriov_str = ""
+                
+             if sriov_interface is not None: 
+               for iface in sriov_interface:
+                 nova_str = '{}{{"devname":"{}", "physical_network": "physnet1"}},'.format(nova_str,iface)
+                 sriov_str = '{}physnet1:{},'.format(sriov_str,iface) 
+               sriov_str = sriov_str.rstrip(",")
+               nova_str = "[" + nova_str.rstrip(",") + "]"
+ 
+        multi_node_pb = pkg_resources.resource_filename(
+            consts.KOLLA_PB_PKG,
+            consts.MULTI_NODE_KOLLA_CONTROLLER_YAML)
+        ret_controller = apbl.launch_ansible_playbook(
+            iplist, multi_node_pb,
+            {'target': list_controller, 'DOCKER_OPTS': docker_opts,
+             'DOCKER_REGISTRY_IP': docker_registry_ip,
+             'kolla_base': kolla_base, 'kolla_install': kolla_install,
+             'PROXY_DATA_FILE': proxy_data_file,
+             'VARIABLE_FILE': variable_file,
+             'BASE_FILE_PATH': consts.KOLLA_SOURCE_PATH,
+             'EXT_SUB': ext_sub, 'EXT_GW': ext_gw,
+             'START_IP': ip_pool_start, 'END_IP': ip_pool_end,
+             'DEFAULT': default, 'VXLAN': vxlan,
+             'GIT_BRANCH': git_branch, 'KOLLA_TAG': kolla_tag,
+             'KOLLA_ANSIBLE_TAG': kolla_ansible_tag,
+             'CHECK_VAR': check_var, 'PULL_HUB': pull_from_hub,
+             'GET_TAG': get_tag, 'SRIOV_INTERFACE': sriov_interface,
+             'SRIOV_STRING': sriov_str,'NOVA_STRING': nova_str,'active_controller':list_controller[0]})
+        if ret_controller != 0:
+            logger.info("FAILED IN CONTROLLER" )
+            print(ret_controller)
+            exit(1)
 
         for node_ip in list_node:
            if dpdk_enable!="yes":
@@ -423,7 +424,7 @@ def launch_provisioning_kolla(iplist, git_branch, kolla_tag, kolla_ansible_tag,
                     'KOLLA_TAG': kolla_tag,
                     'KOLLA_ANSIBLE_TAG': kolla_ansible_tag,
                     'SRIOV_STRING': sriov_str,'NOVA_STRING': nova_str,
-                    'CONTROLLER_IP': ip_control})
+                    'CONTROLLER_IP': list_controller[0]})
             if ret != 0:
                 logger.error(" FAILED IN COMPUTE")
                 exit(1)
