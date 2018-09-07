@@ -1,0 +1,19 @@
+---
+- hosts: "{{ target }}"
+  tasks:
+   - name: Remove Script file
+     shell: rm /etc/network/veth.sh
+     ignore_errors: True
+   - name: Edit interface file
+     lineinfile:
+       dest: /etc/network/interfaces
+       state: present
+       regexp: '^post-up'
+       line: ''      
+   - name: Removing port from linux bridge
+     shell: brctl delif br-ex '{{ interface }}';systemctl restart networking
+     when: node_type == "controller"
+   - name: Removing port from OVS bridge
+     shell: docker exec  $(docker ps -a| grep switchd| awk {'print $1'}) ovs-vsctl del-port br-ex  '{{ interface }}';ifconfig br-ex 0.0.0.0; systemctl restart networking
+     when: node_type == "compute"
+
