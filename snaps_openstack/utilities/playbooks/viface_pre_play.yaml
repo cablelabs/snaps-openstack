@@ -1,0 +1,21 @@
+---
+- hosts: "{{ target }}"
+  tasks:
+   - name: install bridge-utils
+     shell: sudo apt-get install bridge-utils;
+     ignore_errors: True
+   - name: creating veth script file
+     file:
+       path: /etc/network/veth.sh
+       state: touch
+       mode: 0777
+   - lineinfile:
+        dest: /etc/network/veth.sh
+       # line: 'ip link add type "{{ veth_name }}";ip link set dev "{{ veth_name }}"0 up;ip link set dev "{{ veth_name }}"1 up;brctl addbr uplinkbridge;brctl addif uplinkbridge "{{ veth_name }}"0;ip link set dev uplinkbridge up;'
+        line: 'ip link add veth0 type veth peer name "{{ target_interface }}";ip link set dev veth0 up;ip link set dev "{{ target_interface }}" up;brctl addbr uplinkbridge;brctl addif uplinkbridge veth0;ip link set dev uplinkbridge up;'
+   - name: Editing interface file
+     lineinfile:
+        dest: /etc/network/interfaces
+        line: 'post-up /etc/network/veth.sh'
+   - name: restarting networks
+     command: systemctl restart networking

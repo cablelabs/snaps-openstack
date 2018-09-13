@@ -83,6 +83,42 @@ def __main(arguments):
                         logger.info('Completed operation successfully')
                     else:
                         logger.info('Error while performing operation')
+        if arguments.preNic is not ARG_NOT_SET:
+            for task in config.get("TASKS"):
+                if task.get("name") == "pre-post":
+                    logger.info("Performing Task " + task.get(
+                        'name') + " with arguments")
+                    logger.info("--pre-post")
+                    network_utils.add_ansible_hosts(task.get("HOSTS"))
+                    ret = network_utils.preNic(task)
+                    if ret == 0:
+                        logger.info('Completed operation successfully')
+                    else:
+                        logger.info('Error while performing operation')
+        if arguments.postNic is not ARG_NOT_SET:
+            for task in config.get("TASKS"):
+                if task.get("name") == "pre-post":
+                    logger.info("Performing Task " + task.get(
+                        'name') + " with arguments")
+                    logger.info("--pre-post")
+                    network_utils.add_ansible_hosts(task.get("HOSTS"))
+                    ret = network_utils.postNic(task)
+                    if ret == 0:
+                        logger.info('Completed operation successfully')
+                    else:
+                        logger.info('Error while performing operation')
+        if arguments.cleanNic is not ARG_NOT_SET:
+            for task in config.get("TASKS"):
+                if task.get("name") == "pre-post":
+                    logger.info("Performing Task " + task.get(
+                        'name') + " with arguments")
+                    logger.info("--pre-post")
+                    network_utils.add_ansible_hosts(task.get("HOSTS"))
+                    ret = network_utils.cleanNic(task)
+                    if ret == 0:
+                        logger.info('Completed operation successfully')
+                    else:
+                        logger.info('Error while performing operation')
 
     except Exception as e:
         logger.error(
@@ -117,6 +153,15 @@ if __name__ == '__main__':
     parser.add_argument(
         '-mtu', '--mtu', dest='mtu', nargs='?', default=ARG_NOT_SET,
         help='When used, sets the mtu size on nic')
+    parser.add_argument(
+        '-preNic', '--preNic', dest='preNic', nargs='?', default=ARG_NOT_SET,
+        help='When used, sets the pre play for single nic support')
+    parser.add_argument(
+        '-postNic', '--postNic', dest='postNic', nargs='?', default=ARG_NOT_SET,
+        help='When used, sets the post play for single nic support')
+    parser.add_argument(
+        '-cleanNic', '--cleanNic', dest='cleanNic', nargs='?', default=ARG_NOT_SET,
+        help='When used, cleanup of single nic support')
     args = parser.parse_args()
 
     if (args.tenant_vlan is ARG_NOT_SET
