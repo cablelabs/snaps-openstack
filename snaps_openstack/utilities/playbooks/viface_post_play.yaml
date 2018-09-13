@@ -1,0 +1,32 @@
+---
+- hosts: '{{ target }}'
+  become: yes
+  become_user: root
+# vars_files:
+#  vars:
+  tasks:
+   - name: get the default gateway of machine
+     shell: ip route show | grep default|awk '{print $3}'
+     register: gateway
+   - debug:
+       var: gateway.stdout_lines[0]
+   - name: Editing script file for controller
+     lineinfile:
+        dest: /etc/network/veth.sh
+        line: 'brctl addif uplinkbridge "{{ interface }}";ip addr add "{{ target }}"/24 dev uplinkbridge;ip addr del "{{ target }}"/24 dev "{{ interface }}";route add default gw "{{ gateway.stdout_lines[0] }}" uplinkbridge;ifconfig "{{ interface }}" "{{ target }}"/24;'
+     when:  node_type  == "controller"
+   - name: Editing script file for compute
+     lineinfile:
+        dest: /etc/network/veth.sh
+        line: "(sleep 90;echo 'starting ovs config' ip a a '{{ target }}'/24 dev br-ex;docker exec -i $(docker ps -a| grep switchd| awk {'print $1'}) ovs-vsctl add-port br-ex '{{ interface }}';ifconfig br-ex  up;route add default gw '{{ gateway.stdout_lines[0] }}' br-ex;ifconfig '{{ interface }}' 0.0.0.0;echo 'ending ovs config')& "
+     when:  node_type == "compute"
+   
+   - name: "Reboot if required"
+     shell: sleep 1 && shutdown -r now 'Reboot required'
+     become: true
+     async: 1
+     poll: 0
+     ignore_errors: true
+   - name: waiting for server to come back
+     local_action: wait_for host={{ target }} port=22 state=started delay=10 
+

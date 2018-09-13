@@ -177,3 +177,54 @@ def mtu(task):
         ret = os.system(ansible_command_restart)
 
     return ret
+def preNic(task):
+    ret = None
+    for host in task.get("HOSTS"):
+        ip = host.get("ip")
+        primary_interface = host.get("primary_interface")
+        target_interface = host.get("target_interface")
+        pre_pb = pkg_resources.resource_filename(
+                'snaps_openstack.utilities.playbooks',
+                'viface_pre_play.yaml')
+        ansible_command = "ansible-playbook " + pre_pb \
+                              + " --extra-vars=\'{\"target\": \"" \
+                              + ip + "\",\"target_interface\": \"" + target_interface + "\"}\'"
+        logger.info(ansible_command)
+        ret = os.system(ansible_command)
+    return ret
+def postNic(task):
+    ret = None
+    for host in task.get("HOSTS"):
+        ip = host.get("ip")
+        primary_interface = host.get("primary_interface")
+        target_interface = host.get("target_interface")
+        node_type = host.get("node_type")
+        post_pb = pkg_resources.resource_filename(
+                'snaps_openstack.utilities.playbooks',
+                'viface_post_play.yaml')
+        ansible_command = "ansible-playbook " + post_pb \
+                              + " --extra-vars=\'{\"target\": \"" \
+                              + ip + "\",\"node_type\":\"" + node_type \
+                              + "\",\"interface\": \"" + primary_interface \
+                              + "\"}\'"
+        logger.info(ansible_command)
+        ret = os.system(ansible_command)
+    return ret
+def cleanNic(task):
+    ret = None
+    for host in task.get("HOSTS"):
+        ip = host.get("ip")
+        primary_interface = host.get("primary_interface")
+        target_interface = host.get("target_interface")
+        node_type = host.get("node_type")
+        clean_pb = pkg_resources.resource_filename(
+                'snaps_openstack.utilities.playbooks',
+                'viface_clean_play.yaml')
+        ansible_command = "ansible-playbook " + clean_pb \
+                              + " --extra-vars=\'{\"target\": \"" \
+                              + ip + "\",\"node_type\":\"" + node_type \
+                              +"\",\"interface\": \"" + primary_interface \
+                              + "\"}\'"
+        logger.info(ansible_command)
+        ret = os.system(ansible_command)
+    return ret
