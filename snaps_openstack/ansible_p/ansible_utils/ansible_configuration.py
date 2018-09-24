@@ -241,8 +241,8 @@ def launch_provisioning_kolla(iplist, git_branch, kolla_tag, kolla_ansible_tag,
     if operation is "deployregistry" and pull_from_hub != "yes":
         logger.info('++++++++++++++++++++++++++++++++++++++++++++++++++++')
         logger.info(
-            'SETUP REGISTRY:It will take bit time to setup your registry with '
-            'comipled images')
+            'SETUP REGISTRY:It will take a bit time to setup your registry with '
+            'compiled images')
 
         set_registry_pb = pkg_resources.resource_filename(
             consts.KOLLA_PB_PKG, consts.KOLLA_SET_REGISTRY)

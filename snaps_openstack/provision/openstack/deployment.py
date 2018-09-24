@@ -23,9 +23,9 @@ logger = logging.getLogger('deploy_infra')
 
 def deploy_infra(conf, flag):
     if __load(conf, flag):
-        logger.info('Openstack operation is unsuccessfull')
+        logger.info('Openstack operation is unsuccessful')
     else:
-        logger.info('Openstack operation is successfull')
+        logger.info('Openstack operation is successful')
 
 
 def __load(data, operation):
