@@ -81,8 +81,8 @@ def main(config, operation):
         logger.info("**************MULTINODE INVENTORY FILE******************")
         __create_inventory_multinode(host_node_type_map)
         logger.info("**************DOCKER DAEMON JSON ***********************")
-        if pull_from_hub != "yes":
-            __create_daemon(config)
+       
+        __create_daemon(config, pull_from_hub)
 
         logger.info("PROVISION_PREPARATION METHOD CALLED")
 
@@ -257,15 +257,19 @@ def __get_hostname_map(config):
         return hostname_map
 
 
-def __create_daemon(config):
+def __create_daemon(config, pull_from_hub):
     docker_registry = config.get(consts.OPENSTACK).get(consts.KOLLA).get(
         consts.REGISTRY)
     docker_port = config.get(consts.OPENSTACK).get(consts.KOLLA).get(
         consts.KOLLA_REGISTRY_PORT)
     f_out = open(consts.DAEMON_FILE, "w")
-    f_out.write(
+    if (pull_from_hub == "yes"):
+        f_out.write(
+        "{" + '\n' + '"storage-driver":' + '"overlay2"' + '\n' + '}')
+    else:
+        f_out.write(
         "{ " + '"insecure-registries":["' + docker_registry + ":" + str(
-            docker_port) + '"] }')
+            docker_port) + '"] ,' '\n' + '"storage-driver":' + '"overlay2"'+ '\n' + '}')
     f_out.close()
 
 
