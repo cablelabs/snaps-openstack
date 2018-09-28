@@ -518,7 +518,7 @@
     - pause:
         seconds: 5
 
-    - name: Set Br-ex a defaults gateway route on nic {{ external_gw }}
+    - name: Set br-ex a default gateway route on nic {{ external_gw }}
       command: ip route add default via "{{ external_gw }}" dev br-ex
       ignore_errors: True
       when: enable_ovs_dpdk == "no"

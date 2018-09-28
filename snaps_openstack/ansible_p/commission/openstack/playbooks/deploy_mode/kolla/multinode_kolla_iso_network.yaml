@@ -32,14 +32,14 @@
     - debug:
         var:  id
 
-    - name : Creating EXTERNAL bridge
+    - name : Creating br-ex bridge
       shell : docker exec {{id.stdout}} bash -c  'ovs-vsctl add-br br-ex'
       ignore_errors: True
-    - name : Creating EXTERNAL bridge
+    - name : Adding port to br-ex bridge
       shell : docker exec {{id.stdout}} bash -c  'ovs-vsctl add-port br-ex {{neutron_external_interface}}'
       ignore_errors: True
 
-    - name: append data in ml2_conf
+    - name: Adding bridge_mappings in ml2_conf
       lineinfile:
         dest: /etc/kolla/neutron-openvswitch-agent/ml2_conf.ini
         line: "bridge_mappings = physnet1:br-ex"
@@ -51,24 +51,24 @@
 
     - name: systemctl restart docker
       command: systemctl restart docker
-    - name: Assing IP to the br-ex
+    - name: Getting external IP
       shell: ip a show "{{ neutron_external_interface }}" | grep inet | grep global | awk '{ print$2}'
       register: extip
     - debug:
         var: extip
 
-    - name: Netwokring bridge adaptation
+    - name: Networking bridge adaptation
       command: ifconfig "{{ neutron_external_interface }}" 0 up
       ignore_errors: True
-    - name: Set Ip to BR-ex
+    - name: Set IP to br-ex
       command: ifconfig br-ex {{ item }} up
       ignore_errors: True
       with_items: "{{extip.stdout_lines|list}}"
-    - name: Set Br-ex as gateway
+    - name: Set br-ex as gateway
       command: ip route add default via "{{ external_gw }}" dev br-ex
       ignore_errors: True
 
-    - name: fetching external routes
+    - name: Fetching external routes
       shell: route -A inet6 | grep '{{ neutron_external_interface }}' | awk {'print $1'}
       register: ext_route
     - debug:
