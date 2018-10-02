@@ -77,6 +77,13 @@
       register: result
       until: result.rc == 0
 
+    - name: Copy root's key to node 4 @{{ admin_ip_4 }}
+      command: "sshpass -p {{ node_host_pass }} ssh-copy-id -i /root/.ssh/id_rsa.pub -o StrictHostKeyChecking=no root@{{ admin_ip_4 }}"
+      retries: 30
+      delay: 3
+      register: result
+      until: result.rc == 0
+
     - name: Modify Build server configfs
       command: "modprobe configfs"
 
@@ -100,6 +107,12 @@
 
     - name: Restart Node 3 sys-kernel-config.mount
       command: "ssh root@{{ admin_ip_3 }} 'systemctl restart sys-kernel-config.mount'"
+
+    - name: Modify Node 4 configfs
+      command: "ssh root@{{ admin_ip_4 }} 'modprobe configfs'"
+
+    - name: Restart Node 4 sys-kernel-config.mount
+      command: "ssh root@{{ admin_ip_4 }} 'systemctl restart sys-kernel-config.mount'"
 
     - name: Apply template and copy deployment.yaml.tmplt to {{ src_copy_dir }}/deployment.yaml
       action: template src=templates/deployment.yaml.tmplt dest={{ src_copy_dir }}/deployment.yaml

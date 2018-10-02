@@ -500,7 +500,7 @@ openstack:
           name: os-deploy-user-{{ build_id }}
           project_name: os-deploy-proj-{{ build_id }}
         name: os-node-4-{{ build_id }}
-        flavor: os-compute-flavor-{{ build_id }}
+        flavor: os-control-flavor-{{ build_id }}
         imageName: ubuntu-16-04
         security_group_names: [os-deploy-build-sg-{{ build_id }}]
         cloud_init_timeout: 1000
