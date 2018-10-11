@@ -261,8 +261,6 @@ def launch_provisioning_kolla(iplist, git_branch, kolla_tag, kolla_ansible_tag,
             logger.info('FAILED IN SETTING DOCKER REGISTRY')
             exit(1)
     for controller in list_controller:
-        print "copy key from raman"
-        print controller
         copy_key_pb = pkg_resources.resource_filename(
             consts.KOLLA_PB_PKG, consts.KOLLA_COPY_KEY)
         apbl.launch_ansible_playbook(
