@@ -1,0 +1,138 @@
+---
+PROVISION:
+  DHCP:
+    subnet:
+      -
+        address: {{ mgmt_prefix }}.0
+        bind_host:
+          -
+            ip: {{ mgmt_prefix }}.{{ controller_ip }}
+            mac: {{ controller.mac }}
+          -
+            ip: {{ mgmt_prefix }}.{{ compute_ip }}
+            mac: {{ compute.mac }}
+
+        broadcast-address: {{ mgmt_prefix }}.255
+        default-lease: 7600
+        dn: {{ dn }}
+        dns: {{ dns }}
+        listen_iface: {{ pxe_server.interface }}
+        max-lease: 7200 
+        name: Managment_SUBNET
+        netmask: 255.255.255.0
+        range: {{ mgmt_prefix }}.22 {{ mgmt_prefix }}.26
+        router: {{ mgmt_prefix }}.1
+        type: management
+
+  PROXY:
+    ftp_proxy: ftp://{{ pxe_server.ip }}:3142
+    http_proxy: http://{{ pxe_server.ip }}:3142
+    https_proxy: https://{{ pxe_server.ip }}:3142
+    ngcacher_proxy: http://{{ proxy_host }}:{{ proxy_port }}
+  PXE:
+    password: {{ pxe_server.pass }}
+    serverIp: {{ pxe_server.ip }}
+    user: {{ pxe_server.user }}
+  STATIC:
+    host:
+     -
+       access_ip: {{ mgmt_prefix }}.{{ controller_ip }}
+       name: Controller
+       interfaces:
+         -
+           address: {{ mgmt_prefix }}.{{ controller_ip }}
+           dn: ""
+           dns: ""
+           gateway: "0.0.0.0"
+           iface: {{ interface.mgmt }}
+           name: Admin_Interface
+           netmask: 255.255.255.0
+           type: management
+         -
+           address: {{ tenant_prefix }}.{{ controller_ip }}
+           dn: ""
+           dns: ""
+           gateway: "0.0.0.0"
+           iface: {{ interface.tenant }}
+           name: Private_Interface
+           netmask: 255.255.255.0
+           type: tenant
+         -
+           address: {{ data_prefix }}.{{ controller_ip }}
+           dn: {{ dn }}
+           dns: {{ dns }}
+           gateway: {{ data_prefix }}.1
+           iface: {{ interface.data }}
+           name: Public_Interface
+           netmask: 255.255.255.0
+           type: data
+     -
+       access_ip: {{ mgmt_prefix }}.{{ compute_ip }}
+       name: Compute1
+       interfaces:
+         -
+           address: {{ mgmt_prefix }}.{{ compute_ip }}
+           dn: ""
+           dns: ""
+           gateway: "0.0.0.0"
+           iface: {{ interface.mgmt }}
+           name: Admin_Interface
+           netmask: 255.255.255.0
+           type: management
+         -
+           address: {{ tenant_prefix }}.{{ compute_ip }}
+           dn: ""
+           dns: ""
+           gateway: "0.0.0.0"
+           iface: {{ interface.tenant }}
+           name: Private_Interface
+           netmask: 255.255.255.0
+           type: tenant
+         -
+           address: {{ data_prefix }}.{{ compute_ip }}
+           dn: {{ dn }}
+           dns: {{ dns }}
+           gateway: {{ data_prefix }}.1
+           iface: {{ interface.data }}
+           name: Public_Interface
+           netmask: 255.255.255.0
+           type: data
+
+  BMC:
+     host:
+       -
+         user: {{ controller.ipmi_user }}
+         password: {{ controller.ipmi_pass }}
+         ip: {{ ipmi_prefix }}.{{ controller_ipmi_ip }}
+         mac: "ec:b1:d7:88:a8:be"
+       -
+         user: {{ compute.ipmi_user }}
+         password: {{ compute.ipmi_pass }}
+         ip: {{ ipmi_prefix }}.{{ compute_ipmi_ip }}
+         mac: "ec:b1:d7:88:49:d6"
+
+  TFTP:
+     pxe_server_configuration:
+       -
+        ubuntu:
+          os: ubuntu-16.04.5-server-amd64.iso
+          password: ChangeMe
+          seed: hwe-ubuntu-server.seed
+          timezone: America/Denver
+          user: ubuntu
+          fullname: ubuntu_user
+          server_type: BIOS
+
+  CPUCORE:
+    host:
+       -
+         ip: "{{ mgmt_prefix }}.{{ controller_ip }}"
+         isolcpus: "0-20,1-22"
+         hugepagesz: "2M"
+         hugepages: "20480"
+       -
+         ip: "{{ mgmt_prefix }}.{{ compute_ip }}"
+         isolcpus: "0-20,1-22"
+         hugepagesz: "2M"
+         hugepages: "20480"
+

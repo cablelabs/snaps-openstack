@@ -1,0 +1,19 @@
+---
+- hosts: buildserver
+  become: yes
+  become_user: root
+  vars_files:
+    - ../common/variable.yaml
+    - ../common/constants.yaml
+  tasks:
+
+    - name: Configure huge pages on host machines
+      command: "python /tmp/{{ workspace }}/snaps-boot/iaas_launch.py -f {{ hosts_yaml_path }} -i"
+      register: out
+    - debug: 
+        var: out
+
+    - name: Validating iaas_launch returned 0
+      fail: msg="iaas_launch.py -i command failed"
+      when: out.rc != 0
+

@@ -1,0 +1,344 @@
+---
+- hosts: controller 
+  become: yes
+  become_user: root
+  vars_files:
+    - ../common/variable.yaml
+    - ../common/constants.yaml
+    - /tmp/{{ workspace }}/admin-openrc.yaml
+  environment:
+     http_proxy: "{{ http_proxy }}"
+     https_proxy: "{{ https_proxy }}"
+     ftp_proxy: "{{ ftp_proxy }}"
+     no_proxy: "{{ no_proxy }}"
+
+  tasks:
+    - name: Install python-openstackclient
+      apt:
+        name: python-openstackclient
+        state: latest
+
+    - name: install shade
+      pip:
+        name: shade
+
+    - name: Remove known hosts entries
+      shell: rm -f /root/.ssh/known_hosts
+      ignore_errors: True
+
+    - name: Delete demo-router
+      os_router:
+        state: absent
+        auth:
+          auth_url: "{{ OS_AUTH_URL }}"
+          username: "{{ OS_USERNAME }}"
+          password: "{{ OS_PASSWORD }}"
+          project_name: "{{ OS_PROJECT_NAME }}"
+          project_domain_name: "{{ OS_PROJECT_DOMAIN_NAME }}"
+          user_domain_name: "{{ OS_USER_DOMAIN_NAME }}"
+        name: demo-router
+
+    - name: Delete public1 network
+      os_network:
+        state: absent
+        auth:
+          auth_url: "{{ OS_AUTH_URL }}"
+          username: "{{ OS_USERNAME }}"
+          password: "{{ OS_PASSWORD }}"
+          project_name: "{{ OS_PROJECT_NAME }}"
+          project_domain_name: "{{ OS_PROJECT_DOMAIN_NAME }}"
+          user_domain_name: "{{ OS_USER_DOMAIN_NAME }}"
+        name: public1
+        external: true
+
+    - name: create a public network 'public1'
+      os_network:
+        state: present
+        auth:
+          auth_url: "{{ OS_AUTH_URL }}"
+          username: "{{ OS_USERNAME }}"
+          password: "{{ OS_PASSWORD }}"
+          project_name: "{{ OS_PROJECT_NAME }}"
+          project_domain_name: "{{ OS_PROJECT_DOMAIN_NAME }}"
+          user_domain_name: "{{ OS_USER_DOMAIN_NAME }}"
+        name: public1
+        provider_network_type: flat
+        provider_physical_network: physnet1
+        external: True
+        timeout: 180
+
+    - name: create public subnet
+      os_subnet:
+        state: present
+        auth:
+          auth_url: "{{ OS_AUTH_URL }}"
+          username: "{{ OS_USERNAME }}"
+          password: "{{ OS_PASSWORD }}"
+          project_name: "{{ OS_PROJECT_NAME }}"
+          project_domain_name: "{{ OS_PROJECT_DOMAIN_NAME }}"
+          user_domain_name: "{{ OS_USER_DOMAIN_NAME }}"
+        network_name: public1
+        name: public1-subnet
+        cidr: "{{ data_prefix }}.0/24"
+        allocation_pool_start: "{{ data_prefix }}.{{ vm_ip_pool.start }}"
+        allocation_pool_end: "{{ data_prefix }}.{{ vm_ip_pool.end }}"
+        timeout: 180
+
+    - name: download ubuntu image
+      get_url:
+        dest: /home/
+        url: http://cloud-images.ubuntu.com/xenial/current/xenial-server-cloudimg-amd64-disk1.img
+
+#    - name: upload ubuntu image to glance
+#      os_image:
+#        auth:
+#          auth_url: "{{ OS_AUTH_URL}}"
+#          username: "{{ OS_USERNAME }}"
+#          password: "{{ OS_PASSWORD }}"
+#          project_name: "{{ OS_PROJECT_NAME }}"
+#          project_domain_name: "{{ OS_PROJECT_DOMAIN_NAME }}"
+#          user_domain_name: "{{ OS_USER_DOMAIN_NAME }}"
+#        name: ubuntu
+#        filename: /home/xenial-server-cloudimg-amd64-disk1.img
+#        is_public: yes
+
+    - name: upload ubuntu image to glance
+      shell: source /etc/kolla/admin-openrc.sh;openstack image create "ubuntu" --disk-format qcow2 --container-format bare   --public --file /home/xenial-server-cloudimg-amd64-disk1.img
+      args:
+       executable: /bin/bash
+      register: upload_image
+    - debug: var=upload_image.stdout
+
+    - name: List images
+      shell: source /etc/kolla/admin-openrc.sh;openstack image list
+      args:
+       executable: /bin/bash
+      register: image_list
+    - debug: var=image_list.stdout
+
+    - name: Launch an instance on public network
+      os_server:
+       state: present
+       auth:
+         auth_url: "{{ OS_AUTH_URL }}"
+         username: "{{ OS_USERNAME }}"
+         password: "{{ OS_PASSWORD }}"
+         project_name: "{{ OS_PROJECT_NAME }}"
+         project_domain_name: "{{ OS_PROJECT_DOMAIN_NAME }}"
+         user_domain_name: "{{ OS_USER_DOMAIN_NAME }}"
+       name: vm1_public
+       image: ubuntu
+       key_name: mykey
+       timeout: 900
+       flavor: m1.medium
+       security_groups: default
+       auto_ip: yes
+       nics:
+          - net-name: public1
+      register: vm1_public
+    - debug: var=vm1_public.openstack.accessIPv4
+
+    - name: Launch second instance on public network
+      os_server:
+       state: present
+       auth:
+         auth_url: "{{ OS_AUTH_URL }}"
+         username: "{{ OS_USERNAME }}"
+         password: "{{ OS_PASSWORD }}"
+         project_name: "{{ OS_PROJECT_NAME }}"
+         project_domain_name: "{{ OS_PROJECT_DOMAIN_NAME }}"
+         user_domain_name: "{{ OS_USER_DOMAIN_NAME }}"
+       name: vm2_public
+       image: ubuntu
+       key_name: mykey
+       timeout: 900
+       flavor: m1.medium
+       security_groups: default
+       auto_ip: yes
+       nics:
+          - net-name: public1
+      register: vm2_public
+    - debug: var=vm2_public.openstack.accessIPv4
+
+    - name: List instances
+      shell: source /etc/kolla/admin-openrc.sh;openstack server list
+      args:
+       executable: /bin/bash
+      register: server_list
+    - debug: var=server_list.stdout
+
+    - name: Wait for 3 mins
+      wait_for: timeout=180
+
+    - name: Test ping from localhost
+      wait_for: host={{ vm1_public.openstack.accessIPv4 }} port=22 timeout=900
+    - debug: msg=ok
+
+    - name: Test ping from localhost
+      wait_for: host={{ vm2_public.openstack.accessIPv4 }} port=22 timeout=900
+    - debug: msg=ok
+
+    - name: test ping from VM1 '{{ vm1_public.openstack.accessIPv4 }}' to VM2 '{{ vm2_public.openstack.accessIPv4 }}' on public network
+      command: ssh -o StrictHostKeyChecking=no ubuntu@{{ vm1_public.openstack.accessIPv4 }} "ping {{ vm2_public.openstack.accessIPv4 }} -c 5"
+      register: ping1
+    - debug:
+        var: ping1.stdout
+
+    - name: test ping from VM2 '{{ vm2_public.openstack.accessIPv4 }}' to VM1 '{{ vm1_public.openstack.accessIPv4 }}' on public network
+      command: ssh -o StrictHostKeyChecking=no ubuntu@{{ vm2_public.openstack.accessIPv4 }} "ping {{ vm1_public.openstack.accessIPv4 }} -c 5"
+      register: ping2
+    - debug:
+        var: ping2.stdout
+
+    - name: create a private network
+      os_network:
+        state: present
+        auth:
+          auth_url: "{{ OS_AUTH_URL }}"
+          username: "{{ OS_USERNAME }}"
+          password: "{{ OS_PASSWORD }}"
+          project_name: "{{ OS_PROJECT_NAME }}"
+          project_domain_name: "{{ OS_PROJECT_DOMAIN_NAME }}"
+          user_domain_name: "{{ OS_USER_DOMAIN_NAME }}"
+        name: private-net
+        provider_network_type: vxlan
+        provider_segmentation_id: 111
+        timeout: 180
+
+    - name: create private subnet
+      os_subnet:
+        state: present
+        auth:
+          auth_url: "{{ OS_AUTH_URL }}"
+          username: "{{ OS_USERNAME }}"
+          password: "{{ OS_PASSWORD }}"
+          project_name: "{{ OS_PROJECT_NAME }}"
+          project_domain_name: "{{ OS_PROJECT_DOMAIN_NAME }}"
+          user_domain_name: "{{ OS_USER_DOMAIN_NAME }}"
+        network_name: private-net
+        name: private-subnet
+        cidr: 15.0.0.0/24
+        allocation_pool_start: 15.0.0.10
+        allocation_pool_end: 15.0.0.30
+        timeout: 180
+
+    - name: Launch an instance on private network
+      os_server:
+       state: present
+       auth:
+         auth_url: "{{ OS_AUTH_URL }}"
+         username: "{{ OS_USERNAME }}"
+         password: "{{ OS_PASSWORD }}"
+         project_name: "{{ OS_PROJECT_NAME }}"
+         project_domain_name: "{{ OS_PROJECT_DOMAIN_NAME }}"
+         user_domain_name: "{{ OS_USER_DOMAIN_NAME }}"
+       name: vm1_private
+       image: ubuntu
+       key_name: mykey
+       timeout: 900
+       flavor: m1.medium
+       security_groups: default
+       auto_ip: yes
+       nics:
+          - net-name: private-net
+      register: vm1_private
+    - debug: var=vm1_private.openstack.accessIPv4
+
+    - name: Launch second instance on private network
+      os_server:
+       state: present
+       auth:
+         auth_url: "{{ OS_AUTH_URL }}"
+         username: "{{ OS_USERNAME }}"
+         password: "{{ OS_PASSWORD }}"
+         project_name: "{{ OS_PROJECT_NAME }}"
+         project_domain_name: "{{ OS_PROJECT_DOMAIN_NAME }}"
+         user_domain_name: "{{ OS_USER_DOMAIN_NAME }}"
+       name: vm2_private
+       image: ubuntu
+       key_name: mykey
+       timeout: 900
+       flavor: m1.medium
+       security_groups: default
+       auto_ip: yes
+       nics:
+          - net-name: private-net
+      register: vm2_private
+    - debug: var=vm2_private.openstack.accessIPv4
+    - name: Wait for 3 mins
+      wait_for: timeout=180
+
+    - name: List instances
+      shell: source /etc/kolla/admin-openrc.sh;openstack server list
+      args:
+       executable: /bin/bash
+      register: server_list
+    - debug: var=server_list.stdout
+
+    - name: create router
+      os_router:
+        state: present
+        auth:
+          auth_url: "{{ OS_AUTH_URL }}"
+          username: "{{ OS_USERNAME }}"
+          password: "{{ OS_PASSWORD }}"
+          project_name: "{{ OS_PROJECT_NAME }}"
+          project_domain_name: "{{ OS_PROJECT_DOMAIN_NAME }}"
+          user_domain_name: "{{ OS_USER_DOMAIN_NAME }}"
+        name: router1
+        network: public1
+        interfaces:
+          - private-subnet
+
+
+    - name: Associate Floating IP to VM '{{ vm1_private.openstack.accessIPv4 }}'
+      os_floating_ip:
+         state: present
+         auth:
+           auth_url: "{{ OS_AUTH_URL }}"
+           username: "{{ OS_USERNAME }}"
+           password: "{{ OS_PASSWORD }}"
+           project_name: "{{ OS_PROJECT_NAME }}"
+           project_domain_name: "{{ OS_PROJECT_DOMAIN_NAME }}"
+           user_domain_name: "{{ OS_USER_DOMAIN_NAME }}"
+         reuse: yes
+         server: vm1_private
+         network: public1
+         wait: true
+         timeout: 180
+      register: fip_vm1_private
+    - debug: var=fip_vm1_private.floating_ip.floating_ip_address
+
+    - name: Associate Floating IP to VM '{{ vm2_private.openstack.accessIPv4 }}'
+      os_floating_ip:
+         state: present
+         auth:
+           auth_url: "{{ OS_AUTH_URL }}"
+           username: "{{ OS_USERNAME }}"
+           password: "{{ OS_PASSWORD }}"
+           project_name: "{{ OS_PROJECT_NAME }}"
+           project_domain_name: "{{ OS_PROJECT_DOMAIN_NAME }}"
+           user_domain_name: "{{ OS_USER_DOMAIN_NAME }}"
+         reuse: yes
+         server: vm2_private
+         network: public1
+         wait: true
+         timeout: 180
+      register: fip_vm2_private
+    - debug: var=fip_vm2_private.floating_ip.floating_ip_address
+
+    - name: Wait for 3 mins
+      wait_for: timeout=180
+
+    - name: test ping from VM1 '{{ vm1_private.openstack.accessIPv4 }}' to VM2 '{{ vm2_private.openstack.accessIPv4 }}'
+      command: ssh -o StrictHostKeyChecking=no ubuntu@{{ fip_vm1_private.floating_ip.floating_ip_address }} "ping {{ vm2_private.openstack.accessIPv4 }} -c 5"
+      register: ping3
+    - debug:
+        var: ping3
+
+    - name: test ping from VM2 '{{ vm2_private.openstack.accessIPv4 }}' to VM1 '{{ vm1_private.openstack.accessIPv4 }}'
+      command: ssh -o StrictHostKeyChecking=no ubuntu@{{ fip_vm2_private.floating_ip.floating_ip_address }} "ping {{ vm1_private.openstack.accessIPv4 }} -c 5"
+      register: ping4
+    - debug:
+        var: ping4
+

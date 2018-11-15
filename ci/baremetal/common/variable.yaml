@@ -1,0 +1,19 @@
+---
+
+dn: google.com
+dns: 10.203.171.38
+controller_ip: 42
+compute_ip: 41
+controller_ipmi_ip: 46
+compute_ipmi_ip: 100
+vm_ip_pool:
+   start: 130
+   end: 145
+virtual_ip: 190
+install_iso_url: http://releases.ubuntu.com/16.04/ubuntu-16.04.5-server-amd64.iso
+interface:
+   mgmt: eno1
+   tenant: eno2
+   data: enp4s0f0
+snaps_boot_url: https://github.com/cablelabs/snaps-boot.git
+snaps_boot_branch: snaps-pi

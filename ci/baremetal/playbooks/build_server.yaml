@@ -1,0 +1,93 @@
+---
+- hosts: buildserver 
+  become: yes
+  become_user: root
+  vars_files:
+    - ../common/variable.yaml
+    - ../common/constants.yaml
+  environment:
+     http_proxy: "{{ http_proxy }}"
+     https_proxy: "{{ https_proxy }}"
+     ftp_proxy: "{{ ftp_proxy }}"
+     no_proxy: "{{ no_proxy }}"
+
+  tasks:
+    - name: Install Git
+      apt: name=git
+
+    - name: Install sshpass
+      apt: name=sshpass
+
+    - name: Clone snaps-boot code
+      git:
+        repo: '{{ snaps_boot_url }}'
+        dest: '/tmp/{{ workspace }}/snaps-boot'
+        force: yes
+
+    - name: switch to '{{ snaps_boot_branch }}' branch
+      command: git checkout '{{ snaps_boot_branch }}'
+      args:
+       chdir: "/tmp/{{ workspace }}/snaps-boot"
+
+    - name: Make directory '/tmp/{{ workspace }}/snaps-boot/packages/images'
+      file:
+        path: "/tmp/{{ workspace }}/snaps-boot/packages/images"
+        state: directory
+
+    - name: Download ISO image
+      get_url:
+        url: "{{ install_iso_url }}"
+        dest: "/tmp/{{ workspace }}/snaps-boot/packages/images/"
+        timeout: 1000
+
+    - name: apt-get update
+      apt:
+        update_cache: yes
+
+    - name: Install python-pip
+      apt:
+        name: python-pip
+        state: latest
+
+    - name: Install ansible
+      pip:
+       name: ansible
+       version: 2.2.2.0
+
+    - name: Complete build host setup - PreRequisite.sh
+      command: "sh /tmp/{{ workspace }}/snaps-boot/scripts/PreRequisite.sh"
+      register: out
+    - debug:
+        var: out
+
+    - name: Clean just in case PXE & DHCP server - iaas_launch.py -pc
+      command: "python /tmp/{{ workspace }}/snaps-boot/iaas_launch.py -f {{ hosts_yaml_path }} -pc"
+      register: out
+      ignore_errors: True
+    - debug:
+        var: out
+
+    - name: Config PXE & DHCP server - iaas_launch.py -p
+      command: "python /tmp/{{ workspace }}/snaps-boot/iaas_launch.py -f {{ hosts_yaml_path }} -p"
+      register: out
+    - debug:
+        var: out
+ 
+    - name: Validating iaas_launch returned 0
+      fail: msg="iaas_launch.py -p command failed"
+      when: out.rc != 0
+
+    - name: Make sure isc-dhcp-server is running
+      systemd:
+        name: isc-dhcp-server
+        state: started
+
+    - name: Make sure tftp server is running
+      systemd:
+        name: tftpd-hpa
+        state: started
+
+    - name: Make sure apache2 is running
+      systemd:
+        name: apache2
+        state: started

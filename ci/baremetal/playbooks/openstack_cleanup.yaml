@@ -1,0 +1,25 @@
+---
+- hosts: buildserver 
+  become: yes
+  become_user: root
+  vars_files:
+    - ../common/variable.yaml
+    - ../common/constants.yaml
+  environment:
+     http_proxy: "{{ http_proxy }}"
+     https_proxy: "{{ https_proxy }}"
+     ftp_proxy: "{{ ftp_proxy }}"
+     no_proxy: "{{ no_proxy }}"
+
+  tasks:
+
+    - name: Cleanup OpenStack
+      command: "python /tmp/{{ workspace }}/snaps-openstack/iaas_launch.py -f {{ deployment_yaml_path }} -drc"
+      register: out
+    - debug:
+        var: out
+ 
+    - name: Validating cleanup
+      fail: msg="iaas_launch.py -drc command failed"
+      when: out.rc != 0
+

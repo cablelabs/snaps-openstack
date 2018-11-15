@@ -1,0 +1,24 @@
+---
+- hosts: buildserver 
+  become: yes
+  become_user: root
+  vars_files:
+    - ../common/variable.yaml
+    - ../common/constants.yaml
+  environment:
+     http_proxy: "{{ http_proxy }}"
+     https_proxy: "{{ https_proxy }}"
+     ftp_proxy: "{{ ftp_proxy }}"
+     no_proxy: "{{ no_proxy }}"
+
+  tasks:
+
+    - name: Set MTU for physical NICs
+      command: "python /tmp/{{ workspace }}/snaps-openstack/network_config.py -f {{ var_yaml_path }} -mtu"
+      register: out
+    - debug:
+        var: out
+ 
+    - name: Validating MTU
+      fail: msg="network_config.py -mtu command failed"
+      when: out.rc != 0

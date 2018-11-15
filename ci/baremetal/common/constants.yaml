@@ -1,0 +1,16 @@
+---
+
+#snaps_boot_url: https://github.com/cablelabs/snaps-boot.git
+snaps_openstack_url: https://github.com/cablelabs/snaps-openstack.git
+
+hosts_yaml_path: /tmp/{{ workspace }}/hosts.yaml
+deployment_yaml_path: /tmp/{{ workspace }}/deployment.yaml
+deployment_sriov_yaml_path: /tmp/{{ workspace }}/deployment_sriov.yaml
+deployment_dpdk_yaml_path: /tmp/{{ workspace }}/deployment_dpdk.yaml
+var_yaml_path: /tmp/{{ workspace }}/var.yaml
+
+http_proxy: http://{{ proxy_host }}:{{ proxy_port }}
+https_proxy: https://{{ proxy_host }}:{{ proxy_port }}
+ftp_proxy: ftp://{{ proxy_host }}:{{ proxy_port }}
+no_proxy: 127.0.0.1,{{ mgmt_prefix }}.{{ controller_ip }},{{ tenant_prefix }}.{{ controller_ip }},{{ data_prefix }}.{{ controller_ip }},{{ mgmt_prefix }}.{{ compute_ip }},{{ tenant_prefix }}.{{ compute_ip }},{{ data_prefix }}.{{ compute_ip }},{{ mgmt_prefix }}.{{ virtual_ip }},{{ data_prefix }}.{{ virtual_ip }},{{ pxe_server.ip }}
+
