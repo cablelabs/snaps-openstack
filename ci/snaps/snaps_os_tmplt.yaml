@@ -34,8 +34,8 @@ openstack:
         description: Project for Orchestrators
         users: [os-deploy-user-{{ build_id }}, {{ admin_user }}]
         quotas:
-          ram: 102400
-          cores: 40
+          ram: 128000
+          cores: 48
   users:
     - user:
         os_creds_name: admin-creds
