@@ -683,7 +683,7 @@ sudo python <repo_dir>/network_config.py -f <repo_dir>/snaps_openstack/utilities
 
 #### Step 3
 
-Install fresh openstack using physical interface and veth0 as management and data interfaces respectively. (Please refer to 4.1)
+Install fresh openstack using physical interface and veth0 as management and data interfaces respectively. (Refer section 4)
 
 #### Step 2
 
@@ -696,16 +696,14 @@ sudo python <repo_dir>/network_config.py -f <repo_dir>/snaps_openstack/utilities
 ## 5 Upgrade and Downgrade Openstack Cluster
 
 ### 5.1 Upgrade Openstack Cluster
-After successfull installtion of openstack cluster with pike release. (Refer 4.1)
-User can upgrade the setup to queens by running following command:
+After successfull installtion of openstack cluster with pike release (Refer section 4). User can upgrade the setup to queens by running following command:
 
 ```
 sudo python <repo_dir>/iaas_launch.py -f <repo_dir>/conf/openstack/kolla/deployment.yaml -upgrade queens
 ```
 
 ### 5.2 Downgrade Openstack Cluster
-After successfull installtion of openstack cluster with queens release. (Refer 4.1)
-User can downgrade the setup to pike by running following command:
+After successfull installtion of openstack cluster with queens release (Refer section 4). User can downgrade the setup to pike by running following command:
 
 ```
 sudo python <repo_dir>/iaas_launch.py -f <repo_dir>/conf/openstack/kolla/deployment.yaml -downgrade pike
