@@ -768,10 +768,7 @@ def upgrade_downgrade_cluster(config,version):
     controller_ip=""
     for host in hosts_list:
         host_data = host.get('host')
-        print "raman"
-        print host_data
         node_type=host_data.get('node_type')
-        print node_type
         for role in node_type:
             if  role == 'controller' :
                host_data = host.get('host')
@@ -779,13 +776,10 @@ def upgrade_downgrade_cluster(config,version):
                for interfaceData in all_interface:
                    if interfaceData.get('type') == 'management':
                         controller_ip=interfaceData.get('ip')
-    print controller_ip
     if version == "upgrade":
        version="queens"
     else :
         version="pike"
-    print version
-    print "raman"
     ret=ansible_configuration.launch_upgrade_downgrade_kolla(
             controller_ip, version)
     return ret
