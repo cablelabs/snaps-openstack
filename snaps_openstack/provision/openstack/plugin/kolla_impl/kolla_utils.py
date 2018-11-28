@@ -757,9 +757,36 @@ def clean_up(config, operation):
             pull_from_hub, host_storage_node_map,dpdk_enable)
         return ret
 
-
 def _getservice_list(config):
     service_str = ["Empty"]
     if config.get(consts.OPENSTACK).get(consts.SERVICES) is not None:
         service_str = config.get(consts.OPENSTACK).get(consts.SERVICES)
     return service_str
+
+def upgrade_downgrade_cluster(config,version):
+    hosts_list = config.get(consts.OPENSTACK).get(consts.HOSTS)
+    controller_ip=""
+    for host in hosts_list:
+        host_data = host.get('host')
+        print "raman"
+        print host_data
+        node_type=host_data.get('node_type')
+        print node_type
+        for role in node_type:
+            if  role == 'controller' :
+               host_data = host.get('host')
+               all_interface = host_data.get('interfaces')
+               for interfaceData in all_interface:
+                   if interfaceData.get('type') == 'management':
+                        controller_ip=interfaceData.get('ip')
+    print controller_ip
+    if version == "upgrade":
+       version="queens"
+    else :
+        version="pike"
+    print version
+    print "raman"
+    ret=ansible_configuration.launch_upgrade_downgrade_kolla(
+            controller_ip, version)
+    return ret
+

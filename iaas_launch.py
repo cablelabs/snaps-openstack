@@ -101,7 +101,13 @@ def main(arguments):
     # Functions to read yml for IaaS Openstack environment
     config = file_utils.read_yaml(arguments.config)
     logger.info('Read configuration file - ' + arguments.config)
-
+    if arguments.upgrade is not ARG_NOT_SET:
+       if arguments.upgrade == 'queens':
+           __manage_operation(config, "upgrade")
+       
+    if arguments.downgrade is not ARG_NOT_SET:
+       if arguments.downgrade == 'pike':
+           __manage_operation(config, "downgrade")
     if arguments.deploy is not ARG_NOT_SET:
         __manage_operation(config, "deploy")
 
@@ -123,7 +129,6 @@ if __name__ == '__main__':
     # To ensure any files referenced via a relative path will begin from the
     # directory in which this file resides
     os.chdir(os.path.dirname(os.path.realpath(__file__)))
-
     parser = argparse.ArgumentParser()
     parser_group = parser.add_mutually_exclusive_group()
 
@@ -145,13 +150,22 @@ if __name__ == '__main__':
         '-drc', '--dregc', dest='dregclean', nargs='?', default=ARG_NOT_SET,
         help='When used, Openstack deployment is clean up up along with the '
              'kolla registry')
+    parser_group.add_argument(
+        '-up', '--upgrade', dest='upgrade', nargs='?', default=ARG_NOT_SET,
+        help='When used, Openstack cluster upgraded to the defined release '
+              )
+    parser_group.add_argument(
+        '-down', '--downgrade', dest='downgrade', nargs='?', default=ARG_NOT_SET,
+        help='When used, Openstack cluster downgraded to the defined release '
+              )
     parser.add_argument(
         '-l', '--log-level', dest='log_level', default='INFO',
         help='Logging Level ( DEBUG | INFO | WARNING | ERROR | CRITICAL)')
     args = parser.parse_args()
-
+    print args
     if (args.dreg is ARG_NOT_SET and args.dregclean is ARG_NOT_SET
-            and args.deploy is ARG_NOT_SET and args.clean is ARG_NOT_SET):
+           and args.deploy is ARG_NOT_SET and args.clean is ARG_NOT_SET 
+           and args.upgrade is ARG_NOT_SET and args.downgrade is  ARG_NOT_SET ):
         logger.info(
             'Must enter either -d for deploy IaaS or -c for cleaning up and '
             'environment or -drc to cleanup registry or -drs to setup '
@@ -165,7 +179,7 @@ if __name__ == '__main__':
             'Cannot start deploy operation without configuration. '
             'Choose the option -f/--file')
         exit(1)
-    if args.deploy is ARG_NOT_SET and args.config is ARG_NOT_SET:
+    if args.deploy is ARG_NOT_SET and args.config is ARG_NOT_SET :
         logger.info(
             'Cannot start any deploy iaas operation without both -d/--deploy '
             'and -f/--file')

@@ -466,3 +466,11 @@ def launch_provisioning_kolla(iplist, git_branch, kolla_tag, kolla_ansible_tag,
             logger.info("SINGLE NODE COMPLETED")
 
     logger.info("PROCESS COMPLETE")
+def launch_upgrade_downgrade_kolla(controller_ip,version):
+    updown_pb=pkg_resources.resource_filename(
+            consts.KOLLA_PB_PKG, consts.UPGRADE_DOWNGRADE_KOLLA_YAML)
+    list_controller=[]
+    list_controller.append(controller_ip)
+    print list_controller
+    ret = apbl.launch_ansible_playbook(list_controller,updown_pb, {'version': version})
+    print "last"
