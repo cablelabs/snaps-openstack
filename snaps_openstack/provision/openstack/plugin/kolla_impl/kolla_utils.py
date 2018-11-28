@@ -613,7 +613,8 @@ def __validate_configuration(config):
                     is_compute_present = True
 
             elif key == "second_storage":
-                if ((value is None) and ("ceph" in config.get(consts.OPENSTACK).get(consts.SERVICES)) and (is_storage_present)):
+                if ((value is None) and ("ceph" in config.get(consts.OPENSTACK).get(consts.SERVICES))
+                   and (is_storage_present)):
                     logger.info(value)
                     logger.info("SECOND STORAGE IS NOT DEFINED WHILE USING CEPH")
                     valid = False
@@ -622,7 +623,8 @@ def __validate_configuration(config):
                     is_storage_list_present = True
             # check if storage node configuration is present for this host, mark the variable as true
             elif key == "sriov_interface":
-                if ((value is None) and ("sriov" in config.get(consts.OPENSTACK).get(consts.SERVICES)) and (is_compute_present)):
+                if ((value is None) and ("sriov" in config.get(consts.OPENSTACK).get(consts.SERVICES))
+                   and (is_compute_present)):
                     valid = False
                 else:
                     logger.info(value)
@@ -630,9 +632,10 @@ def __validate_configuration(config):
             if((is_storage_list_present) and (is_storage_present)):
                 second_storage_config_present = True
         service = config.get(consts.OPENSTACK).get(consts.SERVICES)
-        if((config.get(consts.OPENSTACK).get(consts.SERVICES) is not None) and ("ceph" in config.get(consts.OPENSTACK).get(consts.SERVICES)) and (is_storage_present)):
-            if(((is_storage_present == False) and (is_storage_list_present == True)) or
-               ((is_storage_present == True) and (is_storage_list_present == False))):
+        if ((config.get(consts.OPENSTACK).get(consts.SERVICES) is not None)
+           and("ceph" in config.get(consts.OPENSTACK).get(consts.SERVICES)) and (is_storage_present)):
+            if(((is_storage_present is False) and (is_storage_list_present is True)) or
+               ((is_storage_present is True) and (is_storage_list_present is False))):
                 logger.info(
                     "Error: When ceph is enabled Storage node_type("
                     '%s'
@@ -643,12 +646,13 @@ def __validate_configuration(config):
                     is_storage_list_present)
                 valid = False
                 exit(1)
-    if((second_storage_config_present == False) and ("ceph" in config.get(consts.OPENSTACK).get(consts.SERVICES))):
-        logger.info("Error: When ceph is enabled storage node_type and second_storage shall be present in one of the host")
+    if((second_storage_config_present is False) and ("ceph" in config.get(consts.OPENSTACK).get(consts.SERVICES))):
+        logger.info("Error: When ceph is enabled storage node_type and"
+                    " second_storage shall be present in one of the host")
         valid = False
         exit(1)
 
-    if((sriov_interface_present == False) and ("sriov" in config.get(consts.OPENSTACK).get(consts.SERVICES))):
+    if((sriov_interface_present is False) and ("sriov" in config.get(consts.OPENSTACK).get(consts.SERVICES))):
         logger.error("When SRIOV is enabled, sriov_interface must be defined")
         valid = False
 
@@ -691,7 +695,7 @@ def __validate_configuration(config):
 
 
 def __enable_key_ssh(config):
-    command = "sed -i '/host_key_checking/c\#host_key_checking = False' "\
+    command = "sed -i '/host_key_checking/c#host_key_checking = False' "\
               + consts.ANSIBLE_CONF
     subprocess.call(command, shell=True)
     command_time = "sed -i '/#timeout = 10/c\\timeout = 50' "\

@@ -29,6 +29,7 @@ logger = logging.getLogger('launch_provisioning')
 
 ARG_NOT_SET = "argument not set"
 
+
 def __installation_logs(level_value):
     """
      This will set the logging levels for the openstack installation based on
@@ -52,9 +53,10 @@ def __installation_logs(level_value):
         exit()
 
     logging.basicConfig(format='%(asctime)s %(levelname)s [%(filename)s:%(lineno)s - \
-                        %(funcName)2s() ] %(message)s ',datefmt='%b %d %H:%M', \
-                        filename=logFileName,filemode='w',level=log_level)
+                        %(funcName)2s() ] %(message)s ', datefmt='%b %d %H:%M',
+                        filename=logFileName, filemode='w', level=log_level)
     logging.getLogger().addHandler(logging.StreamHandler())
+
 
 def __manage_operation(config, operation):
     """
@@ -92,7 +94,7 @@ def main(arguments):
      :return: To the OS
     """
 
-    __installation_logs(arguments.log_level);
+    __installation_logs(arguments.log_level)
 
     dir_path = os.path.dirname(os.path.realpath(__file__))
     export_path = dir_path + "/"
@@ -102,18 +104,18 @@ def main(arguments):
     config = file_utils.read_yaml(arguments.config)
     logger.info('Read configuration file - ' + arguments.config)
     if arguments.upgradecluster is not ARG_NOT_SET:
-       if arguments.upgradecluster == 'queens':
-           __manage_operation(config, "upgrade")
-       else:
-           logger.info("Cannot start upgrade operation. Only support upgrade from pike to queens")
-           exit(1)
- 
+        if arguments.upgradecluster == 'queens':
+            __manage_operation(config, "upgrade")
+        else:
+            logger.info("Cannot start upgrade operation. Only support upgrade from pike to queens")
+            exit(1)
+
     if arguments.downgradecluster is not ARG_NOT_SET:
-       if arguments.downgradecluster == 'pike':
-           __manage_operation(config, "downgrade")
-       else:
-           logger.info("Cannot start downgrade openration. Only support downgrade from queens to pike")
-           exit(1)
+        if arguments.downgradecluster == 'pike':
+            __manage_operation(config, "downgrade")
+        else:
+            logger.info("Cannot start downgrade openration. Only support downgrade from queens to pike")
+            exit(1)
 
     if arguments.deploy is not ARG_NOT_SET:
         __manage_operation(config, "deploy")
@@ -160,18 +162,18 @@ if __name__ == '__main__':
     parser_group.add_argument(
         '-upgrade', '--upgradecluster', dest='upgradecluster', nargs='?', default=ARG_NOT_SET,
         help='When used, Openstack cluster upgraded to the defined release '
-              )
+    )
     parser_group.add_argument(
         '-downgrade', '--downgradecluster', dest='downgradecluster', nargs='?', default=ARG_NOT_SET,
         help='When used, Openstack cluster downgraded to the defined release '
-              )
+    )
     parser.add_argument(
         '-l', '--log-level', dest='log_level', default='INFO',
         help='Logging Level ( DEBUG | INFO | WARNING | ERROR | CRITICAL)')
     args = parser.parse_args()
     if (args.dreg is ARG_NOT_SET and args.dregclean is ARG_NOT_SET
-           and args.deploy is ARG_NOT_SET and args.clean is ARG_NOT_SET 
-           and args.upgradecluster is ARG_NOT_SET and args.downgradecluster is  ARG_NOT_SET ):
+        and args.deploy is ARG_NOT_SET and args.clean is ARG_NOT_SET
+            and args.upgradecluster is ARG_NOT_SET and args.downgradecluster is ARG_NOT_SET):
         logger.info(
             'Must enter either -d for deploy IaaS or -c for cleaning up and '
             'environment or -drc to cleanup registry or -drs to setup '
@@ -185,7 +187,7 @@ if __name__ == '__main__':
             'Cannot start deploy operation without configuration. '
             'Choose the option -f/--file')
         exit(1)
-    if args.deploy is ARG_NOT_SET and args.config is ARG_NOT_SET :
+    if args.deploy is ARG_NOT_SET and args.config is ARG_NOT_SET:
         logger.info(
             'Cannot start any deploy iaas operation without both -d/--deploy '
             'and -f/--file')
