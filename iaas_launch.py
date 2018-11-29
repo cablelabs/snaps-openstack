@@ -114,7 +114,7 @@ def main(arguments):
         if arguments.downgradecluster == 'pike':
             __manage_operation(config, "downgrade")
         else:
-            logger.info("Cannot start downgrade openration. Only support downgrade from queens to pike")
+            logger.info("Cannot start downgrade operation. Only support downgrade from queens to pike")
             exit(1)
 
     if arguments.deploy is not ARG_NOT_SET:
@@ -157,15 +157,15 @@ if __name__ == '__main__':
         help='When used, kolla registry is set up along with deployment')
     parser_group.add_argument(
         '-drc', '--dregc', dest='dregclean', nargs='?', default=ARG_NOT_SET,
-        help='When used, Openstack deployment is clean up up along with the '
+        help='When used, Openstack deployment is cleaned up along with the '
              'kolla registry')
     parser_group.add_argument(
         '-upgrade', '--upgradecluster', dest='upgradecluster', nargs='?', default=ARG_NOT_SET,
-        help='When used, Openstack cluster upgraded to the defined release '
+        help='When used, Openstack cluster is upgraded to the defined release'
     )
     parser_group.add_argument(
         '-downgrade', '--downgradecluster', dest='downgradecluster', nargs='?', default=ARG_NOT_SET,
-        help='When used, Openstack cluster downgraded to the defined release '
+        help='When used, Openstack cluster is downgraded to the defined release'
     )
     parser.add_argument(
         '-l', '--log-level', dest='log_level', default='INFO',

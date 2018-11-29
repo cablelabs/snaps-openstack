@@ -696,14 +696,14 @@ sudo python <repo_dir>/network_config.py -f <repo_dir>/snaps_openstack/utilities
 ## 5 Upgrade and Downgrade Openstack Cluster
 
 ### 5.1 Upgrade Openstack Cluster
-After successfull installtion of openstack cluster with pike release (Refer section 4). User can upgrade the setup to queens by running following command:
+After successful installation of openstack cluster with Pike release (Refer to section 4). User can upgrade the setup to Queens release by running the following command:
 
 ```
 sudo python <repo_dir>/iaas_launch.py -f <repo_dir>/conf/openstack/kolla/deployment.yaml -upgrade queens
 ```
 
 ### 5.2 Downgrade Openstack Cluster
-After successfull installtion of openstack cluster with queens release (Refer section 4). User can downgrade the setup to pike by running following command:
+After successful installation of openstack cluster with Queens release (Refer to section 4). User can downgrade the setup to Pike release by running the following command:
 
 ```
 sudo python <repo_dir>/iaas_launch.py -f <repo_dir>/conf/openstack/kolla/deployment.yaml -downgrade pike
