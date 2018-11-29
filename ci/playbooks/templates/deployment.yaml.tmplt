@@ -93,6 +93,38 @@ openstack:
         password: {{ node_host_pass }}
         service_host: {{ admin_ip_1 }}
         user: root
+#controller HA config: Adding second controller host for HA
+    -
+      host:
+        hostname: CONTROLLER2
+        interfaces:
+          -
+            ip: {{ admin_ip_4 }}
+            mac: {{ admin_mac_4 }}
+            name: {{ admin_iface }}
+            type: management
+          -
+            ip: {{ private_ip_4 }}
+            mac: {{ private_mac_4 }}
+            name: {{ priv_iface }}
+            type: tenant
+          -
+            gateway: {{ public_gateway }}
+            ip: {{ public_ip_4 }}
+            mac: {{ public_mac_4 }}
+            name: {{ pub_iface }}
+            type: data
+        isolcpus: {{ isolcpus }}
+        reserved_host_memory_mb: {{ host_memory_mb }}
+        node_type:
+          - controller
+          - storage
+        second_storage:
+          - "/dev/vdb"
+        password: {{ node_host_pass }}
+        service_host: {{ admin_ip_1 }}
+        user: root
+#controller HA config ends
   networks:
     external:
       gateway: {{ public_gateway }}
