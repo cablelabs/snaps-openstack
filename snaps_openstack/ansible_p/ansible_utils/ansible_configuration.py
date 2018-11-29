@@ -473,6 +473,5 @@ def launch_upgrade_downgrade_kolla(controller_ip, version):
         consts.KOLLA_PB_PKG, consts.UPGRADE_DOWNGRADE_KOLLA_YAML)
     list_controller = []
     list_controller.append(controller_ip)
-    print list_controller
     ret = apbl.launch_ansible_playbook(list_controller, updown_pb, {'version': version})
-    print "last"
+    return ret
