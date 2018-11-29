@@ -683,7 +683,7 @@ sudo python <repo_dir>/network_config.py -f <repo_dir>/snaps_openstack/utilities
 
 #### Step 3
 
-Install fresh openstack using physical interface and veth0 as management and data interfaces respectively. (Refer section 4)
+Install fresh openstack using physical interface and veth0 as management and data interfaces respectively. (Refer to section 4)
 
 #### Step 2
 
