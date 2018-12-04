@@ -21,11 +21,10 @@ from collections import namedtuple
 import os
 import ansible
 
-if ansible.__version__ > '2.4':
-  ansible_new = True
-else:
+if ansible.__version__ < '2.4':
   ansible_new = False
-
+else:
+  ansible_new = True
 
 from ansible.executor.playbook_executor import PlaybookExecutor
 from ansible.parsing.dataloader import DataLoader
@@ -51,10 +50,7 @@ def launch_ansible_playbook(list_ip, playbook, extra_variable=None):
     :param extra_variable: dict of the playbook variables to be applied
     """
     host_list=list_ip
-    if ansible.__version__ < '2.4':
-	ansible_new = False
-    else:
-	ansible_new = True
+
     if not os.path.isfile(playbook):
         raise Exception('Requested playbook is not found - ' + playbook)
 
