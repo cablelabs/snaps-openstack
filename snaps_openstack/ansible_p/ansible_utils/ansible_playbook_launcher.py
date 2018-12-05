@@ -21,10 +21,21 @@ from collections import namedtuple
 import os
 import ansible
 
+if ansible.__version__ < '2.4':
+  ansible_new = False
+else:
+  ansible_new = True
+
 from ansible.executor.playbook_executor import PlaybookExecutor
 from ansible.parsing.dataloader import DataLoader
-from ansible.inventory.manager import InventoryManager
-from ansible.vars.manager import VariableManager
+
+if ansible_new:
+  from ansible.inventory.manager import InventoryManager
+  from ansible.vars.manager import VariableManager
+else:
+  from ansible.inventory import Inventory
+  from ansible.vars import VariableManager
+
 
 __author__ = '_ARICENT'
 
@@ -47,8 +58,12 @@ def launch_ansible_playbook(list_ip, playbook, extra_variable=None):
         logger.warn('Unable to find playbook - ' + playbook)
 
     loader = DataLoader()
-    inventory = InventoryManager(loader=loader, sources=','.join(host_list))
-    variable_manager = VariableManager(loader=loader, inventory=inventory)
+    if ansible_new:
+      inventory = InventoryManager(loader=loader, sources=','.join(host_list))
+      variable_manager = VariableManager(loader=loader, inventory=inventory)
+    else:
+      variable_manager = VariableManager()
+      inventory = Inventory(loader, variable_manager, host_list)
 
 
     if extra_variable is not None:
@@ -66,7 +81,8 @@ def launch_ansible_playbook(list_ip, playbook, extra_variable=None):
                           'verbosity', 'check', 'sftp_extra_args',
                           'scp_extra_args','diff'])
 
-    ansible_opts = options(listtags=None, listtasks=None, listhosts=None,
+    if ansible_new:
+      ansible_opts = options(listtags=None, listtasks=None, listhosts=None,
                            syntax=False, connection='ssh',
                            module_path=None, forks=100, remote_user=None,
                            private_key_file=None,
@@ -74,6 +90,15 @@ def launch_ansible_playbook(list_ip, playbook, extra_variable=None):
                            become=True, become_method='sudo',
                            become_user=None, verbosity=11111, check=False,
                            sftp_extra_args=None, scp_extra_args=None, diff=False)
+    else:
+      ansible_opts = options(listtags=None, listtasks=None, listhosts=None,
+                           syntax=False, connection='ssh',
+                           module_path=None, forks=100, remote_user=None,
+                           private_key_file=None,
+                           ssh_common_args=None, ssh_extra_args=None,
+                           become=True, become_method='sudo',
+                           become_user=None, verbosity=11111, check=False,
+                           sftp_extra_args=None, scp_extra_args=None)
 
     logger.debug(
         'Setting up Ansible Playbook Executor for playbook - ' + playbook)
