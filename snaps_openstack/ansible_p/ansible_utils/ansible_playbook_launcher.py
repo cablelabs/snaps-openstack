@@ -20,9 +20,9 @@ from collections import namedtuple
 
 import os
 from ansible.executor.playbook_executor import PlaybookExecutor
-from ansible.inventory.manager import InventoryManager
+from ansible.inventory import Inventory
 from ansible.parsing.dataloader import DataLoader
-from ansible.vars.manager import VariableManager
+from ansible.vars import VariableManager
 
 __author__ = '_ARICENT'
 
@@ -36,22 +36,23 @@ def launch_ansible_playbook(list_ip, playbook, extra_variable=None):
     :param playbook: the playboos to be applied
     :param extra_variable: dict of the playbook variables to be applied
     """
-    host_list=list_ip
     if not os.path.isfile(playbook):
         raise Exception('Requested playbook is not found - ' + playbook)
 
     if not playbook:
         logger.warn('Unable to find playbook - ' + playbook)
 
-    loader = DataLoader()
-    inventory = InventoryManager(loader=loader, sources=','.join(host_list))
-    variable_manager = VariableManager(loader=loader, inventory=inventory)
+    variable_manager = VariableManager()
 
     if extra_variable is not None:
         variable_manager.extra_vars = extra_variable
         logger.info(extra_variable)
     else:
         logger.info('NO EXTRA VARS')
+    loader = DataLoader()
+    inventory = Inventory(loader=loader, variable_manager=variable_manager,
+                          host_list=list_ip)
+    variable_manager.set_inventory(inventory)
 
     options = namedtuple('Options',
                          ['listtags', 'listtasks', 'listhosts', 'syntax',
@@ -60,7 +61,7 @@ def launch_ansible_playbook(list_ip, playbook, extra_variable=None):
                           'ssh_common_args', 'ssh_extra_args',
                           'become', 'become_method', 'become_user',
                           'verbosity', 'check', 'sftp_extra_args',
-                          'scp_extra_args','diff'])
+                          'scp_extra_args'])
 
     ansible_opts = options(listtags=None, listtasks=None, listhosts=None,
                            syntax=False, connection='ssh',
@@ -69,7 +70,7 @@ def launch_ansible_playbook(list_ip, playbook, extra_variable=None):
                            ssh_common_args=None, ssh_extra_args=None,
                            become=True, become_method='sudo',
                            become_user=None, verbosity=11111, check=False,
-                           sftp_extra_args=None, scp_extra_args=None, diff=False)
+                           sftp_extra_args=None, scp_extra_args=None)
 
     logger.debug(
         'Setting up Ansible Playbook Executor for playbook - ' + playbook)
