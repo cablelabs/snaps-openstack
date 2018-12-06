@@ -38,7 +38,7 @@ def launch_ansible_playbook(list_ip, playbook, extra_variable=None):
     :param playbook: the playboos to be applied
     :param extra_variable: dict of the playbook variables to be applied
     """
-    host_list=list_ip
+    host_list = list_ip
 
     if not os.path.isfile(playbook):
         raise Exception('Requested playbook is not found - ' + playbook)
@@ -49,7 +49,6 @@ def launch_ansible_playbook(list_ip, playbook, extra_variable=None):
     loader = DataLoader()
     inventory = InventoryManager(loader=loader, sources=','.join(host_list))
     variable_manager = VariableManager(loader=loader, inventory=inventory)
-
 
     if extra_variable is not None:
         variable_manager.extra_vars = extra_variable
@@ -64,7 +63,7 @@ def launch_ansible_playbook(list_ip, playbook, extra_variable=None):
                           'ssh_common_args', 'ssh_extra_args',
                           'become', 'become_method', 'become_user',
                           'verbosity', 'check', 'sftp_extra_args',
-                          'scp_extra_args','diff'])
+                          'scp_extra_args', 'diff'])
 
     ansible_opts = options(listtags=None, listtasks=None, listhosts=None,
                            syntax=False, connection='ssh',
