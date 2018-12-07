@@ -1,0 +1,14 @@
+---
+- hosts: all
+  tasks:
+    - name: Modify globals file
+      lineinfile:
+          dest: /etc/kolla/globals.yml
+          regexp: '^openstack_release'
+          line: 'openstack_release: "{{ version }}"'
+    - name: kolla ansible upgrade
+      command: kolla-ansible upgrade -i /etc/kolla_packages/source/inventory/multinode
+      register: var_upgrade_output
+    - debug: var=var_upgrade_output.stdout
+
+    

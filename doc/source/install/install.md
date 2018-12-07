@@ -683,7 +683,7 @@ sudo python <repo_dir>/network_config.py -f <repo_dir>/snaps_openstack/utilities
 
 #### Step 3
 
-Install fresh openstack using physical interface and veth0 as management and data interfaces respectively. (Please refer to 4.1)
+Install fresh openstack using physical interface and veth0 as management and data interfaces respectively. (Refer to section 4)
 
 #### Step 2
 
@@ -693,9 +693,25 @@ Run `network_config.py` as shown below:
 sudo python <repo_dir>/network_config.py -f <repo_dir>/snaps_openstack/utilities/var.yaml -postNic
 ```
 
-## 5 Cleanup and Troubleshooting
+## 5 Upgrade and Downgrade Openstack Cluster
 
-### 5.1 Fresh Deployment with Existing Docker Repository
+### 5.1 Upgrade Openstack Cluster
+After successful installation of openstack cluster with Pike release (Refer to section 4). User can upgrade the setup to Queens release by running the following command:
+
+```
+sudo python <repo_dir>/iaas_launch.py -f <repo_dir>/conf/openstack/kolla/deployment.yaml -upgrade queens
+```
+
+### 5.2 Downgrade Openstack Cluster
+After successful installation of openstack cluster with Queens release (Refer to section 4). User can downgrade the setup to Pike release by running the following command:
+
+```
+sudo python <repo_dir>/iaas_launch.py -f <repo_dir>/conf/openstack/kolla/deployment.yaml -downgrade pike
+```
+
+## 6 Cleanup and Troubleshooting
+
+### 6.1 Fresh Deployment with Existing Docker Repository
 
 If docker based images for OpenStack services are already available run
 `iaas_launch.py` as shown below:
@@ -704,7 +720,7 @@ If docker based images for OpenStack services are already available run
 sudo python <repo_dir>/iaas_launch.py -f <repo_dir>/conf/openstack/kolla/deployment.yaml -d
 ```
 
-### 5.2 Re-deployment
+### 6.2 Re-deployment
 
 In case previous deployment attempt has failed or new changes are required
 (enabling optional services), attempt following steps.
@@ -737,7 +753,7 @@ Or if docker repository needs to be built:
 sudo python <repo_dir>/iaas_launch.py -f <repo_dir>/conf/openstack/kolla/deployment.yaml -drs
 ```
 
-### 5.3 Cleanup
+### 6.3 Cleanup
 
 Clean up previous OpenStack deployment:
 
@@ -757,7 +773,7 @@ Clean up previous vlan configuration:
 sudo python <repo_dir>/network_config.py -f <repo_dir>/snaps_openstack/utilities/var.yaml -tvclean
 ```
 
-#### 5.3.1 Vlan Mapping Cleanup
+#### 6.3.1 Vlan Mapping Cleanup
 
 Only perform the steps below after you've run vlan configuration cleanup script as instructed
 in 5.3 above. The manual cleanup steps in this section are necessary to workaround an upstream
@@ -797,7 +813,7 @@ Exit from mariadb container interactive mode:
 ```
 exit
 ```
-#### 5.3.2 Single NIC Cleanup
+#### 6.3.2 Single NIC Cleanup
 
 Before cleaning the opesntack setup user needs to clean up the single NIC configurations.
 

@@ -35,6 +35,8 @@ def __load(data, operation):
     sys.path.append(plugin_path)
     if operation is "clean" or operation is "cleanregistry":
         ret = kolla_utils.clean_up(data, operation)
+    if operation is "upgrade" or operation is "downgrade":
+        ret = kolla_utils.upgrade_downgrade_cluster(data, operation)
     else:
         ret = kolla_utils.main(data, operation)
 
