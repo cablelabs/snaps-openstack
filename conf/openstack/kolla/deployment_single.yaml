@@ -13,11 +13,11 @@
 # limitations under the License.
 
 openstack:
-  deployment_type: Kolla
-  git_branch: stable/queens
-  kolla_tag: ""
-  kolla_ansible_tag: ""
-
+  versioning:
+      release: queens
+      image: pull
+      repo: default
+      repo_tag: queens
   hosts:
     -
       host:
@@ -41,7 +41,6 @@ openstack:
           - "/dev/sdb"
           - "/dev/sdc"
         password: ChangeMe 
-        service_host: ""
         user: root
 
   networks:
@@ -77,6 +76,5 @@ openstack:
      internal_vip_address: ""
      kolla_registry: ""
      kolla_registry_port: "4000"
-     pull_from_hub: "no"
      base_size: "573741824"
      count: "20"
