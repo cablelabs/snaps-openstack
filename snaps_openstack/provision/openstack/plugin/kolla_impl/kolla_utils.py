@@ -54,10 +54,10 @@ def main(config, operation):
         kolla_ansible_tag = ""
         git_branch = ""
         if "\\" in config.get(consts.OPENSTACK).get(consts.VERSIONING).get(consts.GIT_BRANCH):
-             temp = config.get(consts.OPENSTACK).get(consts.VERSIONING).get(consts.GIT_BRANCH).split("\\")
-             git_branch = temp[0]
-             kolla_tag = temp[1]
-             kolla_ansible_tag = temp[1]
+            temp = config.get(consts.OPENSTACK).get(consts.VERSIONING).get(consts.GIT_BRANCH).split("\\")
+            git_branch = temp[0]
+            kolla_tag = temp[1]
+            kolla_ansible_tag = temp[1]
         git_branch = config.get(consts.OPENSTACK).get(consts.VERSIONING).get(consts.GIT_BRANCH)
         logger.info("***********************GIT BRANCH **********************")
         logger.info(git_branch)
@@ -84,7 +84,7 @@ def main(config, operation):
         logger.info("**************MULTINODE INVENTORY FILE******************")
         __create_inventory_multinode(host_node_type_map)
         logger.info("**************DOCKER DAEMON JSON ***********************")
-       
+
         __create_daemon(config, pull_from_hub)
 
         logger.info("PROVISION_PREPARATION METHOD CALLED")
@@ -271,11 +271,11 @@ def __create_daemon(config, pull_from_hub):
     f_out = open(consts.DAEMON_FILE, "w")
     if (pull_from_hub == "pull"):
         f_out.write(
-        "{" + '\n' + '"storage-driver":' + '"overlay2"' + '\n' + '}')
+            "{" + '\n' + '"storage-driver":' + '"overlay2"' + '\n' + '}')
     else:
         f_out.write(
-        "{ " + '"insecure-registries":["' + docker_registry + ":" + str(
-            docker_port) + '"] ,' '\n' + '"storage-driver":' + '"overlay2"'+ '\n' + '}')
+            "{ " + '"insecure-registries":["' + docker_registry + ":" + str(
+                docker_port) + '"] ,' '\n' + '"storage-driver":' + '"overlay2"' + '\n' + '}')
     f_out.close()
 
 
@@ -286,21 +286,21 @@ def __create_global(config, git_branch, pull_from_hub):
     newfile = consts.GLOBAL_FILE
     tag = config.get(consts.OPENSTACK).get(consts.VERSIONING).get(consts.DOCKER_TAG)
     if pull_from_hub == "pull":
-        if (tag == "latest" or tag is None  or tag is ''):
+        if (tag == "latest" or tag is None or tag is ''):
             release_value = "latest"
             filedata = filedata.replace(
-                 '#openstack_release: "auto"',
-                 'openstack_release: "' + release_value + '"')
+                '#openstack_release: "auto"',
+                'openstack_release: "' + release_value + '"')
         if tag != 'latest':
-           if tag is not None and tag is not '':
-                  release_value = config.get(consts.OPENSTACK).get(consts.VERSIONING).get(consts.DOCKER_TAG)
-                  filedata = filedata.replace(
-                     '#openstack_release: "auto"',
-                     'openstack_release: "' + release_value + '"')
+            if tag is not None and tag is not '':
+                release_value = config.get(consts.OPENSTACK).get(consts.VERSIONING).get(consts.DOCKER_TAG)
+                filedata = filedata.replace(
+                    '#openstack_release: "auto"',
+                    'openstack_release: "' + release_value + '"')
     if pull_from_hub == "build":
         filedata = filedata.replace(
-                     '#openstack_release: "auto"',
-                     'openstack_release: "' + git_branch + '"')
+            '#openstack_release: "auto"',
+            'openstack_release: "' + git_branch + '"')
     if (config.get(consts.OPENSTACK).get(consts.KOLLA).get(
             consts.BASE_DISTRIBUTION) is not None):
         kolla_base_distro = config.get(
@@ -364,9 +364,9 @@ def __create_global(config, git_branch, pull_from_hub):
                     consts.DOCKER_NAMESPACE)
                 logger.info("Using docker_namespace " + docker_namespace)
                 if docker_namespace != 'default' and pull_from_hub == "pull":
-                   filedata = filedata.replace(
-                       '#docker_namespace: "companyname"',
-                       'docker_namespace: "' + docker_namespace +'"')
+                    filedata = filedata.replace(
+                        '#docker_namespace: "companyname"',
+                        'docker_namespace: "' + docker_namespace + '"')
 
     proxy_http = config.get(consts.OPENSTACK).get('proxies').get('http_proxy')
     proxy_https = config.get(consts.OPENSTACK).get('proxies').get(
@@ -634,7 +634,7 @@ def __validate_configuration(config):
 
             elif key == "second_storage":
                 if ((value is None) and ("ceph" in config.get(consts.OPENSTACK).get(consts.SERVICES))
-                   and (is_storage_present)):
+                        and (is_storage_present)):
                     logger.info(value)
                     logger.info("SECOND STORAGE IS NOT DEFINED WHILE USING CEPH")
                     valid = False
@@ -644,7 +644,7 @@ def __validate_configuration(config):
             # check if storage node configuration is present for this host, mark the variable as true
             elif key == "sriov_interface":
                 if ((value is None) and ("sriov" in config.get(consts.OPENSTACK).get(consts.SERVICES))
-                   and (is_compute_present)):
+                        and (is_compute_present)):
                     valid = False
                 else:
                     logger.info(value)
@@ -653,7 +653,7 @@ def __validate_configuration(config):
                 second_storage_config_present = True
         service = config.get(consts.OPENSTACK).get(consts.SERVICES)
         if ((config.get(consts.OPENSTACK).get(consts.SERVICES) is not None)
-           and("ceph" in config.get(consts.OPENSTACK).get(consts.SERVICES)) and (is_storage_present)):
+                and("ceph" in config.get(consts.OPENSTACK).get(consts.SERVICES)) and (is_storage_present)):
             if(((is_storage_present is False) and (is_storage_list_present is True)) or
                ((is_storage_present is True) and (is_storage_list_present is False))):
                 logger.info(

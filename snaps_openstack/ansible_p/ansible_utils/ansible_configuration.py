@@ -126,6 +126,8 @@ def clean_up_kolla(list_ip, docker_registry, service_list,
                 logger.info('Image cleanup problems might be there')
 
 # TODO - Try breaking this function into smaller ones
+
+
 def launch_provisioning_kolla(iplist, git_branch, kolla_tag, kolla_ansible_tag,
                               host_name_map, host_node_type_map,
                               docker_registry, docker_port, kolla_base,
