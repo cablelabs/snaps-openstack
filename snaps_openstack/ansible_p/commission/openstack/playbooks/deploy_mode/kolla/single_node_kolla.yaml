@@ -138,7 +138,6 @@
     - name: prepare ceph OSD drive
       when: enable_ceph == "yes"
       command: "parted {{ item }} -s -- mklabel gpt mkpart KOLLA_CEPH_OSD_BOOTSTRAP 1 -1"
-#      ignore_errors: True
       with_items:
         "{{SECOND_STORAGE}}"
     - name: "Creating directory /etc/kolla/config"
@@ -258,7 +257,7 @@
       copy:
        src: "{{BASE_FILE_PATH}}daemon.json"
        dest: "{{ DAEMON_DOCKER_FILE_DEST }}"
-      when: PULL_HUB != "yes"
+      when: PULL_HUB == "build"
 
     - name: systemctl daemon-reload
       command: systemctl daemon-reload

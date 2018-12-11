@@ -50,26 +50,29 @@ def main(config, operation):
         credential_dic = __get_credentials(config)
         logger.info("***********************CREDENTIALS**********************")
         logger.info(credential_dic)
-        git_branch = config.get(consts.OPENSTACK).get(consts.GIT_BRANCH)
+        kolla_tag = ""
+        kolla_ansible_tag = ""
+        git_branch = ""
+        if "\\" in config.get(consts.OPENSTACK).get(consts.VERSIONING).get(consts.GIT_BRANCH):
+             temp = config.get(consts.OPENSTACK).get(consts.VERSIONING).get(consts.GIT_BRANCH).split("\\")
+             git_branch = temp[0]
+             kolla_tag = temp[1]
+             kolla_ansible_tag = temp[1]
+        git_branch = config.get(consts.OPENSTACK).get(consts.VERSIONING).get(consts.GIT_BRANCH)
         logger.info("***********************GIT BRANCH **********************")
         logger.info(git_branch)
-        kolla_tag = config.get(consts.OPENSTACK).get(consts.KOLLA_TAG)
         logger.info("***********************KOLLA TAG **********************")
         logger.info(kolla_tag)
-        kolla_ansible_tag = config.get(consts.OPENSTACK).get(
-            consts.KOLLA_ANSIBLE_TAG)
         logger.info(
             "***********************KOLLA-ANSIBLE TAG **********************")
         logger.info(kolla_ansible_tag)
         logger.info("*********************GLOBAL.YML*************************")
-        if (config.get(consts.OPENSTACK).get(consts.KOLLA).get(
+        if (config.get(consts.OPENSTACK).get(consts.VERSIONING).get(
                 consts.PULL_HUB) is not None):
-            pull_from_hub = config.get(consts.OPENSTACK).get(consts.KOLLA).get(
+            pull_from_hub = config.get(consts.OPENSTACK).get(consts.VERSIONING).get(
                 consts.PULL_HUB)
-            if pull_from_hub != "yes":
-                pull_from_hub = "no"
         else:
-            pull_from_hub = "no"
+            pull_from_hub = "pull"
         __create_global(config, git_branch, pull_from_hub)
         hostname_map = __get_hostname_map(config)
         host_node_type_map = __create_host_nodetype_map(config)
@@ -131,7 +134,7 @@ def main(config, operation):
                         'isolcpus')
                     reserve_memory[interfaceData.get('ip')] = host_data.get(
                         'reserved_host_memory_mb')
-
+        git_branch = "stable/" + git_branch
         ansible_configuration.launch_provisioning_kolla(
             iplist, git_branch, kolla_tag, kolla_ansible_tag, hostname_map,
             host_node_type_map, docker_registry, docker_port, kolla_base,
@@ -266,7 +269,7 @@ def __create_daemon(config, pull_from_hub):
     docker_port = config.get(consts.OPENSTACK).get(consts.KOLLA).get(
         consts.KOLLA_REGISTRY_PORT)
     f_out = open(consts.DAEMON_FILE, "w")
-    if (pull_from_hub == "yes"):
+    if (pull_from_hub == "pull"):
         f_out.write(
         "{" + '\n' + '"storage-driver":' + '"overlay2"' + '\n' + '}')
     else:
@@ -281,11 +284,23 @@ def __create_global(config, git_branch, pull_from_hub):
     f = open(basefile, 'r')
     filedata = f.read()
     newfile = consts.GLOBAL_FILE
-    if pull_from_hub == "yes":
-        release_value = git_branch.split('stable/')
+    tag = config.get(consts.OPENSTACK).get(consts.VERSIONING).get(consts.DOCKER_TAG)
+    if pull_from_hub == "pull":
+        if (tag == "latest" or tag is None  or tag is ''):
+            release_value = "latest"
+            filedata = filedata.replace(
+                 '#openstack_release: "auto"',
+                 'openstack_release: "' + release_value + '"')
+        if tag != 'latest':
+           if tag is not None and tag is not '':
+                  release_value = config.get(consts.OPENSTACK).get(consts.VERSIONING).get(consts.DOCKER_TAG)
+                  filedata = filedata.replace(
+                     '#openstack_release: "auto"',
+                     'openstack_release: "' + release_value + '"')
+    if pull_from_hub == "build":
         filedata = filedata.replace(
-            '#openstack_release: "auto"',
-            'openstack_release: "' + release_value[1] + '"')
+                     '#openstack_release: "auto"',
+                     'openstack_release: "' + git_branch + '"')
     if (config.get(consts.OPENSTACK).get(consts.KOLLA).get(
             consts.BASE_DISTRIBUTION) is not None):
         kolla_base_distro = config.get(
@@ -338,19 +353,20 @@ def __create_global(config, git_branch, pull_from_hub):
             consts.REGISTRY)
         docker_port = config.get(consts.OPENSTACK).get(consts.KOLLA).get(
             consts.KOLLA_REGISTRY_PORT)
-        if pull_from_hub != "yes":
+        if pull_from_hub is "build":
             filedata = filedata.replace(
                 '#docker_registry: "172.16.0.10:4000"',
                 'docker_registry: "' + docker_registry + ':' + str(
                     docker_port) + '"')
-        elif (config.get(consts.OPENSTACK).get(consts.KOLLA).get(consts.DOCKER_NAMESPACE) is not None):
-            if config.get(consts.OPENSTACK).get(consts.KOLLA).get(consts.DOCKER_NAMESPACE) is not '':
-                docker_namespace = config.get(consts.OPENSTACK).get(consts.KOLLA).get(
+        elif (config.get(consts.OPENSTACK).get(consts.VERSIONING).get(consts.DOCKER_NAMESPACE) is not None):
+            if config.get(consts.OPENSTACK).get(consts.VERSIONING).get(consts.DOCKER_NAMESPACE) is not '':
+                docker_namespace = config.get(consts.OPENSTACK).get(consts.VERSIONING).get(
                     consts.DOCKER_NAMESPACE)
                 logger.info("Using docker_namespace " + docker_namespace)
-                filedata = filedata.replace(
-                    '#docker_namespace: "companyname"',
-                    'docker_namespace: "' + docker_namespace + '"')
+                if docker_namespace != 'default' and pull_from_hub == "pull":
+                   filedata = filedata.replace(
+                       '#docker_namespace: "companyname"',
+                       'docker_namespace: "' + docker_namespace +'"')
 
     proxy_http = config.get(consts.OPENSTACK).get('proxies').get('http_proxy')
     proxy_https = config.get(consts.OPENSTACK).get('proxies').get(
@@ -551,7 +567,7 @@ def __validate_configuration(config):
     logger.debug("Starting validation")
     ip_list = []
     # Check if git_branch is defined
-    if config_dict.get(consts.GIT_BRANCH) is None:
+    if config_dict.get(consts.VERSIONING).get(consts.GIT_BRANCH) is None:
         logger.error("Value of git_branch not present")
         valid = False
     # Check if proxy values present
@@ -752,7 +768,7 @@ def clean_up(config, operation):
     list_ip, host_type = __hostip_list(config)
     docker_registry = config.get(consts.OPENSTACK).get(consts.KOLLA).get(
         consts.REGISTRY)
-    pull_from_hub = config.get(consts.OPENSTACK).get(consts.KOLLA).get(
+    pull_from_hub = config.get(consts.OPENSTACK).get(consts.VERSIONING).get(
         consts.PULL_HUB)
     host_node_type_map = __create_host_nodetype_map(config)
     host_storage_node_map = __create_host_storage_node_map(config, host_node_type_map)

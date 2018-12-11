@@ -13,10 +13,11 @@
 # limitations under the License.
 ---
 openstack: 
-  deployment_type: Kolla
-  git_branch: stable/queens
-  kolla_tag: ""
-  kolla_ansible_tag: ""
+  versioning:
+      release: queens
+      image: pull
+      repo: default
+      repo_tag: queens
   hosts: 
     -
       host:
@@ -49,7 +50,6 @@ openstack:
           - "/dev/sdc"
         sriov_interface:
         password:
-        service_host: ""
         user: root
 
     -
@@ -79,7 +79,6 @@ openstack:
         second_storage:
         sriov_interface:
         password: 
-        service_host: ""
         user: root
     -
       host:
@@ -108,7 +107,6 @@ openstack:
         second_storage:
         sriov_interface:
         password: 
-        service_host: ""
         user: root
     -
       host:
@@ -139,7 +137,6 @@ openstack:
           - "/dev/sdb/"
         sriov_interface:
         password: 
-        service_host: ""
         user: root
     -
       host:
@@ -170,7 +167,6 @@ openstack:
           - "/dev/sdb/"
         sriov_interface:
         password: 
-        service_host: ""
         user: root
   networks:
     external:
@@ -211,7 +207,5 @@ openstack:
      kolla_registry_port: "4000"
      external_vip_address: ""
      external_interface: ""
-     pull_from_hub: "yes"
-     docker_namespace: ""
      base_size: "573741824"
      count: "20"

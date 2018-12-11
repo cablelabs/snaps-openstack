@@ -131,7 +131,7 @@
     - name: run start-registry command
       command: docker run -d -p 4000:5000 --restart=always --name registry  registry:2
       ignore_errors: True
-      when: PULL_HUB != "yes"
+      when: PULL_HUB == "build"
 
     - name: replace data in init-runonce script
       ignore_errors: True
@@ -349,12 +349,12 @@
     - debug:
         var: tag
 
-    - name: adding openstack release tag in globals.yaml
-      lineinfile:
-       dest: /etc/kolla/globals.yml
-       line: 'openstack_release: "{{tag.stdout}}"'
-       insertafter: '#openstack_release: "auto"'
-      when: PULL_HUB != "yes" and GET_TAG
+#    - name: adding openstack release tag in globals.yaml
+#      lineinfile:
+#       dest: /etc/kolla/globals.yml
+#       line: 'openstack_release: "{{tag.stdout}}"'
+#       insertafter: '#openstack_release: "auto"'
+#      when: PULL_HUB == "build" and GET_TAG
 
     - name: Edit the file /etc/default/grub for SRIOV
       lineinfile:
@@ -383,12 +383,12 @@
     - name: set up the sriov interface
       shell: ip link set {{ item }} up
       with_items: "{{ SRIOV_INTERFACE }}"
-      when: enable_neutron_sriov == "yes" and CHECK_VAR == "present"
+      when: enable_neutron_sriov == "yes" and CHECK_VAR == "present" and  SRIOV_INTERFACE != None
 
     - name: Determine the maximum number of VFs a PF can support and Create VFs via the PCI SYS interface
       shell: "cat /sys/class/net/{{ item }}/device/sriov_totalvfs  >  /sys/class/net/{{ item }}/device/sriov_numvfs"
       with_items: "{{ SRIOV_INTERFACE }}"
-      when: enable_neutron_sriov == "yes" and CHECK_VAR == "present"
+      when: enable_neutron_sriov == "yes" and CHECK_VAR == "present" and  SRIOV_INTERFACE != None
 
     - name: Persist created VFs on reboot
       lineinfile:
@@ -397,7 +397,7 @@
         line: "cat /sys/class/net/{{ item }}/device/sriov_totalvfs  >  /sys/class/net/{{ item }}/device/sriov_numvfs"
         insertbefore: "exit 0"
       with_items: "{{ SRIOV_INTERFACE }}"
-      when: enable_neutron_sriov == "yes" and CHECK_VAR == "present"
+      when: enable_neutron_sriov == "yes" and CHECK_VAR == "present" and  SRIOV_INTERFACE != None
 
 
     - name: Copy ml2_conf.ini file for SRIOV
@@ -458,7 +458,7 @@
 
     - name: kolla ansible pull with file {{ MULTINODE_FILE }}
       command: kolla-ansible pull  -i "{{ MULTINODE_FILE }}"
-      when: PULL_HUB == "yes"
+      when: PULL_HUB == "pull"
 
     - name: kolla-ansible deploy with file {{ MULTINODE_FILE }}
       command: kolla-ansible deploy  -i "{{ MULTINODE_FILE }}"
@@ -570,7 +570,7 @@
     - name: install test requirements - {{ TEST_REQUIREMENT_KOLLA }}
       pip:
         requirements: "{{ TEST_REQUIREMENT_KOLLA }}"
-      when: PULL_HUB != "yes"
+      when: PULL_HUB == "build"
       ignore_errors: True
 
     - name: fetching external routes

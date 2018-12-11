@@ -99,7 +99,7 @@ def clean_up_kolla(list_ip, docker_registry, service_list,
         remove_images_pb = pkg_resources.resource_filename(
             consts.KOLLA_PB_PKG, consts.KOLLA_REMOVE_IMAGES)
 
-        if operation is "cleanregistry" and pull_from_hub != "yes":
+        if operation is "cleanregistry" and pull_from_hub == "build":
             remove_registry_pb = pkg_resources.resource_filename(
                 consts.KOLLA_PB_PKG, consts.KOLLA_REMOVE_REGISTRY)
 
@@ -117,14 +117,13 @@ def clean_up_kolla(list_ip, docker_registry, service_list,
                  'VARIABLE_FILE': variable_file})
             if ret_image != 0:
                 logger.info('Image cleanup problems might be there')
-        elif operation is "cleanregistry" and pull_from_hub == "yes":
+        elif operation is "cleanregistry" and pull_from_hub == "pull":
             ret_image = apbl.launch_ansible_playbook(
                 list_ip, remove_images_pb, {
                     'PROXY_DATA_FILE': proxy_data_file,
                     'VARIABLE_FILE': variable_file})
             if ret_image != 0:
                 logger.info('Image cleanup problems might be there')
-
 
 # TODO - Try breaking this function into smaller ones
 def launch_provisioning_kolla(iplist, git_branch, kolla_tag, kolla_ansible_tag,
@@ -135,7 +134,7 @@ def launch_provisioning_kolla(iplist, git_branch, kolla_tag, kolla_ansible_tag,
                               host_cpu_map, reserve_memory, base_size, count,
                               default, vxlan, pull_from_hub, host_storage_node_map, host_sriov_interface_node_map,
                               dpdk_enable):
-    if pull_from_hub != "yes":
+    if pull_from_hub == "build":
         docker_opts = "--insecure-registry  " + docker_registry + ":" + str(
             docker_port)
         docker_registry_ip = docker_registry + ":" + str(docker_port)

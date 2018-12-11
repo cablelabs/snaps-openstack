@@ -234,11 +234,11 @@
          dest: "/etc/default/grub"
          state: present
          line: 'GRUB_CMDLINE_LINUX_DEFAULT="$GRUB_CMDLINE_LINUX_DEFAULT intel_iommu=on iommu=pt"'
-      when : enable_neutron_sriov == "yes"
+      when : enable_neutron_sriov == "yes" and SRIOV_INTERFACE != None
     
     - name: Update grub
       command: update-grub
-      when : enable_neutron_sriov == "yes"
+      when : enable_neutron_sriov == "yes" and SRIOV_INTERFACE != None
 
     - name: "Reboot if required"
       shell: sleep 1 && shutdown -r now 'Reboot required'
@@ -246,22 +246,22 @@
       async: 1
       poll: 0
       ignore_errors: true
-      when: enable_neutron_sriov == "yes"
+      when: enable_neutron_sriov == "yes" and SRIOV_INTERFACE != None
 
     - name: "Wait for reboot"
       local_action: wait_for host={{ target }} port=22 delay=10 state=started
       become: false
-      when: enable_neutron_sriov == "yes"
+      when: enable_neutron_sriov == "yes" and  SRIOV_INTERFACE != None
   
     - name: set up the sriov interface
       shell: ip link set {{ item }} up
       with_items: "{{ SRIOV_INTERFACE }}"
-      when: enable_neutron_sriov == "yes"
+      when: enable_neutron_sriov == "yes" and SRIOV_INTERFACE != None
 
     - name: Determine the maximum number of VFs a PF can support and Create VFs via the PCI SYS interface
       shell: "cat /sys/class/net/{{ item }}/device/sriov_totalvfs  >  /sys/class/net/{{ item }}/device/sriov_numvfs"
       with_items: "{{ SRIOV_INTERFACE }}" 
-      when: enable_neutron_sriov == "yes"
+      when: enable_neutron_sriov == "yes" and SRIOV_INTERFACE != None
  
     - name: Persist created VFs on reboot
       lineinfile:
@@ -270,7 +270,7 @@
         line: "cat /sys/class/net/{{ item }}/device/sriov_totalvfs  >  /sys/class/net/{{ item }}/device/sriov_numvfs"
         insertbefore: "exit 0"
       with_items: "{{ SRIOV_INTERFACE }}"
-      when: enable_neutron_sriov == "yes"
+      when: enable_neutron_sriov == "yes" and SRIOV_INTERFACE != None
    
     - name: Extract IP of the neutron_external_interface - {{ neutron_external_interface }}
       shell: ip a show "{{ neutron_external_interface }}" | grep inet | grep global | awk '{ print$2}'
