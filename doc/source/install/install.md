@@ -137,7 +137,7 @@ in this section are explained below.
 
 | Parameter | Optionality | Description |
 | --------- | ----------- | ----------- |
-| release | N | Name of the OpenStack release.(Use `queens` for branch , or `queens/6.0.1` for tag based kolla deployment). |
+| release | N | Name of the OpenStack release.(Use `queens` for branch , or `queens\6.0.1` for tag based kolla deployment). |
 | image | Y | images can be built or pulled from docker hub for deployment by setting build or pull (default is pull). |
 | repo | Y | container images to be pulled from a specific docker hub namespace or the kolla namespace (default).|
 | repo_tag | Y | tag name of the specific container images to be pulled for deployment. |
