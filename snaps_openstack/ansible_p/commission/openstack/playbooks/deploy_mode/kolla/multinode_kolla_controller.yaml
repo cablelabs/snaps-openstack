@@ -349,13 +349,6 @@
     - debug:
         var: tag
 
-#    - name: adding openstack release tag in globals.yaml
-#      lineinfile:
-#       dest: /etc/kolla/globals.yml
-#       line: 'openstack_release: "{{tag.stdout}}"'
-#       insertafter: '#openstack_release: "auto"'
-#      when: PULL_HUB == "build" and GET_TAG
-
     - name: Edit the file /etc/default/grub for SRIOV
       lineinfile:
          dest: "/etc/default/grub"
