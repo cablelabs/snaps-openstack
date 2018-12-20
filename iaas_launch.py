@@ -69,9 +69,6 @@ def __manage_operation(config, operation):
     if config:
         config_dict = {}
         if config.get('openstack'):
-            logger.info("Your deployment model is :")
-            logger.info(config_dict.get('deployment_type'))
-
             logger.info(
                 "########################### Yaml Configuration##############")
             logger.info(config)

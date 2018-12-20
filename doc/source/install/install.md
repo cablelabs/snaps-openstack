@@ -129,16 +129,18 @@ storage nodes.
 The trunk is currently Queens release. If you want to deploy Pike release, please
 checkout stable/pike branch of SNAPS-OpenStack.
 
-Parameters defined in this section allow user to specify deployment type for
-OpenStack services and OpenStack version. Configuration parameters defined in
-this section are explained below.
+#### versioning:
+
+This section is used for OpenStack release planning. Parameters defined in this section 
+allow user to specify OpenStack version. Configuration parameters defined
+in this section are explained below.
 
 | Parameter | Optionality | Description |
 | --------- | ----------- | ----------- |
-| deployment_type | N | OpenStack deployment type `Kolla`. |
-| git_branch | N | OpenStack release to clone (Use `stable/queens` for trunk, or `stable/pike` for stable/pike branch). |
-| kolla_tag | Y | kolla package release to clone through kolla_tag value. |
-| kolla_ansible_tag | Y | kolla-ansible package release to clone through kolla_ansible_tag value. |
+| release | N | Name of the OpenStack release.(Use `queens` for branch , or `queens\6.0.1` for tag based kolla deployment). |
+| image | Y | images can be built or pulled from docker hub for deployment by setting build or pull (default is pull). |
+| repo | Y | container images to be pulled from a specific docker hub namespace or the kolla namespace (default).|
+| repo_tag | Y | tag name of the specific container images to be pulled for deployment. |
 
 #### hosts:
 
@@ -256,13 +258,6 @@ below.
     <td>Y</td>
     <td>List of SRIOV interfaces for SRIOV. Has to be present if SRIOV is enabled</td>
   </tr>
-  <tr>
-    <td/>
-    <td colspan="2">service_host</td>
-    <td>Y</td>
-    <td>IP of controller machine. Not required if the machine is controller.</td>
-  </tr>
-  <tr>
     <td/>
     <td colspan="2">user</td>
     <td>N</td>
@@ -400,8 +395,6 @@ This section is required only for Kolla based OpenStack deployment.
 | external_vip_address | N | Ip address for OpenStack external end points. |
 | external_interface | N | Interface for the OpenStack external api end points. |
 | base_size | Y | Base size for the physical volume of the cinder. |
-| pull_from_hub | Y | Pull images from docker hub for deployment if set to yes (Values can be yes/no). |
-| docker_namespace | Y |  Should be `snapsopenstack` to install using the snapsopenstack DockerHub repository. |
 | count | Y | Total count for the physical volume created. |
 
 ### 3.2 var.yaml (VLAN Configuration)

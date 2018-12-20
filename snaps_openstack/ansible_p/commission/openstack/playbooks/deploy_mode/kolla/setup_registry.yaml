@@ -27,13 +27,14 @@
     - name: run start-registry command
       command: docker run -d -p 4000:5000 --restart=always --name registry  registry:2
       ignore_errors: True
-      when: PULL_HUB != "yes"
+      when: PULL_HUB == "build"
 
     - name: Push docker images into the registry
       ignore_errors: True
       command: kolla-build --base "{{ kolla_base }}" --type "{{ kolla_install }}" --registry "{{ DOCKER_REGISTRY_IP }}"  --push
-      when: PULL_HUB != "yes"
+      when: PULL_HUB == "build"
+
     - name: Push ovsdpdk image
       ignore_errors: True
       command: kolla-build --base "{{ kolla_base }}" --type "{{ kolla_install }}" --registry "{{ DOCKER_REGISTRY_IP }}" --config-file "/etc/kolla/kolla-build.conf" --template-override "{{ GIT_CLONE_KOLLA }}/contrib/template-override/ovs-dpdk.j2" dpdk  --push
-      when: PULL_HUB != "yes"
+      when: PULL_HUB == "build"

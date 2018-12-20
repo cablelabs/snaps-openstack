@@ -1,6 +1,9 @@
 openstack:
-  deployment_type: Kolla
-  git_branch: stable/queens
+  versioning:
+      release: queens
+      image: pull
+      repo: default
+      repo_tag: queens
   hosts:
     -
       host:
@@ -31,7 +34,6 @@ openstack:
         second_storage: 
           - "/dev/vdb"
         password: {{ node_host_pass }}
-        service_host: ""
         user: root
     -
       host:
@@ -61,7 +63,6 @@ openstack:
         second_storage: 
           - "/dev/vdb"
         password: {{ node_host_pass }}
-        service_host: {{ admin_ip_1 }}
         user: root
     -
       host:
@@ -91,7 +92,6 @@ openstack:
         second_storage: 
           - "/dev/vdb"
         password: {{ node_host_pass }}
-        service_host: {{ admin_ip_1 }}
         user: root
   networks:
     external:
@@ -131,5 +131,3 @@ openstack:
      external_interface: {{ pub_iface }}
      base_size: "573741824"
      count: "20"
-     pull_from_hub: "yes"
-     docker_namespace: "snapsopenstack"
