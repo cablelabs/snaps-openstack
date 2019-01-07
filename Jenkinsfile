@@ -30,7 +30,7 @@ pipeline {
                 echo 'Running Baremetal install tests...'
             }
         }
-        stage('Baremetal install Test') {
+        stage('Cleaning up Baremetal install Test') {
             steps {
                 echo 'Running Baremetal install tests...'
             }
