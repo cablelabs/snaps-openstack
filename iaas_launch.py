@@ -21,6 +21,7 @@ import os
 
 from snaps_openstack.common.utils import file_utils
 from snaps_openstack.provision.openstack.deployment import deploy_infra
+from snaps_openstack.common.utils import validation_utils
 
 sys.path.append("common/utils")
 __author__ = '_ARICENT'
@@ -128,6 +129,11 @@ def main(arguments):
     if arguments.clean is not ARG_NOT_SET:
         __manage_operation(config, "clean")
 
+    if arguments.validation is not ARG_NOT_SET:
+        logger.info('Deployment yaml Validation starts')
+        validation_utils.validate_deployment_content(config)
+        logger.info('Input yaml file is validated successfully')
+
     logger.info('Completed operation successfully')
 
 
@@ -164,17 +170,23 @@ if __name__ == '__main__':
         '-downgrade', '--downgradecluster', dest='downgradecluster', nargs='?', default=ARG_NOT_SET,
         help='When used, Openstack cluster is downgraded to the defined release'
     )
+    parser_group.add_argument(
+        '-val', '--validation', dest='validation', nargs='?', default=ARG_NOT_SET,
+        help='When used, Validation of deployment config is performed')
     parser.add_argument(
         '-l', '--log-level', dest='log_level', default='INFO',
         help='Logging Level ( DEBUG | INFO | WARNING | ERROR | CRITICAL)')
     args = parser.parse_args()
+
     if (args.dreg is ARG_NOT_SET and args.dregclean is ARG_NOT_SET
         and args.deploy is ARG_NOT_SET and args.clean is ARG_NOT_SET
-            and args.upgradecluster is ARG_NOT_SET and args.downgradecluster is ARG_NOT_SET):
+            and args.upgradecluster is ARG_NOT_SET and args.downgradecluster is ARG_NOT_SET
+                and args.validation is ARG_NOT_SET):
         logger.info(
             'Must enter either -d for deploy IaaS or -c for cleaning up and '
             'environment or -drc to cleanup registry or -drs to setup '
-            'registry or -upgrade for upgrade the openstack cluster or -downgrade for downgrade the openstack cluster.')
+            'registry or -upgrade for upgrade the openstack cluster or -downgrade '
+            'for downgrade the openstack cluster or -val for file validation.')
         exit(1)
     if args.deploy is not ARG_NOT_SET and args.clean is not ARG_NOT_SET:
         logger.info('Cannot enter both options -d/--deploy and -c/--clean')

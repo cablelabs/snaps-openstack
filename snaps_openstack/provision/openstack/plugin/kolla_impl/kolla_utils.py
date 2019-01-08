@@ -340,14 +340,6 @@ def __create_global(config, git_branch, pull_from_hub):
             'kolla_external_vip_address: ' + '"' + external_vip + '"')
 
     if (config.get(consts.OPENSTACK).get(consts.KOLLA).get(
-            consts.EXTERNAL_INTERFACE) is not None):
-        external_interface = config.get(consts.OPENSTACK).get(
-            consts.KOLLA).get(consts.EXTERNAL_INTERFACE)
-        filedata = filedata.replace(
-            '#kolla_external_vip_interface:',
-            'kolla_external_vip_interface: ' + '"' + external_interface + '"')
-
-    if (config.get(consts.OPENSTACK).get(consts.KOLLA).get(
             consts.REGISTRY) is not None):
         docker_registry = config.get(consts.OPENSTACK).get(consts.KOLLA).get(
             consts.REGISTRY)
@@ -486,6 +478,10 @@ def __create_global(config, git_branch, pull_from_hub):
                         '#neutron_external_interface: "eth1"',
                         'neutron_external_interface: "' + name + '"')
                     gateway = interfaces[i].get("gateway")
+                    filedata = filedata.replace(
+                        '#kolla_external_vip_interface:',
+                        'kolla_external_vip_interface: ' + '"' + name + '"')
+
                 elif iface_type == "tenant":
                     filedata = filedata.replace(
                         '#tunnel_interface: "{{ network_interface }}"',
