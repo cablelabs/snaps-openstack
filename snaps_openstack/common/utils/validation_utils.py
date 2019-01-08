@@ -579,7 +579,6 @@ def validate_deployment_content(deployment_content):
                         "no_proxy": {'required': True, 'type': str}
                     }
                 },
-                "service_password": {'required': False, 'type': str},
                 "services": {
                     'required': False, 'type': [
                         ["cinder", "ceph", "magnum", "tempest", "ceilometer", "tacker",
