@@ -18,8 +18,8 @@ def validate_router_id(value, name):
     """
     if not (isinstance(value, int) or (isinstance(value, str) and value.isdigit())):
         raise ValidationException(
-            "Validation failed for " + str(name) + " parameter with " + str(value) + \
-            " value\n" + str(name) + " can only have integer value")
+            "Validation failed for " + str(name) + " parameter with " +
+            str(value) + " value\n" + str(name) + " can only have integer value")
 
     if int(value) < 1 or int(value) > 255:
         raise ValidationException("Virtual router ID can only have value between 1 and 255")
@@ -34,12 +34,12 @@ def validate_isolated_cpu(value, name):
     if not isinstance(value, str):
         raise ValidationException(
             "%s field having %s isolated CPUs is not a valid string." % (name, value))
-        regexp = re.compile(r'^\d+([-|,]\d+)*$')
-        if not regexp.search(value):
-            raise ValidationException(
-                "%s field having %s isolated CPUs does not meet prescribed format\
-            correct format is range (e.g.start cpu - end cpu) \
-            or specific cpus (1,2,3 etc)." % (name, value))
+    regexp = re.compile(r'^\d+([-|,]\d+)*$')
+    if not regexp.search(value):
+        raise ValidationException(
+            "%s field having %s isolated CPUs does not meet prescribed format "
+            "correct format is range (e.g.start cpu - end cpu)"
+            "or specific cpus (1,2,3 etc)." % (name, value))
     return True
 
 
@@ -117,7 +117,7 @@ def validate_input_file(name, schema, dep_contents):
     if isinstance(schema, dict) and isinstance(dep_contents, dict):
         # schema is a dict of types or other dicts
         for k in schema:
-            if not schema[k].get("required") and not dep_contents.has_key(k):
+            if not schema[k].get("required") and k not in dep_contents.keys():
                 continue
             if k in dep_contents:
                 if not validate_input_file(k, schema[k].get("type"), dep_contents[k]):
@@ -142,7 +142,7 @@ def validate_input_file(name, schema, dep_contents):
             return True
         else:
             raise ValidationException(
-                "Validation failed for " + str(name) + " parameter with " + \
+                "Validation failed for " + str(name) + " parameter with " +
                 str(dep_contents) + " value")
 
     if hasattr(schema, '__call__'):
@@ -153,28 +153,28 @@ def validate_input_file(name, schema, dep_contents):
             return True
         else:
             raise ValidationException(
-                "Validation failed for " + str(name) + " parameter with " + str(dep_contents) + \
+                "Validation failed for " + str(name) + " parameter with " + str(dep_contents) +
                 " value\n" + str(name) + " can only have value from " + str(schema))
 
     if schema == "str with no null":
         if not (isinstance(dep_contents, str) and dep_contents):
             raise ValidationException(
-                "Validation failed for " + str(name) + " parameter with " + str(dep_contents) + \
+                "Validation failed for " + str(name) + " parameter with " + str(dep_contents) +
                 " value\n" + str(name) + " can only have only string")
         return True
 
     if schema == "str or null":
         if not (dep_contents is None or isinstance(dep_contents, str)):
             raise ValidationException(
-                "Validation failed for " + str(name) + " parameter with " + str(dep_contents) + \
+                "Validation failed for " + str(name) + " parameter with " + str(dep_contents) +
                 " value\n" + str(name) + " can only have either string or null value")
         return True
 
     if schema == "int or strOfInt":
-        if not (isinstance(dep_contents, int) or (isinstance(dep_contents, str) \
-                                                          and dep_contents.isdigit())):
+        if not (isinstance(dep_contents, int) or (isinstance(dep_contents, str)
+                and dep_contents.isdigit())):
             raise ValidationException(
-                "Validation failed for " + str(name) + " parameter with " + str(dep_contents) + \
+                "Validation failed for " + str(name) + " parameter with " + str(dep_contents) +
                 " value\n" + str(name) + " can only have integer value")
         return True
 
@@ -183,12 +183,12 @@ def validate_input_file(name, schema, dep_contents):
             return True
         else:
             raise ValidationException(
-                "Validation failed for " + str(name) + " parameter with " + str(dep_contents) + \
+                "Validation failed for " + str(name) + " parameter with " + str(dep_contents) +
                 " value\n" + str(name) + " can only have array of strings or null value")
 
     # schema is neither a dict, nor list, not type
     raise ValidationException(
-        "Validation failed for " + str(name) + " parameter with " + str(dep_contents) + \
+        "Validation failed for " + str(name) + " parameter with " + str(dep_contents) +
         " value\n" + str(name) + " can only have value from " + str(schema) + " type")
 
 
@@ -206,7 +206,7 @@ def validate_service(deployment_content):
     """
     Validates OpenStack service configuration
     """
-    if deployment_content.has_key('services'):
+    if 'services' in deployment_content.keys():
         logger.info('Service level validation starts')
         validate_ceph(deployment_content)
         validate_sriov(deployment_content)
@@ -219,18 +219,18 @@ def validate_ceph(deployment_content):
     """
     logger.info('starting ceph validation')
     if 'ceph' in deployment_content.get('services') and \
-                    'cinder' not in deployment_content.get('services'):
+       'cinder' not in deployment_content.get('services'):
         raise ValidationException("Error: Ceph is enabled in services but "
                                   "cinder not, both should be present")
     if 'cinder' in deployment_content.get('services') and \
-                    'ceph' not in deployment_content.get('services'):
+       'ceph' not in deployment_content.get('services'):
         raise ValidationException("Error: Cinder is enabled in services but "
                                   "ceph not, both should be present")
     if all(k in deployment_content.get('services') for k in ['ceph', 'cinder']):
-        if not deployment_content.get('kolla').has_key('base_size'):
+        if 'base_size' not in deployment_content.get('kolla').keys():
             raise ValidationException(
                 "Ceph/Cinder is enable but base_size is not present")
-        if not deployment_content.get('kolla').has_key('count'):
+        if 'count' not in deployment_content.get('kolla').keys():
             raise ValidationException(
                 "Ceph/Cinder is enable but count is not present")
 
@@ -239,7 +239,7 @@ def validate_ceph(deployment_content):
             if 'storage' in host.get('host').get('node_type') and \
                     host.get('host').get('second_storage'):
                 ip_addr = [interface_element.get('ip')
-                           for interface_element in host.get('host').get('interfaces') \
+                           for interface_element in host.get('host').get('interfaces')
                            if interface_element.get('type') == 'management']
                 username = host.get('host').get('user')
                 password = host.get('host').get('password')
@@ -250,10 +250,10 @@ def validate_ceph(deployment_content):
                         raise ValidationException("Storage %s not present on host %s " %
                                                   (storage, host.get('host').get('hostname')))
                 storge_conf_flag = storge_conf_flag + 1
-            if ('storage' not in host.get('host').get('node_type') and \
-                        host.get('host').get('second_storage')) or \
-                    ('storage' in host.get('host').get('node_type') and \
-                             not host.get('host').get('second_storage')):
+            if ('storage' not in host.get('host').get('node_type') and
+                host.get('host').get('second_storage')) or \
+                    ('storage' in host.get('host').get('node_type') and
+                     not host.get('host').get('second_storage')):
                 raise ValidationException("Error: When ceph is enabled Storage node_type "
                                           "and second_storage both should be present")
         if not storge_conf_flag:
@@ -293,9 +293,9 @@ def validate_sriov(deployment_content):
         for host in deployment_content.get('hosts'):
             if 'compute' in host.get('host').get('node_type'):
                 ip_addr = [interface_element.get('ip')
-                           for interface_element in host.get('host').get('interfaces') \
+                           for interface_element in host.get('host').get('interfaces')
                            if interface_element.get('type') == 'management']
-                if host.get('host').get('sriov_interface') != None:
+                if host.get('host').get('sriov_interface') is not None:
                     username = host.get('host').get('user')
                     password = host.get('host').get('password')
                     for intf in host.get('host').get('sriov_interface'):
@@ -319,11 +319,10 @@ def validate_sriov(deployment_content):
     else:
         for host in deployment_content.get('hosts'):
             if 'compute' in host.get('host').get('node_type'):
-                if host.get('host').get('sriov_interface') != None:
+                if host.get('host').get('sriov_interface') is not None:
                     raise ValidationException(
                         "Sriov is not configured in the services, but "
                         "is present in the compute %s hosts" % (host.get('host').get('hostname')))
-
 
 
 def validate_network_range(deployment_content):
@@ -350,11 +349,10 @@ def validate_node_type(deployment_content):
     Validates that the configuration contains controller, network and compute nodes.
     """
     logger.info('starting node type validation')
-    node_types = []
     controller_cnt = 0
     compute_cnt = 0
     network_cnt = 0
-    dset_node_type = [{'compute', 'network', 'controller'}, {'compute', 'network', 'controller', 'storage'}, \
+    dset_node_type = [{'compute', 'network', 'controller'}, {'compute', 'network', 'controller', 'storage'},
                       {'controller', 'network'}, {'controller', 'network', 'storage'}, {'compute', 'storage'},
                       {'compute'}]
     if len(deployment_content.get('hosts')) != 1:
@@ -418,7 +416,7 @@ def validate_interface_data(deployment_content):
             if interface_element.get('type') == 'data':
                 data_interface += 1
 
-                if not interface_element.has_key('gateway'):
+                if 'gateway' not in interface_element.keys():
                     raise ValidationException(
                         "Data interface of %s host does not contain gateway IP"
                         % host.get('host').get('hostname'))
@@ -433,7 +431,7 @@ def validate_interface_data(deployment_content):
                         raise ValidationException("Error:Provided interface $s is not correct" %
                                                   (interface_element.get('name')))
             elif interface_element.get('type') == 'management':
-                if interface_element.has_key('gateway'):
+                if 'gateway' in interface_element.keys():
                     raise ValidationException(
                         "Other than Data interface of %s host does contain gateway IP"
                         % host.get('host').get('hostname'))
@@ -494,14 +492,14 @@ def validate_deployment_content(deployment_content):
             'required': True,
             'type': {
                 'versioning': {
-                'required': True,
+                    'required': True,
                     'type': {
-                            'release': {'required' : True, 'type': "str with no null"},
-                            'image': {'required' : True,'type' : [
-                                                  'pull','built']},
-                            'repo': {'required' : True , 'type': "str with no null"},
-                            'repo_tag': {'required' : True , 'type': "str with no null"}, 
-                            },
+                        'release': {'required': True, 'type': "str with no null"},
+                        'image': {'required': True, 'type': [
+                                              'pull', 'built']},
+                        'repo': {'required': True, 'type': "str with no null"},
+                        'repo_tag': {'required': True, 'type': "str with no null"},
+                        },
                  },
                 'hosts': {
                     'required': True,

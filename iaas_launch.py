@@ -142,7 +142,7 @@ if __name__ == '__main__':
     # directory in which this file resides
     os.chdir(os.path.dirname(os.path.realpath(__file__)))
     parser = argparse.ArgumentParser()
-    parser_group = parser.add_mutually_exclusive_group()
+    parser_group = parser.add_mutually_exclusive_group(required=True)
 
     parser.add_argument(
         '-f', '--file', dest='config', required=True,
