@@ -355,7 +355,7 @@ def validate_node_type(deployment_content):
     dset_node_type = [{'compute', 'network', 'controller'}, {'compute', 'network', 'controller', 'storage'},
                       {'controller', 'network'}, {'controller', 'network', 'storage'}, {'compute', 'storage'},
                       {'compute'}]
-    if len(deployment_content.get('hosts')) != 1:
+    if len(deployment_content.get('hosts')) != 0:
         for host in deployment_content.get('hosts'):
             if set(host.get('host').get('node_type')) not in dset_node_type:
                 raise ValidationException('Invalid node type set %s  '
