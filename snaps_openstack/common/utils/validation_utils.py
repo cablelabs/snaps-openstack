@@ -428,7 +428,7 @@ def validate_interface_data(deployment_content):
                         host.get('host').get('username'),
                         host.get('host').get('password'), cmd)
                     if not res:
-                        raise ValidationException("Error:Provided interface $s is not correct" %
+                        raise ValidationException("Error:Provided interface %s is not correct" %
                                                   (interface_element.get('name')))
             elif interface_element.get('type') == 'management':
                 if 'gateway' in interface_element.keys():
@@ -451,7 +451,7 @@ def validate_interface_data(deployment_content):
                                                       host.get('host').get('username'),
                                                       host.get('host').get('password'), cmd)
                 if not res:
-                    raise ValidationException("Error:Provided interface $s is not correct" %
+                    raise ValidationException("Error:Provided interface %s is not correct" %
                                               (interface_element.get('name')))
             elif interface_element.get('type') == 'tenant':
                 logger.info("tenant interface")
