@@ -81,7 +81,7 @@ def main(config, operation):
         host_sriov_interface_node_map = __create_host_sriov_interface_node_map(config)
         logger.info(host_sriov_interface_node_map)
         logger.info("**************MULTINODE INVENTORY FILE******************")
-        __create_inventory_multinode(host_node_type_map,git_branch)
+        __create_inventory_multinode(host_node_type_map, git_branch)
         logger.info("**************DOCKER DAEMON JSON ***********************")
 
         __create_daemon(config, pull_from_hub)
@@ -526,7 +526,7 @@ def __create_host_nodetype_map(config):
         return hostnode_map
 
 
-def __create_inventory_multinode(host_node_type_map,git_branch):
+def __create_inventory_multinode(host_node_type_map, git_branch):
     if git_branch == "rocky":
         basefile = consts.INVENTORY_MULTINODE_BASE_FILE_ROCKY
     else:
