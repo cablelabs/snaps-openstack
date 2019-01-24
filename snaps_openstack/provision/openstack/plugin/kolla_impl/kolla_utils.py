@@ -80,9 +80,8 @@ def main(config, operation):
         logger.info(host_storage_node_map)
         host_sriov_interface_node_map = __create_host_sriov_interface_node_map(config)
         logger.info(host_sriov_interface_node_map)
-
         logger.info("**************MULTINODE INVENTORY FILE******************")
-        __create_inventory_multinode(host_node_type_map)
+        __create_inventory_multinode(host_node_type_map,git_branch)
         logger.info("**************DOCKER DAEMON JSON ***********************")
 
         __create_daemon(config, pull_from_hub)
@@ -527,8 +526,12 @@ def __create_host_nodetype_map(config):
         return hostnode_map
 
 
-def __create_inventory_multinode(host_node_type_map):
-    basefile = consts.INVENTORY_MULTINODE_BASE_FILE
+def __create_inventory_multinode(host_node_type_map,git_branch):
+    if git_branch == "rocky":
+        basefile = consts.INVENTORY_MULTINODE_BASE_FILE_ROCKY
+    else:
+        basefile = consts.INVENTORY_MULTINODE_BASE_FILE
+    logger.info(basefile)
     f = open(basefile, 'r')
     filedata = f.read()
     f.close()
@@ -774,6 +777,7 @@ def clean_up(config, operation):
     host_storage_node_map = __create_host_storage_node_map(config, host_node_type_map)
     dpdk_enable = None
     service_list = config.get(consts.OPENSTACK).get(consts.SERVICES)
+    ret = ""
     if 'dpdk' in service_list:
         dpdk_enable = "yes"
     if list_ip is None:
@@ -788,7 +792,7 @@ def clean_up(config, operation):
         ret = ansible_configuration.clean_up_kolla(
             list_ip, docker_registry, service_list, operation,
             pull_from_hub, host_storage_node_map, dpdk_enable)
-        return ret
+    return ret
 
 
 def _getservice_list(config):

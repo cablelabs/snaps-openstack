@@ -102,6 +102,10 @@
       args:
        chdir: "{{ GIT_CLONE_KOLLA_ANSIBLE }}"
       when: not((KOLLA_ANSIBLE_TAG is undefined) or (KOLLA_ANSIBLE_TAG is none) or (KOLLA_ANSIBLE_TAG | trim == ''))
+
+    - name: remove already installed pyyaml
+      command: apt-get auto-remove -y python-yaml
+      ignore_errors: true
  
     - name: install requirements
       pip:
@@ -249,12 +253,19 @@
     - name: Install ansible
       pip:
        name: ansible
-       version: 2.2.2.0
+       version: 2.4.0.0
+
+    - name: Install ansible 2.7 for rocky
+      pip:
+       name: ansible
+       version: 2.7.1.0
+      when: GIT_BRANCH  == "stable/rocky"
+
     - name: Install ansible for dpdk
       pip:
        name: ansible
        version: 2.3.1.0
-      when: enable_ovs_dpdk == "yes"
+      when: enable_ovs_dpdk == "yes" and GIT_BRANCH  != "stable/rocky"
 
     - name:  insert docker_opts in docker
       lineinfile:
@@ -579,6 +590,13 @@
          - "{{ ext_route.stdout_lines.0 }}" 
       ignore_errors: True
       when: enable_ovs_dpdk == "no"
+
+    - name: replace data in local_settings
+      lineinfile:
+        dest: "{{ LOCAL_SETTING_HORIZON }}"
+        regexp: 'TIME_ZONE = "UTC"'
+        line: 'TIME_ZONE = "Etc/UTC"'
+      when: GIT_BRANCH == "stable/rocky"
 
     - name: check values for MTU parameters
       command: grep -inr global_physnet_mtu /etc/kolla

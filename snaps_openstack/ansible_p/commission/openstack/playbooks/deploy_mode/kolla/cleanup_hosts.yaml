@@ -68,6 +68,9 @@
         state: absent
       with_items: "{{ result.files }}"
 
+    - name: uninstall kolla-ansible
+      command: pip uninstall kolla-ansible -y
+
     - name: remove the cloned folder
       file:
         state: absent

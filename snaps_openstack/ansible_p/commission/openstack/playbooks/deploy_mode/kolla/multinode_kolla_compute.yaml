@@ -134,13 +134,20 @@
     - name: Install ansible
       pip:
        name: ansible
-       version: 2.2.2.0
+       version: 2.4.0.0
       when: enable_ovs_dpdk == "no"
+
+    - name: Install ansible 2.7 for rocky
+      pip:
+       name: ansible
+       version: 2.7.1.0
+      when: GIT_BRANCH  == "stable/rocky"
+
     - name: Install ansible for dpdk
       pip:
        name: ansible
        version: 2.3.1.0
-      when: enable_ovs_dpdk == "yes"
+      when: enable_ovs_dpdk == "yes" and GIT_BRANCH != "stable/rocky"
     - name:  insert docker_opts in docker
       lineinfile:
         dest: "{{ DEFAULT_DOCKER_FILE }}"
