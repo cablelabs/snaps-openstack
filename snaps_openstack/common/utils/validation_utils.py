@@ -261,8 +261,7 @@ def validate_ceph(deployment_content):
 
     if all(k not in deployment_content.get('services') for k in ['ceph', 'cinder']):
         for host in deployment_content.get('hosts'):
-            if 'storage' in host.get('host').get('node_type') or \
-                            'second_storage' in host.get('host'):
+            if 'storage' in host.get('host').get('node_type') or 'second_storage' in host.get('host'):
                 raise ValidationException("When ceph and cinder are disabled, "
                                           "second_storage and node_type as storage"
                                           " should not be present")
@@ -495,8 +494,7 @@ def validate_deployment_content(deployment_content):
                     'required': True,
                     'type': {
                         'release': {'required': True, 'type': "str with no null"},
-                        'image': {'required': True, 'type': [
-                                              'pull', 'built']},
+                        'image': {'required': True, 'type': ['pull', 'built']},
                         'repo': {'required': True, 'type': "str with no null"},
                         'repo_tag': {'required': True, 'type': "str with no null"},
                         },

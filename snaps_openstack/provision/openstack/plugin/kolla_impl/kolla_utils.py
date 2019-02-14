@@ -530,7 +530,6 @@ def __create_inventory_multinode(host_node_type_map):
         if 'controller' in value:
             filedata = filedata.replace('[control]', '[control] \n' + key)
         if 'compute' in value:
-            #            filedata = filedata.replace('[compute]', '[compute] \n' + key)
             filedata = filedata.replace('[external-compute]', '[external-compute] \n' + key)
         if 'monitoring' in value:
             filedata = filedata.replace(
@@ -539,7 +538,6 @@ def __create_inventory_multinode(host_node_type_map):
     f = open(newfile, 'w')
     f.write(filedata)
     f.close()
-
 
 
 def __enable_key_ssh(config):

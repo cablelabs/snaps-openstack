@@ -178,10 +178,9 @@ if __name__ == '__main__':
         help='Logging Level ( DEBUG | INFO | WARNING | ERROR | CRITICAL)')
     args = parser.parse_args()
 
-    if (args.dreg is ARG_NOT_SET and args.dregclean is ARG_NOT_SET
-        and args.deploy is ARG_NOT_SET and args.clean is ARG_NOT_SET
-            and args.upgradecluster is ARG_NOT_SET and args.downgradecluster is ARG_NOT_SET
-                and args.validation is ARG_NOT_SET):
+    if (args.dreg is ARG_NOT_SET and args.dregclean is ARG_NOT_SET and args.deploy is ARG_NOT_SET
+       and args.clean is ARG_NOT_SET and args.upgradecluster is ARG_NOT_SET and args.downgradecluster is ARG_NOT_SET
+       and args.validation is ARG_NOT_SET):
         logger.info(
             'Must enter either -d for deploy IaaS or -c for cleaning up and '
             'environment or -drc to cleanup registry or -drs to setup '
