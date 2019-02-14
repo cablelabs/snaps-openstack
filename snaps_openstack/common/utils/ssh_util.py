@@ -16,7 +16,7 @@ def host_command_execution(ip_addr, username, password, cmd=None, port=22):
     if not cmd:
         return True
 
-    stdin, stdout = ssh.exec_command(cmd)
+    stdout = ssh.exec_command(cmd)
     stdout._set_mode('b')
     outlines = stdout.readlines()
     ssh.close()
