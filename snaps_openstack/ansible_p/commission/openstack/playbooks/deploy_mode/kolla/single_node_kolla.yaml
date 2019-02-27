@@ -382,6 +382,10 @@
       args:
        executable: /bin/bash
 
+    - name: Modifying magnum.conf for rocky
+      command: find /etc/kolla -iname "magnum.conf" -type f -exec sed -i 's/\[DEFAULT\]/\[DEFAULT\]\ndefault_docker_volume_type = volType1/g' {} \;
+      when: enable_magnum == "yes" and GIT_BRANCH != "stable/rocky"
+
     - name: systemctl daemon-reload
       command: systemctl daemon-reload
 

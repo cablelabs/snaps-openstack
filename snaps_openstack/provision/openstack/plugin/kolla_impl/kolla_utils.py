@@ -398,6 +398,11 @@ def __create_global(config, git_branch, pull_from_hub):
                     filedata = filedata.replace(
                         '#cinder_backend_ceph: "{{ enable_ceph }}"',
                         'cinder_backend_ceph: "{{ enable_ceph }}"')
+
+                    if git_branch == "rocky":
+                        filedata = filedata.replace('#ceph_enable_cache: "no"',
+                                                    '#ceph_enable_cache: "no"\nceph_osd_store_type: "filestore"')
+
                 else:
                     filedata = filedata.replace('enable_cinder: "no"',
                                                 'enable_cinder: "yes"')

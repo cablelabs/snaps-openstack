@@ -30,9 +30,9 @@ openstack:
         node_type:
           - network
           - controller
-#          - storage
-#        second_storage: 
-#          - "/dev/vdb"
+          - storage
+        second_storage: 
+          - "/dev/vdb"
         password: {{ node_host_pass }}
         user: root
     -
@@ -59,9 +59,9 @@ openstack:
         reserved_host_memory_mb: ""
         node_type:
           - compute
-#          - storage
-#        second_storage: 
-#          - "/dev/vdb"
+          - storage
+        second_storage: 
+          - "/dev/vdb"
         password: {{ node_host_pass }}
         user: root
     -
@@ -88,9 +88,9 @@ openstack:
         reserved_host_memory_mb: ""
         node_type:
           - compute
-#          - storage
-#        second_storage: 
-#          - "/dev/vdb"
+          - storage
+        second_storage: 
+          - "/dev/vdb"
         password: {{ node_host_pass }}
         user: root
   networks:
@@ -113,12 +113,12 @@ openstack:
     no_proxy: ""
   service_password: {{ node_host_pass }}
   services:
- #   - cinder
- #   - magnum
+    - cinder
+    - magnum
     - tempest
- #   - ceilometer
- #   - tacker
- #   - ceph
+    - ceilometer
+    - tacker
+    - ceph
   kolla:
      base_distro: "ubuntu"
      install_type: "source"
