@@ -104,7 +104,7 @@ openstack:
       subnet:
       subnet_size:
     mtu_size:
-      default: 1450
+      default: 1400
       vxlan: 1400
   proxies:
     ftp_proxy: ""
