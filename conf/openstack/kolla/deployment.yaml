@@ -14,10 +14,10 @@
 ---
 openstack: 
   versioning:
-      release: queens
+      release: rocky
       image: pull
       repo: default
-      repo_tag: queens
+      repo_tag: rocky
   hosts: 
     -
       host:

@@ -1,9 +1,9 @@
 openstack:
   versioning:
-      release: queens
+      release: rocky
       image: pull
       repo: default
-      repo_tag: queens
+      repo_tag: rocky
   hosts:
     -
       host:
@@ -84,8 +84,8 @@ openstack:
             mac: {{ public_mac_3 }}
             name: {{ pub_iface }}
             type: data
-        isolcpus: {{ isolcpus }}
-        reserved_host_memory_mb: {{ host_memory_mb }}
+        isolcpus: ""
+        reserved_host_memory_mb: ""
         node_type:
           - compute
           - storage
@@ -104,7 +104,7 @@ openstack:
       subnet:
       subnet_size:
     mtu_size:
-      default: 1450
+      default: 1400
       vxlan: 1400
   proxies:
     ftp_proxy: ""

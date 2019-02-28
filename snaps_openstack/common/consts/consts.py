@@ -67,8 +67,8 @@ GLOBAL_FILE = KOLLA_SOURCE_PATH + "globals.yml"
 NETVAR_FILE = KOLLA_SOURCE_PATH + "netvars.yml"
 INVENTORY_SOURCE_FOLDER = KOLLA_SOURCE_PATH + "inventory/"
 INVENTORY_MULTINODE_BASE_FILE = INVENTORY_SOURCE_FOLDER + "multinode_bak"
+INVENTORY_MULTINODE_BASE_FILE_ROCKY = INVENTORY_SOURCE_FOLDER + "multinode_bak_rocky"
 INVENTORY_MULTINODE_FILE = INVENTORY_SOURCE_FOLDER + "multinode"
-
 KOLLA_PB_PKG = ANSIBLE_PKG + '.commission.openstack.playbooks.deploy_mode.kolla'
 MULTI_NODE_KOLLA_ISO_NWK_YAML = "multinode_kolla_iso_network.yaml"
 MULTI_NODE_KOLLA_COMPUTE_YAML = "multinode_kolla_compute.yaml"

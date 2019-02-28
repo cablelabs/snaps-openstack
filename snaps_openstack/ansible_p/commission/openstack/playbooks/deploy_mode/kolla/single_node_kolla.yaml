@@ -75,6 +75,11 @@
       args:
        chdir: "{{ GIT_CLONE_KOLLA_ANSIBLE }}"
       when: not((KOLLA_ANSIBLE_TAG is undefined) or (KOLLA_ANSIBLE_TAG is none) or (KOLLA_ANSIBLE_TAG | trim == ''))
+
+    - name: remove already installed pyyaml
+      command: apt-get auto-remove -y python-yaml
+      ignore_errors: true
+
     - name: install requirements
       pip:
         requirements: "{{ REQUIREMENT_KOLLA_ANSIBLE }}"
@@ -193,10 +198,17 @@
        name: ansible
        version: 2.2.2.0
 
+    - name: Install ansible 2.7 for rocky
+      pip:
+       name: ansible
+       version: 2.7.1.0
+      when: GIT_BRANCH  == "stable/rocky"
+
     - name: load uio_pci_generic kernel module
       shell: modprobe uio_pci_generic
       ignore_errors: True
       when: enable_ovs_dpdk == "yes"
+
     - name: load vfio_pci kernel module
       shell: modprobe vfio_pci
       ignore_errors: True
@@ -207,6 +219,7 @@
        dest: /etc/modules
        line: 'uio_pci_generic'
       when: enable_ovs_dpdk == "yes"
+
     - name: add line to /etc/modules
       lineinfile:
        dest: /etc/modules
@@ -216,7 +229,7 @@
       pip:
        name: ansible
        version: 2.3.1.0
-      when: enable_ovs_dpdk == "yes"
+      when: enable_ovs_dpdk == "yes" and GIT_BRANCH != "stable/rocky"
     - name: Copy ml2_conf.ini
       copy:
        src: "{{BASE_FILE_PATH}}ml2_conf.ini"
@@ -368,6 +381,10 @@
       shell: source /etc/kolla/admin-openrc.sh  && chmod 777 /etc/OpenStack/kolla-ansible/tools/init-runonce && /etc/OpenStack/kolla-ansible/tools/init-runonce
       args:
        executable: /bin/bash
+
+    - name: Modifying magnum.conf for rocky
+      command: find /etc/kolla -iname "magnum.conf" -type f -exec sed -i 's/\[DEFAULT\]/\[DEFAULT\]\ndefault_docker_volume_type = volType1/g' {} \;
+      when: enable_magnum == "yes" and GIT_BRANCH != "stable/rocky"
 
     - name: systemctl daemon-reload
       command: systemctl daemon-reload
