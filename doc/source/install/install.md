@@ -599,9 +599,14 @@ below.
 
 #### Step 1
 
-Clone/FTP Openstack_Provisioning package on Build Server. All operations
-of Build Server expect the user should be explicitly switched (using
-`su root`) to the root user.
+Clone/FTP SNAPS-OpenStack on to the Build Server via:
+
+```
+sudo git clone https://github.com/cablelabs/snaps-openstack.git
+```
+
+All operations on Build Server expect the user should be explicitly switched (using
+`su root`) to the root user, or prepend 'sudo' to each command.
 
 #### Step 2
 
@@ -660,6 +665,8 @@ sudo python <repo_dir>/network_config.py -f <repo_dir>/snaps_openstack/utilities
 
 ### 4.4 Settings for Single NIC deployment
 
+Execute the following 4 steps only if deploying snaps-openstack to nodes with a single NIC .
+
 #### Step 1
 
 Go to `<repo_dir>/snaps_openstack/utilities/` directory.
@@ -678,7 +685,7 @@ sudo python <repo_dir>/network_config.py -f <repo_dir>/snaps_openstack/utilities
 
 Install fresh openstack using physical interface and veth0 as management and data interfaces respectively. (Refer to section 4)
 
-#### Step 2
+#### Step 4
 
 Run `network_config.py` as shown below:
 
@@ -769,7 +776,7 @@ sudo python <repo_dir>/network_config.py -f <repo_dir>/snaps_openstack/utilities
 #### 6.3.1 Vlan Mapping Cleanup
 
 Only perform the steps below after you've run vlan configuration cleanup script as instructed
-in 5.3 above. The manual cleanup steps in this section are necessary to workaround an upstream
+in 6.3 above. The manual cleanup steps in this section are necessary to workaround an upstream
 defect in https://bugs.launchpad.net/neutron/+bug/1743425:
 
 Ssh to control node:
