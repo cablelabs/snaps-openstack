@@ -1,0 +1,38 @@
+---
+workspace: project
+
+proxy_host: 165.225.104.34
+proxy_port: 80
+
+pxe_server:
+   ip: 172.16.139.36
+   user: root
+   pass: ChangeMe
+   interface: enp2s0
+
+mgmt_prefix: 172.16.139
+tenant_prefix: 172.16.140
+data_prefix: 172.16.141
+ipmi_prefix: 172.16.141
+
+compute:
+   ipmi_user: admin
+   ipmi_pass: abc123
+   mac: d0:94:66:35:e3:16
+
+controller:
+   ipmi_user: admin
+   ipmi_pass: abc123
+   mac: d0:94:66:35:e5:52
+
+mtu:
+   default: 1500
+   vxlan: 3000
+ 
+vlan:
+   min_vlan_id: 1001
+   max_vlan_id: 1002
+   interface: eno3
+
+sriov:
+   interface: enp4s0f1

@@ -1,0 +1,204 @@
+---
+- hosts: localhost
+  become: yes
+  become_user: root
+  vars_files:
+    - ../common/variable.yaml
+    - ../common/constants.yaml 
+  tasks:
+    - name: Create user workspace "{{ workspace }}"
+      file: 
+        path: "/tmp/{{ workspace }}"
+        state: directory
+
+    - template:
+          src: ../templates/hosts.yaml.tmplt
+          dest: "{{ hosts_yaml_path }}"
+
+    - template:
+          src: ../templates/deployment.yaml.tmplt
+          dest: "{{ deployment_yaml_path }}"
+
+    - template:
+          src: ../templates/deployment_sriov.yaml.tmplt
+          dest: "{{ deployment_sriov_yaml_path }}"
+
+    - template:
+          src: ../templates/deployment_dpdk.yaml.tmplt
+          dest: "{{ deployment_dpdk_yaml_path }}"
+
+    - template:
+          src: ../templates/var.yaml.tmplt
+          dest: "{{ var_yaml_path }}"
+
+    - name: Add buildserver '{{ pxe_server.ip }}' to Inventory
+      add_host: name={{ pxe_server.ip }}
+                groups=buildserver
+
+    - name: Add Controller '{{ mgmt_prefix }}.{{ controller_ip }}' to Inventory
+      add_host: name={{ mgmt_prefix }}.{{ controller_ip }}
+                groups=controller
+
+    - name : Adding timeout in /etc/ansible/ansible.cfg
+      shell: find /etc/ansible/ansible.cfg -exec sed -i -e 's/#timeout = 10/timeout = 50/g' {} \;
+
+    - name: Copy root's key to buildserver '{{ pxe_server.ip }}'
+      command: "sshpass -p \"{{ pxe_server.pass }}\" ssh-copy-id -i /root/.ssh/id_rsa.pub -o StrictHostKeyChecking=no root@{{ pxe_server.ip }}"
+      retries: 30
+      delay: 3
+      register: result
+      until: result.rc == 0
+
+    - name: Copy snaps-openstack code to test in workspace
+      command: 'cp -r /home/ubuntu/test-snaps-openstack/snaps-openstack /tmp/{{ workspace }}'
+
+    - name: Copy workspace '{{ workspace }}' to buildserver '{{ pxe_server.ip }}'
+      command: 'scp -r -o StrictHostKeyChecking=no /tmp/{{ workspace }} {{ pxe_server.ip }}:/tmp'
+
+- name: Calling playbook build_server.yaml
+  import_playbook: build_server.yaml
+
+- name: Calling playbook deploy_os.yaml
+  import_playbook: deploy_os.yaml
+
+- name: Calling playbook deploy_openstack.yaml
+  import_playbook: deploy_openstack.yaml
+
+
+- hosts: localhost
+  become: yes
+  become_user: root
+  vars_files:
+    - ../common/variable.yaml
+    - ../common/constants.yaml
+  tasks:
+
+    - name: Remove known hosts entries
+      command: "ssh-keygen -f \"/root/.ssh/known_hosts\" -R \"{{ mgmt_prefix }}.{{ controller_ip }}\""
+      ignore_errors: True
+
+    - name: Copy root's key to controller '{{ mgmt_prefix }}.{{ controller_ip }}'
+      command: "sshpass -p \"{{ pxe_server.pass }}\" ssh-copy-id -i /root/.ssh/id_rsa.pub -o StrictHostKeyChecking=no root@{{ mgmt_prefix }}.{{ controller_ip }}"
+      retries: 30
+      delay: 3
+      register: result1
+      until: result1.rc == 0
+
+    - name: Copy admin-openrc file from Controller '{{ mgmt_prefix }}.{{ controller_ip }}'
+      command: 'scp -r -o StrictHostKeyChecking=no {{mgmt_prefix }}.{{ controller_ip }}:/etc/kolla/admin-openrc.sh /tmp/{{ workspace }}/admin-openrc.yaml'
+    
+    - name: Modify admin-openrc.yaml
+      shell: find /tmp/{{ workspace }}/admin-openrc.yaml -exec sed -i -e 's/export OS/OS/g' {} \;
+
+    - name: Modify admin-openrc.yaml
+      shell: find /tmp/{{ workspace }}/admin-openrc.yaml -exec sed -i -e 's/=/:\ /g' {} \;
+
+- name: Calling playbook launch_instance.yaml
+  import_playbook: launch_instance.yaml
+
+- name: Calling playbook openstack_mtu.yaml
+  import_playbook: openstack_mtu.yaml
+  
+- name: Calling playbook test_mtu.yaml
+  import_playbook: test_mtu.yaml
+
+- name: Calling playbook openstack_vlan.yaml
+  import_playbook: openstack_vlan.yaml
+
+- name: Calling playbook test_vlan.yaml
+  import_playbook: test_vlan.yaml
+
+- name: Calling playbook openstack_cleanup.yaml
+  import_playbook: openstack_cleanup.yaml
+
+- name: Calling playbook openstack_sriov.yaml
+  import_playbook: openstack_sriov.yaml
+
+- hosts: localhost
+  become: yes
+  become_user: root
+  vars_files:
+    - ../common/variable.yaml
+    - ../common/constants.yaml
+  tasks:
+    - name: Remove known hosts entries
+      command: "ssh-keygen -f \"/root/.ssh/known_hosts\" -R \"{{ mgmt_prefix }}.{{ controller_ip }}\""
+      ignore_errors: True
+
+    - name: Delete admin-openrc.yaml file from workspace
+      file: path='/home/tmp/{{ workspace }}/admin-openrc.yaml' state=absent
+
+    - name: Copy admin-openrc file from Controller '{{ mgmt_prefix }}.{{ controller_ip }}'
+      command: 'scp -r -o StrictHostKeyChecking=no {{mgmt_prefix }}.{{ controller_ip }}:/etc/kolla/admin-openrc.sh /tmp/{{ workspace }}/admin-openrc.yaml'
+
+    - name: Modify admin-openrc.yaml
+      shell: find /tmp/{{ workspace }}/admin-openrc.yaml -exec sed -i -e 's/export OS/OS/g' {} \;
+
+    - name: Modify admin-openrc.yaml
+      shell: find /tmp/{{ workspace }}/admin-openrc.yaml -exec sed -i -e 's/=/:\ /g' {} \;
+
+- name: Calling playbook launch_instance.yaml
+  import_playbook: launch_instance.yaml
+
+- name: Calling playbook test_sriov.yaml
+  import_playbook: test_sriov.yaml
+
+- name: Calling playbook openstack_cleanup.yaml
+  import_playbook: openstack_cleanup.yaml
+
+
+- name: Calling playbook set_hugepages.yaml
+  import_playbook: set_hugepages.yaml
+
+- hosts: localhost
+  become: yes
+  become_user: root
+  vars_files:
+    - ../common/variable.yaml
+    - ../common/constants.yaml
+  tasks:
+    - name: Wait for reboot for 5 mins
+      wait_for: timeout=300
+
+- name: Calling playbook openstack_dpdk.yaml
+  import_playbook: openstack_dpdk.yaml
+
+- hosts: localhost
+  become: yes
+  become_user: root
+  vars_files:
+    - ../common/variable.yaml
+    - ../common/constants.yaml
+  tasks:
+    - name: Remove known hosts entries
+      command: "ssh-keygen -f \"/root/.ssh/known_hosts\" -R \"{{ mgmt_prefix }}.{{ controller_ip }}\""
+      ignore_errors: True
+
+    - name: Delete admin-openrc.yaml file from workspace
+      file: path='/home/tmp/{{ workspace }}/admin-openrc.yaml' state=absent
+
+    - name: Copy admin-openrc file from Controller '{{ mgmt_prefix }}.{{ controller_ip }}'
+      command: 'scp -r -o StrictHostKeyChecking=no {{mgmt_prefix }}.{{ controller_ip }}:/etc/kolla/admin-openrc.sh /tmp/{{ workspace }}/admin-openrc.yaml'
+
+    - name: Modify admin-openrc.yaml
+      shell: find /tmp/{{ workspace }}/admin-openrc.yaml -exec sed -i -e 's/export OS/OS/g' {} \;
+
+    - name: Modify admin-openrc.yaml
+      shell: find /tmp/{{ workspace }}/admin-openrc.yaml -exec sed -i -e 's/=/:\ /g' {} \;
+
+- name: Calling playbook launch_instance.yaml
+  import_playbook: launch_instance.yaml
+
+- name: Calling playbook test_dpdk.yaml
+  import_playbook: test_dpdk.yaml
+
+- hosts: localhost
+  become: yes
+  become_user: root
+  vars_files:
+    - ../common/variable.yaml
+    - ../common/constants.yaml
+  tasks:
+    - name: Remove workspace '{{ workspace }}'
+      file: path='/tmp/{{ workspace }}' state=absent
+

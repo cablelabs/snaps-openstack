@@ -1,0 +1,188 @@
+---
+- hosts: controller 
+  become: yes
+  become_user: root
+  vars_files:
+    - ../common/variable.yaml
+    - ../common/constants.yaml
+    - /tmp/{{ workspace }}/admin-openrc.yaml
+  vars:
+      public_mtu: "{{ mtu.default }}"
+      private_mtu: "{{ mtu.vxlan - 50 }}"
+      test_pub_mtu: "{{ mtu.default - 28 }}"
+      test_priv_mtu: "{{ mtu.vxlan - 78 }}"
+  environment:
+     http_proxy: "{{ http_proxy }}"
+     https_proxy: "{{ https_proxy }}"
+     ftp_proxy: "{{ ftp_proxy }}"
+     no_proxy: "{{ no_proxy }}"
+
+  tasks:
+    - name: Check MTU of public network 
+      shell: source /etc/kolla/admin-openrc.sh;openstack network show public1 | grep mtu | awk {' print $4'}
+      args:
+       executable: /bin/bash
+      register: out
+    - debug:
+        var: out.stdout
+
+    - name: Validating mtu of public network
+      fail: msg="MTU of public network is not equal to given MTU size of default network"
+      when: out.stdout != public_mtu
+
+
+    - name: Check MTU of private network
+      shell: source /etc/kolla/admin-openrc.sh;openstack network show demo-net | grep mtu | awk {' print $4'}
+      args:
+       executable: /bin/bash
+      register: out
+    - debug:
+        var: out.stdout
+
+    - name: Validating mtu of private network
+      fail: msg="MTU of private network is not equal to given MTU size of private network"
+      when: out.stdout != private_mtu
+      
+    - name: Launch an instance on public network
+      os_server:
+       state: present
+       auth:
+         auth_url: "{{ OS_AUTH_URL }}"
+         username: "{{ OS_USERNAME }}"
+         password: "{{ OS_PASSWORD }}"
+         project_name: "{{ OS_PROJECT_NAME }}"
+         project_domain_name: "{{ OS_PROJECT_DOMAIN_NAME }}"
+         user_domain_name: "{{ OS_USER_DOMAIN_NAME }}"
+       name: vm3_public
+       image: ubuntu
+       key_name: mykey
+       timeout: 900
+       flavor: m1.medium
+       security_groups: default
+       auto_ip: yes
+       nics:
+          - net-name: public1
+      register: vm3_public
+    - debug: var=vm3_public.openstack.accessIPv4
+
+    - name: Wait for 3 mins
+      wait_for: timeout=180
+
+    - wait_for: host={{ vm3_public.openstack.accessIPv4 }} port=22 timeout=900
+    - debug: msg=ok
+
+    - name: Find VM "{{ vm3_public.openstack.accessIPv4 }}" interface name
+      command: ssh -o StrictHostKeyChecking=no ubuntu@{{ vm3_public.openstack.accessIPv4 }} "ls /sys/class/net/ | grep -v lo"
+      register: pub_iface_name
+    - debug:
+         var: pub_iface_name.stdout
+
+    - name: Find MTU size of VM "{{ vm3_public.openstack.accessIPv4 }}" interface 
+      command: ssh -o StrictHostKeyChecking=no ubuntu@{{ vm3_public.openstack.accessIPv4 }} "cat /sys/class/net/{{pub_iface_name.stdout}}/mtu"
+      register: pub_vm_mtu
+    - debug:
+        var: pub_vm_mtu.stdout
+
+    - name: Validating mtu of VM "{{ vm3_public.openstack.accessIPv4 }}" on public network
+      fail: msg="MTU of VM is not equal to MTU of public network"
+      when: pub_vm_mtu.stdout != public_mtu
+
+    - name: Launch an instance on private network
+      os_server:
+       state: present
+       auth:
+         auth_url: "{{ OS_AUTH_URL }}"
+         username: "{{ OS_USERNAME }}"
+         password: "{{ OS_PASSWORD }}"
+         project_name: "{{ OS_PROJECT_NAME }}"
+         project_domain_name: "{{ OS_PROJECT_DOMAIN_NAME }}"
+         user_domain_name: "{{ OS_USER_DOMAIN_NAME }}"
+       name: vm3_private
+       image: ubuntu
+       key_name: mykey
+       timeout: 900
+       flavor: m1.medium
+       security_groups: default
+       auto_ip: yes
+       nics:
+          - net-name: private-net
+      register: vm3_private
+    - debug: var=vm3_private.openstack.accessIPv4
+
+    - name: Launch second instance on private network
+      os_server:
+       state: present
+       auth:
+         auth_url: "{{ OS_AUTH_URL }}"
+         username: "{{ OS_USERNAME }}"
+         password: "{{ OS_PASSWORD }}"
+         project_name: "{{ OS_PROJECT_NAME }}"
+         project_domain_name: "{{ OS_PROJECT_DOMAIN_NAME }}"
+         user_domain_name: "{{ OS_USER_DOMAIN_NAME }}"
+       name: vm4_private
+       image: ubuntu
+       key_name: mykey
+       timeout: 900
+       flavor: m1.medium
+       security_groups: default
+       auto_ip: yes
+       nics:
+          - net-name: private-net
+      register: vm4_private
+    - debug: var=vm4_private.openstack.accessIPv4
+
+    - name: Wait for 3 mins
+      wait_for: timeout=180
+
+    - name: Associate Floating IP on VM '{{ vm3_private.openstack.accessIPv4 }}'
+      os_floating_ip:
+         state: present
+         auth:
+           auth_url: "{{ OS_AUTH_URL }}"
+           username: "{{ OS_USERNAME }}"
+           password: "{{ OS_PASSWORD }}"
+           project_name: "{{ OS_PROJECT_NAME }}"
+           project_domain_name: "{{ OS_PROJECT_DOMAIN_NAME }}"
+           user_domain_name: "{{ OS_USER_DOMAIN_NAME }}"
+         reuse: yes
+         server: vm3_private
+         network: public1
+         wait: true
+         timeout: 180
+      register: fip_vm3_private
+    - debug: var=fip_vm3_private.floating_ip.floating_ip_address
+    - name: Wait for 3 mins
+      wait_for: timeout=180
+
+    - name: Check ping from localhost
+      wait_for: host={{ fip_vm3_private.floating_ip.floating_ip_address }} port=22 timeout=900
+    - debug: msg=ok
+
+    - name: Find VM "{{ vm3_private.openstack.accessIPv4 }}" interface name
+      command: ssh -o StrictHostKeyChecking=no ubuntu@{{ fip_vm3_private.floating_ip.floating_ip_address }} "ls /sys/class/net/ | grep -v lo"
+      register: priv_iface_name
+    - debug:
+        var: priv_iface_name.stdout
+
+    - name: Find MTU size of VM "{{ vm3_private.openstack.accessIPv4 }}" interface
+      command: ssh -o StrictHostKeyChecking=no ubuntu@{{ fip_vm3_private.floating_ip.floating_ip_address }} "cat /sys/class/net/{{priv_iface_name.stdout}}/mtu"
+      register: priv_vm_mtu
+    - debug:
+        var: priv_vm_mtu.stdout
+
+    - name: Validating mtu of VM "{{ vm3_private.openstack.accessIPv4 }}" on private network
+      fail: msg="MTU of VM is not equal to MTU of private network"
+      when: priv_vm_mtu.stdout != private_mtu
+
+    - name: Check ICMP packet size  
+      command: ssh -o StrictHostKeyChecking=no ubuntu@{{ vm3_public.openstack.accessIPv4 }} "ping -c 4 -M do -s {{ test_pub_mtu }} {{ data_prefix }}.{{ controller_ip }}"
+      register: result
+    - debug:
+        var: result
+
+    - name: Check ICMP packet size
+      command: ssh -o StrictHostKeyChecking=no ubuntu@{{ fip_vm3_private.floating_ip.floating_ip_address }} "ping -c 4 -M do -s {{ test_priv_mtu }} {{ vm4_private.openstack.accessIPv4 }}"
+      register: result
+    - debug:
+        var: result
+

@@ -1,0 +1,82 @@
+---
+# Copyright 2017 ARICENT HOLDINGS LUXEMBOURG SARL. and
+# Cable Television Laboratories, Inc.
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#    http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+TASKS:
+  -
+    name: TenantVLAN
+    physical_network: physnet2
+    min_vlan_id: {{ vlan.min_vlan_id }}
+    max_vlan_id: {{ vlan.max_vlan_id }}
+    HOSTS:
+      -
+        interfaces:
+          -
+            port_name: {{ vlan.interface }}
+            size: {{ mtu.vxlan }}
+        ip: {{ mgmt_prefix }}.{{ controller_ip }}
+        password: ChangeMe
+        username: root
+      -
+        interfaces:
+          -
+            port_name: {{ vlan.interface }}
+            size: {{ mtu.vxlan }}
+        ip: {{ mgmt_prefix }}.{{ compute_ip }}
+        password: ChangeMe
+        username: root
+  -
+    name: mtu
+    HOSTS:
+      -
+        ip: {{ mgmt_prefix }}.{{ controller_ip }}
+        password: ChangeMe
+        username: root
+        interfaces:
+          -
+            port_name: {{ interface.mgmt }}
+            size: "{{ mtu.default }}"
+          -
+            port_name: {{ interface.tenant }}
+            size: "{{ mtu.vxlan }}"
+          -
+            port_name: {{ interface.data }}
+            size: "{{ mtu.default }}"
+                        
+      -
+        ip: {{ mgmt_prefix }}.{{ compute_ip }}
+        password: ChangeMe
+        username: root
+        interfaces:
+          -
+            port_name: {{ interface.mgmt }}
+            size: "{{ mtu.default }}"
+          -
+            port_name: {{ interface.tenant }}
+            size: "{{ mtu.vxlan }}"
+          -
+            port_name: {{ interface.data }}
+            size: "{{ mtu.default }}"                     
+  -
+   name: pre-post
+   HOSTS:
+     - 
+       ip: ""
+       node_type: "controller"
+       primary_interface: ""
+       target_interface: "veth1"
+     - 
+       ip: ""
+       node_type: "compute"
+       primary_interface: ""
+       target_interface: "veth1"

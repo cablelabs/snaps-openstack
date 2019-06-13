@@ -1,0 +1,298 @@
+---
+- hosts: controller 
+  become: yes
+  become_user: root
+  vars_files:
+    - ../common/variable.yaml
+    - ../common/constants.yaml
+    - /tmp/{{ workspace }}/admin-openrc.yaml
+  environment:
+     http_proxy: "{{ http_proxy }}"
+     https_proxy: "{{ https_proxy }}"
+     ftp_proxy: "{{ ftp_proxy }}"
+     no_proxy: "{{ no_proxy }}"
+
+  tasks:
+
+    - name: Delete instance vm1_public
+      os_server:
+       state: absent
+       auth:
+         auth_url: "{{ OS_AUTH_URL }}"
+         username: "{{ OS_USERNAME }}"
+         password: "{{ OS_PASSWORD }}"
+         project_name: "{{ OS_PROJECT_NAME }}"
+         project_domain_name: "{{ OS_PROJECT_DOMAIN_NAME }}"
+         user_domain_name: "{{ OS_USER_DOMAIN_NAME }}"
+       name: vm1_public
+
+    - name: Delete instance vm2_public
+      os_server:
+       state: absent
+       auth:
+         auth_url: "{{ OS_AUTH_URL }}"
+         username: "{{ OS_USERNAME }}"
+         password: "{{ OS_PASSWORD }}"
+         project_name: "{{ OS_PROJECT_NAME }}"
+         project_domain_name: "{{ OS_PROJECT_DOMAIN_NAME }}"
+         user_domain_name: "{{ OS_USER_DOMAIN_NAME }}"
+       name: vm2_public
+
+    - name: Delete instance vm1_private
+      os_server:
+       state: absent
+       auth:
+         auth_url: "{{ OS_AUTH_URL }}"
+         username: "{{ OS_USERNAME }}"
+         password: "{{ OS_PASSWORD }}"
+         project_name: "{{ OS_PROJECT_NAME }}"
+         project_domain_name: "{{ OS_PROJECT_DOMAIN_NAME }}"
+         user_domain_name: "{{ OS_USER_DOMAIN_NAME }}"
+       name: vm1_private
+
+    - name: Delete instance vm2_private
+      os_server:
+       state: absent
+       auth:
+         auth_url: "{{ OS_AUTH_URL }}"
+         username: "{{ OS_USERNAME }}"
+         password: "{{ OS_PASSWORD }}"
+         project_name: "{{ OS_PROJECT_NAME }}"
+         project_domain_name: "{{ OS_PROJECT_DOMAIN_NAME }}"
+         user_domain_name: "{{ OS_USER_DOMAIN_NAME }}"
+       name: vm2_private
+
+    - name: Remove known hosts entries
+      shell: rm -f /root/.ssh/known_hosts
+      ignore_errors: True
+
+    - name: Launch an instance on public network
+      os_server:
+       state: present
+       auth:
+         auth_url: "{{ OS_AUTH_URL }}"
+         username: "{{ OS_USERNAME }}"
+         password: "{{ OS_PASSWORD }}"
+         project_name: "{{ OS_PROJECT_NAME }}"
+         project_domain_name: "{{ OS_PROJECT_DOMAIN_NAME }}"
+         user_domain_name: "{{ OS_USER_DOMAIN_NAME }}"
+       name: vm1_pub_dpdk
+       image: ubuntu
+       key_name: mykey
+       timeout: 900
+       flavor: m1.medium
+       security_groups: default
+       auto_ip: yes
+       nics:
+          - net-name: public1
+      register: vm1_pub_dpdk
+    - debug: var=vm1_pub_dpdk.openstack.accessIPv4
+
+    - name: Wait for 3 mins
+      wait_for: timeout=180
+    
+    - name: Test ping from localhost
+      wait_for: host={{ vm1_pub_dpdk.openstack.accessIPv4 }} port=22 timeout=900
+    - debug: msg=ok
+
+    - name: Check ping from DPDK public instance
+      command: ssh -o StrictHostKeyChecking=no ubuntu@{{ vm1_pub_dpdk.openstack.accessIPv4 }} "ping {{ data_prefix }}.{{ controller_ip }} -c 5"
+      register: vm1_pub_dpdk_result
+    - debug:
+        var: vm1_pub_dpdk_result.stdout
+
+    - name: Launch second instance on public network
+      os_server:
+       state: present
+       auth:
+         auth_url: "{{ OS_AUTH_URL }}"
+         username: "{{ OS_USERNAME }}"
+         password: "{{ OS_PASSWORD }}"
+         project_name: "{{ OS_PROJECT_NAME }}"
+         project_domain_name: "{{ OS_PROJECT_DOMAIN_NAME }}"
+         user_domain_name: "{{ OS_USER_DOMAIN_NAME }}"
+       name: vm2_pub_dpdk
+       image: ubuntu
+       key_name: mykey
+       timeout: 900
+       flavor: m1.medium
+       security_groups: default
+       auto_ip: yes
+       nics:
+          - net-name: public1
+      register: vm2_pub_dpdk
+    - debug: var=vm2_pub_dpdk.openstack.accessIPv4
+
+    - name: Wait for 3 mins
+      wait_for: timeout=180
+
+    - name: Test ping from localhost
+      wait_for: host={{ vm2_pub_dpdk.openstack.accessIPv4 }} port=22 timeout=900
+    - debug: msg=ok
+
+    - name: Check ping from DPDK public instance
+      command: ssh -o StrictHostKeyChecking=no ubuntu@{{ vm2_pub_dpdk.openstack.accessIPv4 }} "ping {{ data_prefix }}.{{ controller_ip }} -c 5"
+      register: vm2_pub_dpdk_result
+    - debug:
+        var: vm2_pub_dpdk_result
+
+
+    - name: Launch an instance on private network
+      os_server:
+       state: present
+       auth:
+         auth_url: "{{ OS_AUTH_URL }}"
+         username: "{{ OS_USERNAME }}"
+         password: "{{ OS_PASSWORD }}"
+         project_name: "{{ OS_PROJECT_NAME }}"
+         project_domain_name: "{{ OS_PROJECT_DOMAIN_NAME }}"
+         user_domain_name: "{{ OS_USER_DOMAIN_NAME }}"
+       name: vm1_priv_dpdk
+       image: ubuntu
+       key_name: mykey
+       timeout: 900
+       flavor: m1.medium
+       security_groups: default
+       auto_ip: yes
+       nics:
+          - net-name: demo-net
+      register: vm1_priv_dpdk
+    - debug: var=vm1_priv_dpdk.openstack.accessIPv4
+
+    - name: Wait for 3 mins
+      wait_for: timeout=180
+
+    - name: Associate Floating IP on VM '{{ vm_priv_dpdk.openstack.accessIPv4 }}'
+      os_floating_ip:
+         state: present
+         auth:
+           auth_url: "{{ OS_AUTH_URL }}"
+           username: "{{ OS_USERNAME }}"
+           password: "{{ OS_PASSWORD }}"
+           project_name: "{{ OS_PROJECT_NAME }}"
+           project_domain_name: "{{ OS_PROJECT_DOMAIN_NAME }}"
+           user_domain_name: "{{ OS_USER_DOMAIN_NAME }}"
+         reuse: yes
+         server: vm1_priv_dpdk
+         network: public1
+         wait: true
+         timeout: 180
+      register: fip_vm1
+    - debug: var=fip_vm1.floating_ip.floating_ip_address
+
+    - name: Wait for 3 mins
+      wait_for: timeout=180
+
+    - name: Test ping from localhost
+      wait_for: host={{ fip_vm1.floating_ip.floating_ip_address }} port=22 timeout=900
+    - debug: msg=ok
+
+    - name: Check ping from DPDK private instance
+      command: ssh -o StrictHostKeyChecking=no ubuntu@{{ fip_vm1.floating_ip.floating_ip_address }} "ping {{ data_prefix }}.{{ controller_ip }} -c 5"
+      register: vm1_priv_dpdk_result
+    - debug:
+        var: vm1_priv_dpdk_result.stdout
+
+    - name: Launch second instance on private network
+      os_server:
+       state: present
+       auth:
+         auth_url: "{{ OS_AUTH_URL }}"
+         username: "{{ OS_USERNAME }}"
+         password: "{{ OS_PASSWORD }}"
+         project_name: "{{ OS_PROJECT_NAME }}"
+         project_domain_name: "{{ OS_PROJECT_DOMAIN_NAME }}"
+         user_domain_name: "{{ OS_USER_DOMAIN_NAME }}"
+       name: vm2_priv_dpdk
+       image: ubuntu
+       key_name: mykey
+       timeout: 900
+       flavor: m1.medium
+       security_groups: default
+       auto_ip: yes
+       nics:
+          - net-name: demo-net
+      register: vm2_priv_dpdk
+    - debug: var=vm2_priv_dpdk.openstack.accessIPv4
+
+    - name: Wait for 3 mins
+      wait_for: timeout=180
+
+    - name: Associate Floating IP on VM '{{ vm_priv_dpdk.openstack.accessIPv4 }}'
+      os_floating_ip:
+         state: present
+         auth:
+           auth_url: "{{ OS_AUTH_URL }}"
+           username: "{{ OS_USERNAME }}"
+           password: "{{ OS_PASSWORD }}"
+           project_name: "{{ OS_PROJECT_NAME }}"
+           project_domain_name: "{{ OS_PROJECT_DOMAIN_NAME }}"
+           user_domain_name: "{{ OS_USER_DOMAIN_NAME }}"
+         reuse: yes
+         server: vm2_priv_dpdk
+         network: public1
+         wait: true
+         timeout: 180
+      register: fip_vm2
+    - debug: var=fip_vm2.floating_ip.floating_ip_address
+
+    - name: Wait for 3 mins
+      wait_for: timeout=180
+
+    - name: Test ping from localhost
+      wait_for: host={{ fip_vm2.floating_ip.floating_ip_address }} port=22 timeout=900
+    - debug: msg=ok
+
+    - name: Check ping from DPDK private instance
+      command: ssh -o StrictHostKeyChecking=no ubuntu@{{ fip_vm2.floating_ip.floating_ip_address }} "ping {{ data_prefix }}.{{ controller_ip }} -c 5"
+      register: vm2_priv_dpdk_result
+    - debug:
+        var: vm2_priv_dpdk_result.stdout
+
+
+    - name: Entry in /etc/hosts of public VM1 '{{ vm1_pub_dpdk.openstack.accessIPv4 }}' 
+      command: ssh -o StrictHostKeyChecking=no ubuntu@{{ vm1_pub_dpdk.openstack.accessIPv4 }} "echo $(hostname -I | cut -d\  -f1) $(hostname) | sudo tee -a /etc/hosts"
+
+    - name: Entry in /etc/resolv.conf of VM1 '{{ vm1_pub_dpdk.openstack.accessIPv4 }}'
+      command: ssh -o StrictHostKeyChecking=no ubuntu@{{ vm1_pub_dpdk.openstack.accessIPv4 }} "sudo sh -c 'echo "nameserver {{ dns }}" > /etc/resolv.conf'"
+
+    - name: Entry in /etc/hosts of VM2 '{{ vm2_pub_dpdk.openstack.accessIPv4 }}'
+      command: ssh -o StrictHostKeyChecking=no ubuntu@{{ vm2_pub_dpdk.openstack.accessIPv4 }} "echo $(hostname -I | cut -d\  -f1) $(hostname) | sudo tee -a /etc/hosts"
+
+    - name: Entry in /etc/hosts of VM2 '{{ vm2_pub_dpdk.openstack.accessIPv4 }}'
+      command: ssh -o StrictHostKeyChecking=no ubuntu@{{ vm2_pub_dpdk.openstack.accessIPv4 }} "sudo sh -c 'echo "nameserver {{ dns }}" > /etc/resolv.conf'"
+
+    - name: Running iperf server on VM1 '{{ vm1_pub_dpdk.openstack.accessIPv4 }}'
+      command: ssh -o StrictHostKeyChecking=no ubuntu@{{ vm1_pub_dpdk.openstack.accessIPv4 }} "sudo apt-get update; sudo apt-get -y install iperf3; sudo iperf3 -s"
+      async: 3600
+      poll: 0
+
+    - name: Iperf client '{{ vm2_pub_dpdk.openstack.accessIPv4 }}'
+      command: ssh -o StrictHostKeyChecking=no ubuntu@{{ vm2_pub_dpdk.openstack.accessIPv4 }} "sudo apt-get update; sudo apt-get -y install iperf3; sudo iperf3 -c {{ vm2_pub_dpdk.openstack.accessIPv4 }} -u -i1 -t20 -b0"
+      register: pub_udp_result
+    - debug: var=pub_udp_result.stdout_lines[36]
+
+    - name: Iperf UDP readings
+      shell: echo "{{ pub_udp_result.stdout_lines[36] }}" | awk '{print $7}'
+      register: pub_udp_speed
+    - debug: var=pub_udp_speed.stdout
+
+    - name: Validating DPDK on public network
+      fail: msg="DPDK on public network failed"
+      when: pub_udp_speed.stdout|int < 10
+
+    - name: Iperf client '{{ vm2_pub_dpdk.openstack.accessIPv4 }}' 
+      command: ssh -o StrictHostKeyChecking=no ubuntu@{{ vm2_pub_dpdk.openstack.accessIPv4 }} "sudo iperf3 -c {{ vm1_pub_dpdk.openstack.accessIPv4 }} -O5 -i1 -t20"
+      register: pub_tcp_result
+    - debug: var=pub_tcp_result.stdout_lines
+
+    - name: Iperf TCP readings
+      shell: echo "{{ pub_tcp_result.stdout_lines[31] }}" | awk '{print $7}'
+      register: pub_tcp_speed
+    - debug: var=pub_tcp_speed.stdout
+
+    - name: Validating DPDK on public network
+      fail: msg="DPDK on public network failed"
+      when: pub_tcp_speed.stdout|int < 10
+
+ 

@@ -1,0 +1,104 @@
+openstack:
+  deployment_type: Kolla
+  git_branch: stable/queens
+  hosts:
+    -
+      host:
+        hostname: CONTROLLER1
+        interfaces:
+          -
+            ip: {{ mgmt_prefix }}.{{ controller_ip }}
+            mac: {{ controller.mac }}
+            name: {{ interface.mgmt }}
+            type: management
+          -
+            ip: {{ tenant_prefix }}.{{ controller_ip }}
+            mac: {{ controller.mac }}
+            name: {{ interface.tenant }}
+            type: tenant
+          -
+            gateway: {{ data_prefix }}.1
+            ip: {{ data_prefix }}.{{ controller_ip }}
+            mac: {{ controller.mac }}
+            name: {{ interface.data }}
+            type: data
+        isolcpus: ""
+        reserved_host_memory_mb: ""
+        node_type:
+          - network
+          - controller
+        second_storage: 
+        password: ChangeMe
+        service_host: ""
+        user: root
+    -
+      host:
+        hostname: COMPUTE1
+        interfaces:
+          -
+            ip: {{ mgmt_prefix }}.{{ compute_ip }}
+            mac: {{ compute.mac }}
+            name: {{ interface.mgmt }}
+            type: management
+          -
+            ip: {{ tenant_prefix }}.{{ compute_ip }}
+            mac: {{ compute.mac }}
+            name: {{ interface.tenant }}
+            type: tenant
+          -
+            gateway: {{ data_prefix }}.1
+            ip: {{ data_prefix }}.{{ compute_ip }}
+            mac: {{ compute.mac }}
+            name: {{ interface.data }}
+            type: data
+        isolcpus: ""
+        reserved_host_memory_mb: ""
+        node_type:
+          - compute
+          - storage
+        second_storage: 
+          - "/dev/sdb"
+        password: ChangeMe
+        service_host: {{ mgmt_prefix }}.{{ controller_ip }}
+        user: root
+  networks:
+    external:
+      gateway: {{ data_prefix }}.1
+      ip_pool:
+        end: {{ data_prefix }}.{{ vm_ip_pool.end }}
+        start: {{ data_prefix }}.{{ vm_ip_pool.start }}
+      subnet: {{ data_prefix }}.0
+    tenant:
+      subnet:
+      subnet_size:
+    mtu_size:
+      default: {{ mtu.default }}
+      vxlan: {{ mtu.vxlan }}
+  proxies:
+    ftp_proxy: "ftp://{{ proxy_host }}:{{ proxy_port }}"
+    http_proxy: "http://{{ proxy_host }}:{{ proxy_port }}"
+    https_proxy: "https://{{ proxy_host }}:{{ proxy_port }}"
+    no_proxy: "127.0.0.1,{{ mgmt_prefix }}.{{ controller_ip }},{{ tenant_prefix }}.{{ controller_ip }},{{ data_prefix }}.{{ controller_ip }},{{ mgmt_prefix }}.{{ compute_ip }},{{ tenant_prefix }}.{{ compute_ip }},{{ data_prefix }}.{{ compute_ip }},{{ mgmt_prefix }}.{{ virtual_ip }},{{ data_prefix }}.{{ virtual_ip }},{{ pxe_server.ip }}"
+  service_password: ChangeMe
+  services:
+    - cinder
+    - magnum
+    - tempest
+    - ceilometer
+    - tacker
+    - ceph
+    - dpdk
+  kolla:
+     base_distro: "ubuntu"
+     install_type: "source"
+     keepalived_virtual_router_id: "13"
+     internal_vip_address: {{ mgmt_prefix }}.{{ virtual_ip }}
+     internal_interface: {{ interface.mgmt }}
+     kolla_registry: {{ mgmt_prefix }}.{{ controller_ip }}
+     kolla_registry_port: 4000
+     external_vip_address: {{ data_prefix }}.{{ virtual_ip }}
+     external_interface: {{ interface.data }}
+     base_size: "573741824"
+     count: "20"
+     pull_from_hub: "no"
+     docker_namespace: "snapsopenstack"

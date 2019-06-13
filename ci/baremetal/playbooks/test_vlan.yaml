@@ -1,0 +1,325 @@
+---
+- hosts: controller 
+  become: yes
+  become_user: root
+  vars_files:
+    - ../common/variable.yaml
+    - ../common/constants.yaml
+    - /tmp/{{ workspace }}/admin-openrc.yaml
+  environment:
+     http_proxy: "{{ http_proxy }}"
+     https_proxy: "{{ https_proxy }}"
+     ftp_proxy: "{{ ftp_proxy }}"
+     no_proxy: "{{ no_proxy }}"
+
+  tasks:
+    - name: create a vlan network 'vlan1'
+      os_network:
+        state: present
+        auth:
+          auth_url: "{{ OS_AUTH_URL }}"
+          username: "{{ OS_USERNAME }}"
+          password: "{{ OS_PASSWORD }}"
+          project_name: "{{ OS_PROJECT_NAME }}"
+          project_domain_name: "{{ OS_PROJECT_DOMAIN_NAME }}"
+          user_domain_name: "{{ OS_USER_DOMAIN_NAME }}"
+        name: vlan1
+        provider_network_type: vlan
+        provider_physical_network: physnet2
+        provider_segmentation_id: "{{ vlan.min_vlan_id }}" 
+        timeout: 180
+
+    - name: create vlan1 subnet
+      os_subnet:
+        state: present
+        auth:
+          auth_url: "{{ OS_AUTH_URL }}"
+          username: "{{ OS_USERNAME }}"
+          password: "{{ OS_PASSWORD }}"
+          project_name: "{{ OS_PROJECT_NAME }}"
+          project_domain_name: "{{ OS_PROJECT_DOMAIN_NAME }}"
+          user_domain_name: "{{ OS_USER_DOMAIN_NAME }}"
+        network_name: vlan1
+        name: vlan-subnet1
+        cidr: 11.0.0.0/24
+        allocation_pool_start: 11.0.0.10
+        allocation_pool_end: 11.0.0.30
+        timeout: 180
+
+    - name: create second vlan network 'vlan2'
+      os_network:
+        state: present
+        auth:
+          auth_url: "{{ OS_AUTH_URL }}"
+          username: "{{ OS_USERNAME }}"
+          password: "{{ OS_PASSWORD }}"
+          project_name: "{{ OS_PROJECT_NAME }}"
+          project_domain_name: "{{ OS_PROJECT_DOMAIN_NAME }}"
+          user_domain_name: "{{ OS_USER_DOMAIN_NAME }}"
+        name: vlan2
+        provider_network_type: vlan
+        provider_physical_network: physnet2
+        provider_segmentation_id: "{{ vlan.max_vlan_id }}"
+        timeout: 180
+
+    - name: create vlan2 subnet
+      os_subnet:
+        state: present
+        auth:
+          auth_url: "{{ OS_AUTH_URL }}"
+          username: "{{ OS_USERNAME }}"
+          password: "{{ OS_PASSWORD }}"
+          project_name: "{{ OS_PROJECT_NAME }}"
+          project_domain_name: "{{ OS_PROJECT_DOMAIN_NAME }}"
+          user_domain_name: "{{ OS_USER_DOMAIN_NAME }}"
+        network_name: vlan2
+        name: vlan-subnet2
+        cidr: 11.0.0.0/24
+        allocation_pool_start: 11.0.0.100
+        allocation_pool_end: 11.0.0.130
+        timeout: 180
+
+    - name: Launch an instance on vlan1 network
+      os_server:
+       state: present
+       auth:
+         auth_url: "{{ OS_AUTH_URL }}"
+         username: "{{ OS_USERNAME }}"
+         password: "{{ OS_PASSWORD }}"
+         project_name: "{{ OS_PROJECT_NAME }}"
+         project_domain_name: "{{ OS_PROJECT_DOMAIN_NAME }}"
+         user_domain_name: "{{ OS_USER_DOMAIN_NAME }}"
+       name: vm1-vlan-1
+       image: cirros
+       key_name: mykey
+       timeout: 900
+       flavor: m1.tiny
+       security_groups: default
+       auto_ip: yes
+       nics:
+          - net-name: vlan1
+      register: vm1_vlan_1
+    - debug: var=vm1_vlan_1.openstack.accessIPv4
+
+    - name: Launch second instance on vlan1 network
+      os_server:
+       state: present
+       auth:
+         auth_url: "{{ OS_AUTH_URL }}"
+         username: "{{ OS_USERNAME }}"
+         password: "{{ OS_PASSWORD }}"
+         project_name: "{{ OS_PROJECT_NAME }}"
+         project_domain_name: "{{ OS_PROJECT_DOMAIN_NAME }}"
+         user_domain_name: "{{ OS_USER_DOMAIN_NAME }}"
+       name: vm2-vlan-1
+       image: cirros
+       key_name: mykey
+       timeout: 900
+       flavor: m1.tiny
+       security_groups: default
+       auto_ip: yes
+       nics:
+          - net-name: vlan1
+      register: vm2_vlan_1
+    - debug: var=vm2_vlan_1.openstack.accessIPv4
+
+    - name: Launch an instance on vlan2 network
+      os_server:
+       state: present
+       auth:
+         auth_url: "{{ OS_AUTH_URL }}"
+         username: "{{ OS_USERNAME }}"
+         password: "{{ OS_PASSWORD }}"
+         project_name: "{{ OS_PROJECT_NAME }}"
+         project_domain_name: "{{ OS_PROJECT_DOMAIN_NAME }}"
+         user_domain_name: "{{ OS_USER_DOMAIN_NAME }}"
+       name: vm1-vlan-2
+       image: cirros
+       key_name: mykey
+       timeout: 900
+       flavor: m1.tiny
+       security_groups: default
+       auto_ip: yes
+       nics:
+          - net-name: vlan2
+      register: vm1_vlan_2
+    - debug: var=vm1_vlan_2.openstack.accessIPv4
+
+    - name: Launch second instance on vlan2 network
+      os_server:
+       state: present
+       auth:
+         auth_url: "{{ OS_AUTH_URL }}"
+         username: "{{ OS_USERNAME }}"
+         password: "{{ OS_PASSWORD }}"
+         project_name: "{{ OS_PROJECT_NAME }}"
+         project_domain_name: "{{ OS_PROJECT_DOMAIN_NAME }}"
+         user_domain_name: "{{ OS_USER_DOMAIN_NAME }}"
+       name: vm2-vlan-2
+       image: cirros
+       key_name: mykey
+       timeout: 900
+       flavor: m1.tiny
+       security_groups: default
+       auto_ip: yes
+       nics:
+          - net-name: vlan2
+      register: vm2_vlan_2
+    - debug: var=vm2_vlan_2.openstack.accessIPv4
+
+    - name: List instances
+      shell: source /etc/kolla/admin-openrc.sh;openstack server list
+      args:
+       executable: /bin/bash
+      register: server_list
+    - debug: var=server_list.stdout
+
+    - name: create router to connect vlan1 network
+      os_router:
+        state: present
+        auth:
+          auth_url: "{{ OS_AUTH_URL }}"
+          username: "{{ OS_USERNAME }}"
+          password: "{{ OS_PASSWORD }}"
+          project_name: "{{ OS_PROJECT_NAME }}"
+          project_domain_name: "{{ OS_PROJECT_DOMAIN_NAME }}"
+          user_domain_name: "{{ OS_USER_DOMAIN_NAME }}"
+        name: router_vlan_1
+        network: public1
+        interfaces:
+          - vlan-subnet1
+
+    - name: create router to connect vlan2 network
+      os_router:
+        state: present
+        auth:
+          auth_url: "{{ OS_AUTH_URL }}"
+          username: "{{ OS_USERNAME }}"
+          password: "{{ OS_PASSWORD }}"
+          project_name: "{{ OS_PROJECT_NAME }}"
+          project_domain_name: "{{ OS_PROJECT_DOMAIN_NAME }}"
+          user_domain_name: "{{ OS_USER_DOMAIN_NAME }}"
+        name: router_vlan_2
+        network: public1
+        interfaces:
+          - vlan-subnet2
+
+
+    - name: Associate Floating IP on VM '{{ vm1_vlan_1.openstack.accessIPv4 }}'
+      os_floating_ip:
+         state: present
+         auth:
+           auth_url: "{{ OS_AUTH_URL }}"
+           username: "{{ OS_USERNAME }}"
+           password: "{{ OS_PASSWORD }}"
+           project_name: "{{ OS_PROJECT_NAME }}"
+           project_domain_name: "{{ OS_PROJECT_DOMAIN_NAME }}"
+           user_domain_name: "{{ OS_USER_DOMAIN_NAME }}"
+         reuse: yes
+         server: vm1-vlan-1
+         network: public1
+         wait: true
+         timeout: 180
+      register: fip1_vm1
+    - debug: var=fip1_vm1.floating_ip.floating_ip_address
+
+    - name: Associate Floating IP on VM '{{ vm2_vlan_1.openstack.accessIPv4 }}'
+      os_floating_ip:
+         state: present
+         auth:
+           auth_url: "{{ OS_AUTH_URL }}"
+           username: "{{ OS_USERNAME }}"
+           password: "{{ OS_PASSWORD }}"
+           project_name: "{{ OS_PROJECT_NAME }}"
+           project_domain_name: "{{ OS_PROJECT_DOMAIN_NAME }}"
+           user_domain_name: "{{ OS_USER_DOMAIN_NAME }}"
+         reuse: yes
+         server: vm2-vlan-1
+         network: public1
+         wait: true
+         timeout: 180
+      register: fip1_vm2
+    - debug: var=fip1_vm2.floating_ip.floating_ip_address
+
+
+    - name: Associate Floating IP on VM '{{ vm1_vlan_2.openstack.accessIPv4 }}'
+      os_floating_ip:
+         state: present
+         auth:
+           auth_url: "{{ OS_AUTH_URL }}"
+           username: "{{ OS_USERNAME }}"
+           password: "{{ OS_PASSWORD }}"
+           project_name: "{{ OS_PROJECT_NAME }}"
+           project_domain_name: "{{ OS_PROJECT_DOMAIN_NAME }}"
+           user_domain_name: "{{ OS_USER_DOMAIN_NAME }}"
+         reuse: yes
+         server: vm1-vlan-2
+         network: public1
+         wait: true
+         timeout: 180
+      register: fip2_vm1
+    - debug: var=fip2_vm1.floating_ip.floating_ip_address
+
+    - name: Associate Floating IP on VM '{{ vm2_vlan_2.openstack.accessIPv4 }}'
+      os_floating_ip:
+         state: present
+         auth:
+           auth_url: "{{ OS_AUTH_URL }}"
+           username: "{{ OS_USERNAME }}"
+           password: "{{ OS_PASSWORD }}"
+           project_name: "{{ OS_PROJECT_NAME }}"
+           project_domain_name: "{{ OS_PROJECT_DOMAIN_NAME }}"
+           user_domain_name: "{{ OS_USER_DOMAIN_NAME }}"
+         reuse: yes
+         server: vm2-vlan-2
+         network: public1
+         wait: true
+         timeout: 180
+      register: fip2_vm2
+    - debug: var=fip2_vm2.floating_ip.floating_ip_address
+
+
+    - name: Wait for 2 mins
+      wait_for: timeout=120
+
+    - name: test ping from VM '{{ vm1_vlan_1.openstack.accessIPv4 }}' to '{{ vm2_vlan_1.openstack.accessIPv4 }}' on vlan1 
+      command: ssh -o StrictHostKeyChecking=no cirros@{{ fip1_vm1.floating_ip.floating_ip_address }} "ping {{ vm2_vlan_1.openstack.accessIPv4 }} -c 5"
+      register: ping1
+    - debug:
+        var: ping1
+
+    - name: test ping from VM '{{ vm2_vlan_1.openstack.accessIPv4 }}' to '{{ vm1_vlan_1.openstack.accessIPv4 }}' on vlan1
+      command: ssh -o StrictHostKeyChecking=no cirros@{{ fip1_vm2.floating_ip.floating_ip_address }} "ping {{ vm1_vlan_1.openstack.accessIPv4 }} -c 5"
+      register: ping2
+    - debug:
+        var: ping2
+
+    - name: test ping from VM '{{ vm1_vlan_2.openstack.accessIPv4 }}' to '{{ vm2_vlan_2.openstack.accessIPv4 }}' on vlan2
+      command: ssh -o StrictHostKeyChecking=no cirros@{{ fip2_vm1.floating_ip.floating_ip_address }} "ping {{ vm2_vlan_2.openstack.accessIPv4 }} -c 5"
+      register: ping3
+    - debug:
+        var: ping3
+
+    - name: test ping from VM '{{ vm2_vlan_2.openstack.accessIPv4 }}' to '{{ vm1_vlan_2.openstack.accessIPv4 }}' on vlan2
+      command: ssh -o StrictHostKeyChecking=no cirros@{{ fip2_vm2.floating_ip.floating_ip_address }} "ping {{ vm1_vlan_2.openstack.accessIPv4 }} -c 5"
+      register: ping4
+    - debug:
+        var: ping4
+
+    - name: test ping from VM '{{ vm1_vlan_1.openstack.accessIPv4 }}' on vlan1 to '{{ vm1_vlan_2.openstack.accessIPv4 }}' on vlan2
+      command: ssh -o StrictHostKeyChecking=no cirros@{{ fip1_vm1.floating_ip.floating_ip_address }} "ping {{ vm1_vlan_2.openstack.accessIPv4 }} -c 5"
+      register: ping5
+      ignore_errors: True
+    - debug:
+        var: ping5
+
+    - name: test ping from VM '{{ vm2_vlan_2.openstack.accessIPv4 }}' on vlan2 to '{{ vm2_vlan_1.openstack.accessIPv4 }}' on vlan1
+      command: ssh -o StrictHostKeyChecking=no cirros@{{ fip2_vm2.floating_ip.floating_ip_address }} "ping {{ vm2_vlan_1.openstack.accessIPv4 }} -c 5"
+      register: ping6
+      ignore_errors: True
+    - debug:
+        var: ping6
+
+
+
+
