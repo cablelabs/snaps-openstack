@@ -24,7 +24,7 @@ config = {
     'author_email': 's.pisarski@cablelabs.com',
     'version': '1.0',
     'packages': find_packages(),
-    'install_requires': ['ansible==2.7.10',
+    'install_requires': ['ansible==2.10.0',
                          'pathlib',
                          'six',
                          'pyyaml'],
